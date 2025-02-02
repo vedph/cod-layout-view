@@ -18,7 +18,7 @@ import {
  * - add an optional :label after each dimension to provide labels for additional
  *   areas like columns for initials etc. This must be a short string without spaces.
  */
-export class CodFrLayoutFormulaService implements CodLayoutFormulaService {
+export class CodBOLayoutFormulaService implements CodLayoutFormulaService {
   /**
    * Preprocess a formula text before parsing. This replaces - with 0 and pairs of
    * `//` with `| ` and `/ `. The count of characters remains the same.
@@ -88,7 +88,7 @@ export class CodFrLayoutFormulaService implements CodLayoutFormulaService {
   ): CodLayoutValue {
     // [1] = (, [2] = value, [3] = original value, [4] = label
     let match = text.match(
-      /^\s*(\()?([0-9]+(?:\.[0-9]+)?)\)?\s*(?:\[([0-9]+(?:\.[0-9]+)?)\])?(?::[^\s]+)?/
+      /^\s*(\()?([0-9]+(?:\.[0-9]+)?)\)?\s*(?:\[([0-9]+(?:\.[0-9]+)?)\])?(?::([^\s]+))?/
     );
     if (!match) {
       throw new ParsingError(

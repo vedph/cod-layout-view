@@ -1,2 +1,2 @@
 export * from "./models";
-export * from "./cod-fr-layout-formula.service";
+export * from "./cod-bo-layout-formula.service";
