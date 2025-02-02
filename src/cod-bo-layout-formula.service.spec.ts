@@ -1,5 +1,5 @@
 import { CodBOLayoutFormulaService } from "./cod-bo-layout-formula.service";
-import { ParsingError } from "./models";
+import { CodLayoutFormula, ParsingError } from "./models";
 
 describe("CodBOLayoutFormulaService", () => {
   let service: CodBOLayoutFormulaService;
@@ -266,5 +266,23 @@ describe("CodBOLayoutFormulaService", () => {
     expect(hspans[4].isOriginal).toBe(true);
     expect(hspans[4].originalValue).toBeUndefined();
   });
-    // TODO
+  
+  it("should build formula from size with original height and width", () => {
+    const formula: CodLayoutFormula = {
+      type: "BO",
+      unit: "mm",
+      width: { value: 10, isOriginal: true },
+      height: { value: 20, isOriginal: true },
+      spans: [
+        { value: 4, isHorizontal: false, isOriginal: true },
+        { value: 10, isHorizontal: false, isOriginal: true, type: "text" },
+        { value: 6, isHorizontal: false, isOriginal: true },
+        { value: 2, isHorizontal: true, isOriginal: true },
+        { value: 7, isHorizontal: true, isOriginal: true, type: "text" },
+        { value: 3, isHorizontal: true, isOriginal: true }
+      ]
+    };
+    const text = service.buildFormula(formula);
+    expect(text).toBe("mm 20 x 10 = 4 // 10 // 6 x 2 // 7 // 3");
+  });
 });

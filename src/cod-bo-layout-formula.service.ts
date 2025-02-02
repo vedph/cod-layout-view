@@ -224,6 +224,14 @@ export class CodBOLayoutFormulaService implements CodLayoutFormulaService {
     return spans;
   }
 
+  /**
+   * Parse a codicological layout formula from a text string.
+   * @param text The text of the formula to parse or null or
+   * undefined.
+   * @returns The parsed formula or null if the input is null or
+   * undefined.
+   * @throws ParsingError if the formula is invalid.
+   */
   public parseFormula(text?: string | null): CodLayoutFormula | null {
     if (!text) {
       return null;
@@ -234,6 +242,7 @@ export class CodBOLayoutFormulaService implements CodLayoutFormulaService {
     // preprocess the formula
     text = this.preprocessFormula(text);
     const formula: CodLayoutFormula = {
+      type: "BO",
       unit: "mm",
       width: { value: 0 },
       height: { value: 0 },
@@ -331,6 +340,12 @@ export class CodBOLayoutFormulaService implements CodLayoutFormulaService {
     }
   }
 
+  /**
+   * Build the text of a codicological layout formula from a model.
+   * @param formula The formula to build or null or undefined.
+   * @returns The text of the formula or null if the input is null or
+   * undefined.
+   */
   public buildFormula(formula?: CodLayoutFormula | null): string | null {
     if (!formula) {
       return null;
@@ -349,9 +364,15 @@ export class CodBOLayoutFormulaService implements CodLayoutFormulaService {
 
     // = vertical spans x horizontal spans
     sb.push(" = ");
-    this.appendSpans(formula.spans.filter((s) => !s.isHorizontal), sb);
+    this.appendSpans(
+      formula.spans.filter((s) => !s.isHorizontal),
+      sb
+    );
     sb.push(" x ");
-    this.appendSpans(formula.spans.filter((s) => s.isHorizontal), sb);
+    this.appendSpans(
+      formula.spans.filter((s) => s.isHorizontal),
+      sb
+    );
 
     return sb.join("");
   }

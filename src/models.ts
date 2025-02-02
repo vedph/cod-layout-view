@@ -27,9 +27,24 @@ export class ParsingError extends Error {
  * A numeric value (or values pair) in a codicological layout formula.
  */
 export interface CodLayoutValue {
+  /**
+   * The value of the dimension.
+   */
   value: number;
+  /**
+   * Whether value is the original value or a current value considered
+   * different from the original one.
+   */
   isOriginal?: boolean;
+  /**
+   * The original value of the dimension, if different from the current
+   * value.
+   */
   originalValue?: number;
+  /**
+   * The dimension label, if any, which gets inherited by the area defined
+   * by the corresponding gridline; e.g. "initials".
+   */
   label?: string;
 }
 
@@ -38,7 +53,15 @@ export interface CodLayoutValue {
  * with a dimension representing width or height.
  */
 export interface CodLayoutSpan extends CodLayoutValue {
+  /**
+   * The type of the span. In most cases this is undefined, or "text" for an
+   * area designed to contain text. Its string type allows for many other
+   * possibilities.
+   */
   type?: string;
+  /**
+   * True if the span is horizontal, false if vertical.
+   */
   isHorizontal?: boolean;
 }
 
@@ -46,10 +69,25 @@ export interface CodLayoutSpan extends CodLayoutValue {
  * The model of a codicological layout formula.
  */
 export interface CodLayoutFormula {
-  type?: string;
+  /**
+   * The formula type, e.g. "BO" for Bianconi-Orsini.
+   */
+  readonly type?: string;
+  /**
+   * The unit of the formula dimensions, e.g. "mm".
+   */
   unit?: CodLayoutUnit;
+  /**
+   * The sheet width.
+   */
   width: CodLayoutValue;
+  /**
+   * The sheet height.
+   */
   height: CodLayoutValue;
+  /**
+   * The spans in the formula, vertical and horizontal.
+   */
   spans: CodLayoutSpan[];
 }
 
