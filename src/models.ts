@@ -57,6 +57,21 @@ export interface CodLayoutFormula {
  * A service to parse and build codicological layout formulas.
  */
 export interface CodLayoutFormulaService {
+  /**
+   * Parse a codicological layout formula from a text string.
+   * @param text The text of the formula to parse or null or
+   * undefined.
+   * @returns The parsed formula or null if the input is null or
+   * undefined.
+   * @throws ParsingError if the formula is invalid.
+   */
   parseFormula(text?: string | null): CodLayoutFormula | null;
-  buildFormula(formula: CodLayoutFormula): string | null;
+
+  /**
+   * Build the text of a codicological layout formula from a model.
+   * @param formula The formula to build or null or undefined.
+   * @returns The text of the formula or null if the input is null or
+   * undefined.
+   */
+  buildFormula(formula?: CodLayoutFormula | null): string | null;
 }

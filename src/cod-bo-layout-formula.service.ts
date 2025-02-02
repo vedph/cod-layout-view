@@ -298,8 +298,61 @@ export class CodBOLayoutFormulaService implements CodLayoutFormulaService {
     return formula;
   }
 
-  public buildFormula(formula: CodLayoutFormula): string | null {
-    // TODO
-    return null;
+  private appendValue(value: CodLayoutValue, sb: string[]): void {
+    // N or (N) or (N) [N], optionally followed by :label
+    sb.push(value.isOriginal ? "" : "(");
+    sb.push(value.value.toString());
+    sb.push(value.isOriginal ? "" : ")");
+    if (value.originalValue) {
+      sb.push(" [");
+      sb.push(value.originalValue.toString());
+      sb.push("]");
+    }
+    if (value.label) {
+      sb.push(":");
+      sb.push(value.label);
+    }
+  }
+
+  private appendSpans(spans: CodLayoutSpan[], sb: string[]): void {
+    let leftText = false;
+
+    for (let i = 0; i < spans.length; i++) {
+      if (i > 0) {
+        if (leftText || spans[i].type === "text") {
+          sb.push(" // ");
+          leftText = true;
+        } else {
+          sb.push(" / ");
+          leftText = false;
+        }
+      }
+      this.appendValue(spans[i], sb);
+    }
+  }
+
+  public buildFormula(formula?: CodLayoutFormula | null): string | null {
+    if (!formula) {
+      return null;
+    }
+    const sb: string[] = [];
+
+    // unit
+    if (formula.unit) {
+      sb.push(formula.unit + " ");
+    }
+
+    // height x width
+    this.appendValue(formula.height, sb);
+    sb.push(" x ");
+    this.appendValue(formula.width, sb);
+
+    // = vertical spans x horizontal spans
+    sb.push(" = ");
+    this.appendSpans(formula.spans.filter((s) => !s.isHorizontal), sb);
+    sb.push(" x ");
+    this.appendSpans(formula.spans.filter((s) => s.isHorizontal), sb);
+
+    return sb.join("");
   }
 }
