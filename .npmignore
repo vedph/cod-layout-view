@@ -1,0 +1,15 @@
+node_modules
+src
+*.md
+*.test.ts
+*.spec.ts
+*.spec.d.ts
+tsconfig.json
+package-lock.json
+*.log
+*.env
+.vscode
+consumer.js
+index.html
+jest.config.cjs
+rollup.config.mjs
