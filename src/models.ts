@@ -113,3 +113,27 @@ export interface CodLayoutFormulaService {
    */
   buildFormula(formula?: CodLayoutFormula | null): string | null;
 }
+
+export interface CodLayoutSvgOptions {
+  // grid colors
+  vLineColor: string;
+  hLineColor: string;
+  textAreaLineColor: string;
+  
+  // line properties
+  vLineWidth: number;
+  hLineWidth: number;
+  
+  // spacing
+  areaGap?: number;
+  
+  // labels
+  labelColor: string;
+  labelFontSize: number;
+  labelFontFamily: string;
+  labelColors?: { [key: string]: string };
+  
+  // SVG properties
+  padding: number;
+  scale?: number;  // mm to pixels
+}

@@ -2,6 +2,7 @@ import {
   CodLayoutFormula,
   CodLayoutFormulaService,
   CodLayoutSpan,
+  CodLayoutSvgOptions,
   CodLayoutUnit,
   CodLayoutValue,
   ParsingError,
@@ -375,5 +376,109 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
     );
 
     return sb.join("");
+  }
+
+  /**
+   * Generate SVG visualization of the layout formula.
+   * @param formula The formula to visualize.
+   * @param options Visualization options.
+   * @returns SVG code as string.
+   */
+  public generateSvg(
+    formula: CodLayoutFormula,
+    options: Partial<CodLayoutSvgOptions> = {}
+  ): string {
+    // default options
+    const defaultOptions: CodLayoutSvgOptions = {
+      vLineColor: "#666",
+      hLineColor: "#666",
+      textAreaLineColor: "#00f",
+      vLineWidth: 1,
+      hLineWidth: 1,
+      labelColor: "#333",
+      labelFontSize: 10,
+      labelFontFamily: "Arial",
+      padding: 20,
+      scale: 2, // 1mm = 2px
+    };
+
+    const opts = { ...defaultOptions, ...options };
+
+    // calculate dimensions
+    const width = formula.width.value * opts.scale! + opts.padding * 2;
+    const height = formula.height.value * opts.scale! + opts.padding * 2;
+
+    // start SVG
+    const svg: string[] = [
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`,
+      "<style>",
+      `.layout-label { font: ${opts.labelFontSize}px ${opts.labelFontFamily}; }`,
+      "</style>",
+      // Background rectangle
+      `<rect x="${opts.padding}" y="${opts.padding}" ` +
+        `width="${formula.width.value * opts.scale!}" ` +
+        `height="${formula.height.value * opts.scale!}" ` +
+        'fill="none" stroke="#000" stroke-width="1"/>',
+    ];
+
+    // draw gridlines
+    let currentPos = 0;
+
+    // vertical gridlines
+    const vSpans = formula.spans.filter((s) => !s.isHorizontal);
+    currentPos = opts.padding;
+
+    for (const span of vSpans) {
+      currentPos += span.value * opts.scale!;
+      const lineColor =
+        span.type === "text" ? opts.textAreaLineColor : opts.vLineColor;
+
+      svg.push(
+        `<line x1="${opts.padding}" y1="${currentPos}" ` +
+          `x2="${width - opts.padding}" y2="${currentPos}" ` +
+          `stroke="${lineColor}" stroke-width="${opts.vLineWidth}"/>`
+      );
+
+      // add label if present
+      if (span.label) {
+        const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
+        svg.push(
+          `<text class="layout-label" x="${opts.padding - 5}" y="${
+            currentPos - 2
+          }" ` + `text-anchor="end" fill="${labelColor}">${span.label}</text>`
+        );
+      }
+    }
+
+    // Horizontal gridlines
+    const hSpans = formula.spans.filter((s) => s.isHorizontal);
+    currentPos = opts.padding;
+
+    for (const span of hSpans) {
+      currentPos += span.value * opts.scale!;
+      const lineColor =
+        span.type === "text" ? opts.textAreaLineColor : opts.hLineColor;
+
+      svg.push(
+        `<line x1="${currentPos}" y1="${opts.padding}" ` +
+          `x2="${currentPos}" y2="${height - opts.padding}" ` +
+          `stroke="${lineColor}" stroke-width="${opts.hLineWidth}"/>`
+      );
+
+      // Add label if present
+      if (span.label) {
+        const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
+        svg.push(
+          `<text class="layout-label" x="${currentPos + 2}" y="${
+            opts.padding - 5
+          }" ` +
+            `transform="rotate(-90 ${currentPos + 2} ${opts.padding - 5})" ` +
+            `text-anchor="end" fill="${labelColor}">${span.label}</text>`
+        );
+      }
+    }
+
+    svg.push("</svg>");
+    return svg.join("\n");
   }
 }
