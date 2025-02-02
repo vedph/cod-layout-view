@@ -9,6 +9,71 @@ Codicological layout formulas services and view web component in a framework-ind
 
 📦 `npm i @myrmidon/cod-layout-view`
 
+## Formulas
+
+### Bianconi-Orsini
+
+This formula targets size and mirror and is derived from D. Bianconi, _I Codices Graeci Antiquiores tra scavo e biblioteca_, in _Greek Manuscript Cataloguing: Past, Present, and Future_, edited by P. Degni, P. Eleuteri, M. Maniaci, Turnhout, Brepols, 2018 (Bibliologia, 48), 99-135, especially 110-111.
+
+The formula always targets a _recto_ page used as the sample. Its parts are:
+
+1. size:
+   2. unit, e.g. `mm`
+   3. `H [H] x W [W]`, where `H` and/or `W` can be wrapped in `()` (current dimensions not corresponding to the original ones). Each can be followed by another dimension in `[]` which is the reconstructed dimension. If a dimension is missing, it is replaced by `-` (here we use a dash rather than an EM dash for better accessibility); from a practical point of view, this `-` is thus equal to `0`.
+2. `=` followed by horizontal ruling spans. Each measurement number here can be wrapped in `()` and followed by another measurement in `[]` as above (1.2).
+3. `x` (or `×` U+00D7) followed by vertical ruling spans, as above (2).
+
+For 2-3 each measurement can be separated by:
+
+- `/` for single ruled areas (=this marks the start of a new area);
+- `//` for the writing mirror (=this occurs in pairs, delimiting the writing mirror).
+
+>In addition, a short label (a string without spaces) can be added after each measurement prefixed by `:`. This addition is required by the generic layout formula model and allows to customize the interpretation of non basic areas (see example 2 below).
+
+Examples (see pp.110-111):
+
+(1) `mm (57) [175] x (145) [150] = (22) // (35) [115] // - x 10 // 115 // (20)`
+
+- `mm`: unit
+- `(57) [175]`: height
+- `x (145) [150]`: width
+- `= (22)`: top margin height
+- `// 35 [115]`: writing mirror height
+- `// -`: missing bottom margin
+- `x 10`: internal margin width
+- `// 115 //`: writing mirror width
+- `20`: external margin width
+
+(2) `mm 336 x 240 = 18 // 282 // 36 x 25 / 4 // 174 // 4 / 33`
+
+- `mm`: unit
+- `336`: height
+- `x 240`: width
+- `= 18`: top margin height
+- `// 282 //`: writing mirror height
+- `36`: bottom margin height
+- `x 25`: internal margin width
+- `4`: column for initials width
+- `// 174 //`: writing mirror width
+- `4`: column for initials width
+- `/ 33`: external margin width
+
+>Here we might use a label to tag the initials column area, e.g. `mm 336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33`.
+
+(3) `mm (245) x (162) = (10) // 206 // (29) x (21) // 114 // (27)`
+
+- `mm`: unit
+- `245`: height
+- `x 162`: width
+- `= (10)`: top margin height
+- `// 206 //`: writing mirror height
+- `(29)`: bottom margin height
+- `x (21)`: internal margin width
+- `// 114 //`: writing mirror width
+- `(27)`: external margin width
+
+>Note that the above examples were fixed as they seem to have typos in the original document (see nr.2 and 3).
+
 ## Workspace Setup
 
 These steps were used to build this workspace for a pure Typescript library:
