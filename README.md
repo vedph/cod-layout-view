@@ -5,7 +5,11 @@ Codicological layout formulas services and view web component in a framework-ind
 - building: `npm run build`.
 - testing: use VSCode extensions or just `npm run test`.
 
-## Setup
+## Usage
+
+📦 `npm i @myrmidon/cod-layout-view`
+
+## Workspace Setup
 
 These steps were used to build this workspace for a pure Typescript library:
 
