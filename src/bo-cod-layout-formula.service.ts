@@ -18,7 +18,7 @@ import {
  * - add an optional :label after each dimension to provide labels for additional
  *   areas like columns for initials etc. This must be a short string without spaces.
  */
-export class CodBOLayoutFormulaService implements CodLayoutFormulaService {
+export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
   /**
    * Preprocess a formula text before parsing. This replaces - with 0 and pairs of
    * `//` with `| ` and `/ `. The count of characters remains the same.

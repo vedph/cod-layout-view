@@ -78,13 +78,13 @@ export interface CodLayoutFormula {
    */
   unit?: CodLayoutUnit;
   /**
-   * The sheet width.
-   */
-  width: CodLayoutValue;
-  /**
    * The sheet height.
    */
   height: CodLayoutValue;
+  /**
+   * The sheet width.
+   */
+  width: CodLayoutValue;
   /**
    * The spans in the formula, vertical and horizontal.
    */

@@ -1,11 +1,11 @@
-import { CodBOLayoutFormulaService } from "./cod-bo-layout-formula.service";
+import { BOCodLayoutFormulaService } from "./bo-cod-layout-formula.service";
 import { CodLayoutFormula, ParsingError } from "./models";
 
-describe("CodBOLayoutFormulaService", () => {
-  let service: CodBOLayoutFormulaService;
+describe("BOCodLayoutFormulaService", () => {
+  let service: BOCodLayoutFormulaService;
 
   beforeEach(() => {
-    service = new CodBOLayoutFormulaService();
+    service = new BOCodLayoutFormulaService();
   });
 
   it("should return null for undefined input", () => {
@@ -271,8 +271,8 @@ describe("CodBOLayoutFormulaService", () => {
     const formula: CodLayoutFormula = {
       type: "BO",
       unit: "mm",
-      width: { value: 10, isOriginal: true },
       height: { value: 20, isOriginal: true },
+      width: { value: 10, isOriginal: true },
       spans: [
         { value: 4, isHorizontal: false, isOriginal: true },
         { value: 10, isHorizontal: false, isOriginal: true, type: "text" },
@@ -284,5 +284,43 @@ describe("CodBOLayoutFormulaService", () => {
     };
     const text = service.buildFormula(formula);
     expect(text).toBe("mm 20 x 10 = 4 // 10 // 6 x 2 // 7 // 3");
+  });
+
+  it("should build formula from size with original height and non-original width", () => {
+    const formula: CodLayoutFormula = {
+      type: "BO",
+      unit: "mm",
+      height: { value: 20, isOriginal: true },
+      width: { value: 10, originalValue: 12 },
+      spans: [
+        { value: 4, isHorizontal: false, isOriginal: true },
+        { value: 10, isHorizontal: false, isOriginal: true, type: "text" },
+        { value: 6, isHorizontal: false, isOriginal: true },
+        { value: 2, isHorizontal: true, isOriginal: true },
+        { value: 7, isHorizontal: true, isOriginal: true, type: "text" },
+        { value: 3, isHorizontal: true, isOriginal: true }
+      ]
+    };
+    const text = service.buildFormula(formula);
+    expect(text).toBe("mm 20 x (10) [12] = 4 // 10 // 6 x 2 // 7 // 3");
+  });
+
+  it("should build formula from size with non-original height and width", () => {
+    const formula: CodLayoutFormula = {
+      type: "BO",
+      unit: "mm",
+      height: { value: 20, originalValue: 22 },
+      width: { value: 10, isOriginal: true },
+      spans: [
+        { value: 4, isHorizontal: false, isOriginal: false, originalValue: 6 },
+        { value: 10, isHorizontal: false, isOriginal: true, type: "text" },
+        { value: 6, isHorizontal: false, isOriginal: true },
+        { value: 2, isHorizontal: true, isOriginal: false },
+        { value: 7, isHorizontal: true, isOriginal: true, type: "text" },
+        { value: 3, isHorizontal: true, isOriginal: true }
+      ]
+    };
+    const text = service.buildFormula(formula);
+    expect(text).toBe("mm (20) [22] x 10 = (4) [6] // 10 // 6 x (2) // 7 // 3");
   });
 });
