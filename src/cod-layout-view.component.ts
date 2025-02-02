@@ -35,7 +35,7 @@ export class CodLayoutViewComponent extends HTMLElement {
     const service = new BOCodLayoutFormulaService();
     const formula = service.parseFormula(formulaText);
     if (formula) {
-      this.svg = service.generateSvg(formula);
+      this.svg = service.buildSvg(formula);
       this.render();
     }
   }
@@ -129,7 +129,7 @@ export class CodLayoutViewComponent extends HTMLElement {
       const service = new BOCodLayoutFormulaService();
       const parsedFormula = service.parseFormula(formula);
       if (parsedFormula) {
-        this.svg = service.generateSvg(
+        this.svg = service.buildSvg(
           parsedFormula,
           undefined,
           this.showVertical,

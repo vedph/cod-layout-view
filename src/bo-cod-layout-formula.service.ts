@@ -463,12 +463,12 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
   }
 
   /**
-   * Generate SVG visualization of the layout formula.
+   * Build SVG code for the visualization of the layout formula.
    * @param formula The formula to visualize.
    * @param options Visualization options.
    * @returns SVG code as string.
    */
-  public generateSvg(
+  public buildSvg(
     formula: CodLayoutFormula,
     options: Partial<CodLayoutSvgOptions> = {},
     showVertical: boolean = true,
