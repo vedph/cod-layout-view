@@ -8,6 +8,25 @@ import {
   ParsingError,
 } from "./models";
 
+const DEFAULT_SVG_OPTIONS: CodLayoutSvgOptions = {
+  vLineColor: "#666",
+  hLineColor: "#666",
+  textAreaLineColor: "#00f",
+  vLineWidth: 1,
+  hLineWidth: 1,
+  labelColor: "#333",
+  labelFontSize: 10,
+  labelFontFamily: "Arial",
+  padding: 20,
+  scale: 2,
+  areaColors: {
+    default: "#eee",
+    text: "#e6e9ff",
+  },
+  areaOpacity: 0.5,
+  fallbackLineStyle: "5,5",
+};
+
 /**
  * Service to parse and build layout formulas in the format defined for
  * codicological fragments. See D. Bianconi, I Codices Graeci Antiquiores tra
@@ -382,6 +401,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
   }
   // #endregion
 
+  //#region Building SVG
   private calculateAreas(
     vSpans: CodLayoutSpan[],
     hSpans: CodLayoutSpan[],
@@ -456,26 +476,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
     showAreas: boolean = false,
     useOriginal: boolean = false
   ): string {
-    const defaultOptions: CodLayoutSvgOptions = {
-      vLineColor: "#666",
-      hLineColor: "#666",
-      textAreaLineColor: "#00f",
-      vLineWidth: 1,
-      hLineWidth: 1,
-      labelColor: "#333",
-      labelFontSize: 10,
-      labelFontFamily: "Arial",
-      padding: 20,
-      scale: 2,
-      areaColors: {
-        default: "#eee",
-        text: "#e6e9ff",
-      },
-      areaOpacity: 0.5,
-      fallbackLineStyle: "5,5",
-    };
-
-    const opts = { ...defaultOptions, ...options };
+    const opts = { ...DEFAULT_SVG_OPTIONS, ...options };
 
     // Use original values if specified
     const getSize = (
@@ -590,4 +591,5 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
     svg.push("</svg>");
     return svg.join("\n");
   }
+  //#endregion
 }
