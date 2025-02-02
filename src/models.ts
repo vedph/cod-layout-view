@@ -119,21 +119,32 @@ export interface CodLayoutSvgOptions {
   vLineColor: string;
   hLineColor: string;
   textAreaLineColor: string;
-  
+
   // line properties
   vLineWidth: number;
   hLineWidth: number;
-  
+
   // spacing
   areaGap?: number;
-  
+
   // labels
   labelColor: string;
   labelFontSize: number;
   labelFontFamily: string;
   labelColors?: { [key: string]: string };
-  
+
   // SVG properties
   padding: number;
-  scale?: number;  // mm to pixels
+  scale?: number; // mm to pixels
+
+  // area colors
+  areaColors: {
+    default: string;
+    text: string;
+    [key: string]: string; // For labeled areas
+  };
+  areaOpacity: number;
+
+  // line styles
+  fallbackLineStyle: string; // for when using original values but falling back to current
 }
