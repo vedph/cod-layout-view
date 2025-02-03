@@ -429,7 +429,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       label?: string;
     }> = [];
 
-    // Calculate vertical positions
+    // calculate vertical positions
     const vPositions: number[] = [options.padding];
     let currentPos = options.padding;
     for (const span of vSpans) {
@@ -441,7 +441,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       vPositions.push(currentPos);
     }
 
-    // Calculate horizontal positions
+    // calculate horizontal positions
     const hPositions: number[] = [options.padding];
     currentPos = options.padding;
     for (const span of hSpans) {
@@ -453,7 +453,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       hPositions.push(currentPos);
     }
 
-    // Create areas from gridline intersections
+    // create areas from gridline intersections
     for (let i = 0; i < vPositions.length - 1; i++) {
       for (let j = 0; j < hPositions.length - 1; j++) {
         const vSpan = vSpans[i];
@@ -493,7 +493,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       return { size: value.value, isFallback: options.useOriginal };
     };
 
-    // Calculate base dimensions
+    // calculate base dimensions
     const width = getSize(formula.width).size * opts.scale! + opts.padding * 2;
     const height =
       getSize(formula.height).size * opts.scale! + opts.padding * 2;

@@ -216,7 +216,7 @@ export class CodLayoutViewComponent extends HTMLElement {
       // vertical lines toggle
       controls.appendChild(
         this.createToggleButton(
-          "Vertical Lines",
+          "V",
           this._options.showVertical ? true : false,
           (state) => {
             this._options.showVertical = state;
@@ -228,7 +228,7 @@ export class CodLayoutViewComponent extends HTMLElement {
       // horizontal lines toggle
       controls.appendChild(
         this.createToggleButton(
-          "Horizontal Lines",
+          "H",
           this._options.showHorizontal ? true : false,
           (state) => {
             this._options.showHorizontal = state;
@@ -240,7 +240,7 @@ export class CodLayoutViewComponent extends HTMLElement {
       // areas toggle
       controls.appendChild(
         this.createToggleButton(
-          "Show Areas",
+          "A",
           this._options.showAreas ? true : false,
           (state) => {
             this._options.showAreas = state;
@@ -252,7 +252,7 @@ export class CodLayoutViewComponent extends HTMLElement {
       // original sizes toggle
       controls.appendChild(
         this.createToggleButton(
-          "Original Sizes",
+          "O",
           this._options.useOriginal ? true : false,
           (state) => {
             this._options.useOriginal = state;
