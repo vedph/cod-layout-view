@@ -568,9 +568,10 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
         if (span.label) {
           const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
           svg.push(
-            `<text class="layout-label" x="${opts.padding - 5}" y="${
+            `<text class="layout-label" x="${opts.padding + 5}" y="${
               currentPos - 2
-            }" ` + `text-anchor="end" fill="${labelColor}">${span.label}</text>`
+            }" ` +
+              `text-anchor="start" fill="${labelColor}">${span.label}</text>`
           );
         }
 
