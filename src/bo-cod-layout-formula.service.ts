@@ -20,6 +20,9 @@ export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
   labelColor: "#333",
   labelFontSize: 10,
   labelFontFamily: "Arial",
+  showValueLabels: true,
+  valueLabelColor: "#333",
+  valueLabelPadding: 40,
   padding: 20,
   scale: 2,
   areaColors: {
@@ -426,45 +429,50 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       type?: string;
       label?: string;
     }> = [];
-    let y = options.padding;
 
-    for (let i = 0; i < vSpans.length - 1; i++) {
-      const vSpan = vSpans[i];
-      const nextVSpan = vSpans[i + 1];
-      let x = options.padding;
+    // Calculate vertical positions
+    const vPositions: number[] = [options.padding];
+    let currentPos = options.padding;
+    for (const span of vSpans) {
+      const value =
+        useOriginal && span.originalValue !== undefined
+          ? span.originalValue
+          : span.value;
+      currentPos += value * options.scale!;
+      vPositions.push(currentPos);
+    }
 
-      const height =
-        (useOriginal && nextVSpan.originalValue !== undefined
-          ? nextVSpan.originalValue
-          : nextVSpan.value) * options.scale!;
+    // Calculate horizontal positions
+    const hPositions: number[] = [options.padding];
+    currentPos = options.padding;
+    for (const span of hSpans) {
+      const value =
+        useOriginal && span.originalValue !== undefined
+          ? span.originalValue
+          : span.value;
+      currentPos += value * options.scale!;
+      hPositions.push(currentPos);
+    }
 
-      for (let j = 0; j < hSpans.length - 1; j++) {
+    // Create areas from gridline intersections
+    for (let i = 0; i < vPositions.length - 1; i++) {
+      for (let j = 0; j < hPositions.length - 1; j++) {
+        const vSpan = vSpans[i];
         const hSpan = hSpans[j];
-        const nextHSpan = hSpans[j + 1];
-
-        const width =
-          (useOriginal && nextHSpan.originalValue !== undefined
-            ? nextHSpan.originalValue
-            : nextHSpan.value) * options.scale!;
 
         areas.push({
-          x,
-          y,
-          width,
-          height,
+          x: hPositions[j],
+          y: vPositions[i],
+          width: hPositions[j + 1] - hPositions[j],
+          height: vPositions[i + 1] - vPositions[i],
           type: vSpan.type || hSpan.type,
           label: vSpan.label || hSpan.label,
         });
-
-        x += width;
       }
-
-      y += height;
     }
 
     return areas;
   }
-
   /**
    * Build SVG code for the visualization of the layout formula.
    * @param formula The formula to visualize.
@@ -477,7 +485,6 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
   ): string {
     const opts = { ...DEFAULT_BO_SVG_OPTIONS, ...options };
 
-    // use original values if specified
     const getSize = (
       value: CodLayoutValue
     ): { size: number; isFallback?: boolean } => {
@@ -487,9 +494,16 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       return { size: value.value, isFallback: options.useOriginal };
     };
 
-    const width = getSize(formula.width).size * opts.scale! + opts.padding * 2;
-    const height =
+    // Calculate base dimensions
+    const baseWidth =
+      getSize(formula.width).size * opts.scale! + opts.padding * 2;
+    const baseHeight =
       getSize(formula.height).size * opts.scale! + opts.padding * 2;
+
+    // Add extra space for value labels if enabled
+    const extraSpace = opts.showValueLabels ? opts.valueLabelPadding || 40 : 0;
+    const width = baseWidth + extraSpace;
+    const height = baseHeight + extraSpace;
 
     const svg: string[] = [
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`,
@@ -507,7 +521,12 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
 
     // draw areas if enabled
     if (options.showAreas) {
-      const areas = this.calculateAreas(vSpans, hSpans, opts, options.useOriginal);
+      const areas = this.calculateAreas(
+        vSpans,
+        hSpans,
+        opts,
+        options.useOriginal
+      );
       for (const area of areas) {
         let fillColor = opts.areaColors.default;
         if (area.type === "text") {
@@ -524,7 +543,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       }
     }
 
-    // draw gridlines
+    // draw gridlines and labels
     let currentPos = opts.padding;
 
     // vertical gridlines
@@ -538,19 +557,30 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
 
         svg.push(
           `<line x1="${opts.padding}" y1="${currentPos}" ` +
-            `x2="${width - opts.padding}" y2="${currentPos}" ` +
+            `x2="${baseWidth - opts.padding}" y2="${currentPos}" ` +
             `stroke="${lineColor}" stroke-width="${opts.vLineWidth}" ` +
             `${
               isFallback ? `stroke-dasharray="${opts.fallbackLineStyle}"` : ""
             }/>`
         );
 
+        // Area label at the left
         if (span.label) {
           const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
           svg.push(
             `<text class="layout-label" x="${opts.padding - 5}" y="${
               currentPos - 2
             }" ` + `text-anchor="end" fill="${labelColor}">${span.label}</text>`
+          );
+        }
+
+        // Value label at the right
+        if (opts.showValueLabels) {
+          svg.push(
+            `<text class="layout-label" x="${
+              baseWidth - opts.padding + 5
+            }" y="${currentPos - 2}" ` +
+              `text-anchor="start" fill="${opts.valueLabelColor}">${size}${formula.unit}</text>`
           );
         }
       }
@@ -567,13 +597,14 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
 
         svg.push(
           `<line x1="${currentPos}" y1="${opts.padding}" ` +
-            `x2="${currentPos}" y2="${height - opts.padding}" ` +
+            `x2="${currentPos}" y2="${baseHeight - opts.padding}" ` +
             `stroke="${lineColor}" stroke-width="${opts.hLineWidth}" ` +
             `${
               isFallback ? `stroke-dasharray="${opts.fallbackLineStyle}"` : ""
             }/>`
         );
 
+        // area label at the top
         if (span.label) {
           const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
           svg.push(
@@ -582,6 +613,19 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
             }" ` +
               `transform="rotate(-90 ${currentPos + 2} ${opts.padding - 5})" ` +
               `text-anchor="end" fill="${labelColor}">${span.label}</text>`
+          );
+        }
+
+        // value label at the bottom
+        if (opts.showValueLabels) {
+          svg.push(
+            `<text class="layout-label" x="${currentPos + 2}" y="${
+              baseHeight - opts.padding + 15
+            }" ` +
+              `transform="rotate(-90 ${currentPos + 2} ${
+                baseHeight - opts.padding + 15
+              })" ` +
+              `text-anchor="start" fill="${opts.valueLabelColor}">${size}${formula.unit}</text>`
           );
         }
       }

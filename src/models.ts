@@ -150,6 +150,20 @@ export interface CodLayoutSvgOptions {
   labelFontFamily: string;
   labelColors?: { [key: string]: string };
 
+  /**
+   * Show value labels for gridlines.
+   */
+  showValueLabels?: boolean;
+
+  /**
+   * Color for value labels.
+   */
+  valueLabelColor: string;
+  /**
+   * Extra padding for value labels (in pixels).
+   */
+  valueLabelPadding: number;
+
   // SVG properties
   padding: number;
   scale?: number; // mm to pixels
