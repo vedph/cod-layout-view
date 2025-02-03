@@ -30,7 +30,6 @@
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.1.1",
     "@types/jest": "^29.5.14",
-    "@types/svg-pan-zoom": "^3.4.0",
     "concurrently": "^9.1.0",
     "jest": "^29.7.0",
     "lite-server": "^2.6.1",
