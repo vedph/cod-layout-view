@@ -29,7 +29,7 @@ export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
   padding: 20,
   scale: 2,
   areaColors: {
-    default: "#eee",
+    default: "transparent",
     $text_$text: "#adadad",
   },
   areaOpacity: 0.5,
@@ -40,7 +40,7 @@ interface AreaToRender {
   x: number;
   y: number;
   col: number;
-  row: number; 
+  row: number;
   width: number;
   height: number;
   type?: string;
@@ -62,8 +62,6 @@ export class BOCodLayoutFormulaService
   extends CodLayoutFormulaBase
   implements CodLayoutFormulaService, CodLayoutFormulaRenderer
 {
-  private _areas: CodLayoutArea[] = [];
-
   //#region Parsing formula
   /**
    * Preprocess a formula text before parsing. This replaces - with 0 and pairs of
@@ -523,7 +521,11 @@ export class BOCodLayoutFormulaService
 
     // draw areas if enabled
     if (options.showAreas) {
-      this._areas = this.getAreas(formula.spans);
+      const formulaAreas = this.getAreas(formula.spans);
+      const colorMap: Map<string, string> = this.mapAreaColors(
+        formulaAreas,
+        opts.areaColors
+      );
 
       const areas = this.calculateAreas(
         vSpans,
@@ -534,13 +536,16 @@ export class BOCodLayoutFormulaService
       for (const area of areas) {
         // start with default color
         let fillColor = opts.areaColors.default;
+
         // use text color for text areas
         if (area.type === "text") {
           fillColor = opts.areaColors.text;
         }
-        // TODO
-        if (area.label && opts.areaColors[area.label]) {
-          fillColor = opts.areaColors[area.label];
+
+        // use area color if defined in colorMap
+        const key = `${area.row}_${area.col}`;
+        if (colorMap.has(key)) {
+          fillColor = colorMap.get(key)!;
         }
 
         svg.push(
