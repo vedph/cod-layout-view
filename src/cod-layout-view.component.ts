@@ -15,6 +15,7 @@ export class CodLayoutViewComponent extends HTMLElement {
   private _dragStart: { x: number; y: number } = { x: 0, y: 0 };
   private _viewPosition: { x: number; y: number } = { x: 0, y: 0 };
   private _options: CodLayoutSvgOptions;
+  private _isTransformUpdateScheduled: boolean = false;
 
   constructor() {
     super();
@@ -96,7 +97,11 @@ export class CodLayoutViewComponent extends HTMLElement {
       this._viewPosition.y += dy;
 
       this._dragStart = { x: e.clientX, y: e.clientY };
-      this.updateTransform();
+
+      if (!this._isTransformUpdateScheduled) {
+        this._isTransformUpdateScheduled = true;
+        requestAnimationFrame(this.updateTransform.bind(this));
+      }
     };
 
     const mouseUpHandler = () => {
@@ -117,9 +122,9 @@ export class CodLayoutViewComponent extends HTMLElement {
     const svg = this.shadowRoot!.querySelector("svg");
     if (!svg) return;
 
-    svg.style.transform =
-      `translate(${this._viewPosition.x}px, ${this._viewPosition.y}px) ` +
-      `scale(${this._zoom})`;
+    svg.style.transform = `translate(${this._viewPosition.x}px, ${this._viewPosition.y}px) scale(${this._zoom})`;
+    // allow the next animation frame to schedule an update
+    this._isTransformUpdateScheduled = false;
   }
 
   private createToggleButton(
