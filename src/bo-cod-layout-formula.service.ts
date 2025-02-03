@@ -546,8 +546,8 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
     // draw gridlines and labels
     let currentPos = opts.padding;
 
-    // vertical gridlines
-    if (options.showVertical) {
+    // horizontal gridlines
+    if (options.showHorizontal) {
       currentPos = opts.padding;
       for (const span of vSpans) {
         const { size, isFallback } = getSize(span);
@@ -564,7 +564,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
             }/>`
         );
 
-        // Area label at the left
+        // area label at the left
         if (span.label) {
           const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
           svg.push(
@@ -574,7 +574,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
           );
         }
 
-        // Value label at the right
+        // value label at the right
         if (opts.showValueLabels) {
           svg.push(
             `<text class="layout-label" x="${
@@ -586,8 +586,8 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       }
     }
 
-    // horizontal gridlines
-    if (options.showHorizontal) {
+    // vertical gridlines
+    if (options.showVertical) {
       currentPos = opts.padding;
       for (const span of hSpans) {
         const { size, isFallback } = getSize(span);
