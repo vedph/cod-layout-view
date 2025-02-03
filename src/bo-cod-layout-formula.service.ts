@@ -539,7 +539,7 @@ export class BOCodLayoutFormulaService
 
         // use text color for text areas
         if (area.type === "text") {
-          fillColor = opts.areaColors.text;
+          fillColor = opts.areaColors.text || 'transparent';
         }
 
         // use area color if defined in colorMap
