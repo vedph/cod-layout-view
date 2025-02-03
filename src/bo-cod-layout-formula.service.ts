@@ -579,9 +579,9 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
         if (opts.showValueLabels) {
           svg.push(
             `<text class="layout-label" x="${
-              baseWidth - opts.padding + 5
+              baseWidth - opts.padding - 5
             }" y="${currentPos - 2}" ` +
-              `text-anchor="start" fill="${opts.valueLabelColor}">${size}${formula.unit}</text>`
+              `text-anchor="end" fill="${opts.valueLabelColor}">${size}${formula.unit}</text>`
           );
         }
       }
