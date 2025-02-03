@@ -1,5 +1,6 @@
 import { CodLayoutFormulaBase } from "./cod-layout-formula-base";
 import {
+  CodLayoutArea,
   CodLayoutFormula,
   CodLayoutFormulaRenderer,
   CodLayoutFormulaService,
@@ -29,7 +30,7 @@ export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
   scale: 2,
   areaColors: {
     default: "#eee",
-    text: "#adadad",
+    $text_$text: "#adadad",
   },
   areaOpacity: 0.5,
   fallbackLineStyle: "5,5",
@@ -50,6 +51,8 @@ export class BOCodLayoutFormulaService
   extends CodLayoutFormulaBase
   implements CodLayoutFormulaService, CodLayoutFormulaRenderer
 {
+  private _areas: CodLayoutArea[] = [];
+
   //#region Parsing formula
   /**
    * Preprocess a formula text before parsing. This replaces - with 0 and pairs of
@@ -521,6 +524,8 @@ export class BOCodLayoutFormulaService
 
     // draw areas if enabled
     if (options.showAreas) {
+      this._areas = this.getAreas(formula.spans);
+
       const areas = this.calculateAreas(
         vSpans,
         hSpans,
@@ -531,6 +536,7 @@ export class BOCodLayoutFormulaService
         let fillColor = opts.areaColors.default;
         if (area.type === "text") {
           fillColor = opts.areaColors.text;
+          // TODO colors
         } else if (area.label && opts.areaColors[area.label]) {
           fillColor = opts.areaColors[area.label];
         }

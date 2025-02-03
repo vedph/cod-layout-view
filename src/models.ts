@@ -185,8 +185,7 @@ export interface CodLayoutSvgOptions {
   // area colors
   areaColors: {
     default: string;
-    text: string;
-    [key: string]: string; // For labeled areas
+    [key: string]: string;
   };
   areaOpacity: number;
 
