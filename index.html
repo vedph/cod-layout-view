@@ -9,25 +9,51 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.min.css"
     />
     <script type="module" src="./dist/index.js"></script>
+    <style>
+      textarea#optionsTextarea {
+        height: 400px;
+      }
+      .form-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .form-row * {
+        flex: 0 0 auto;
+      }
+    </style>
   </head>
   <body>
-    <h1>Library Development Shell</h1>
     <article>
       <h2>Codicological Layout Formula View Component</h2>
       <div style="border: 1px solid rgb(231, 114, 114)">
-        <cod-layout-view id="view"
+        <cod-layout-view
+          id="view"
           formula="mm 336 x 240 = 18:margtop // 282 // 36:margbtm x 25 / 4:initials // 174 // 4:initials / 33"
           style="width: 100%; height: 1600px"
         ></cod-layout-view>
       </div>
       <div>
         <br />
+        <h3>Options</h3>
+        <div class="form-row">
+          <label><input type="checkbox" id="showVertical" /> vertical</label>
+          <label
+            ><input type="checkbox" id="showHorizontal" /> horizontal</label
+          >
+          <label><input type="checkbox" id="showAreas" /> areas</label>
+          <label><input type="checkbox" id="useOriginal" /> original</label>
+          <label
+            ><input type="checkbox" id="showValueLabels" /> value labels</label
+          >
+        </div>
         <h3>Attributes</h3>
         <label for="formulaTextarea">Formula:</label>
         <textarea id="formulaTextarea" rows="2" cols="50"></textarea>
         <br />
         <label for="optionsTextarea">Options (JSON):</label>
-        <textarea id="optionsTextarea" rows="10" cols="50"></textarea>
+        <textarea id="optionsTextarea" cols="50"></textarea>
         <br />
         <button type="button" id="updateButton">Update</button>
       </div>
@@ -68,15 +94,46 @@
           2
         );
 
+        // set initial checkbox states
+        document.getElementById("showVertical").checked = options.showVertical;
+        document.getElementById("showHorizontal").checked =
+          options.showHorizontal;
+        document.getElementById("showAreas").checked = options.showAreas;
+        document.getElementById("useOriginal").checked = options.useOriginal;
+        document.getElementById("showValueLabels").checked =
+          options.showValueLabels;
+
         // on click update button, update the component
         document
           .getElementById("updateButton")
           .addEventListener("click", () => {
             const formula = document.getElementById("formulaTextarea").value;
-            const options = document.getElementById("optionsTextarea").value;
+            const options = JSON.parse(
+              document.getElementById("optionsTextarea").value
+            );
+
+            // update options based on checkboxes
+            options.showVertical =
+              document.getElementById("showVertical").checked;
+            options.showHorizontal =
+              document.getElementById("showHorizontal").checked;
+            options.showAreas = document.getElementById("showAreas").checked;
+            options.useOriginal =
+              document.getElementById("useOriginal").checked;
+            options.showValueLabels =
+              document.getElementById("showValueLabels").checked;
+
+            // update options textarea
+            document.getElementById("optionsTextarea").value = JSON.stringify(
+              options,
+              null,
+              2
+            );
+
+            // update the component
             const codLayoutView = document.getElementById("view");
             codLayoutView.setAttribute("formula", formula);
-            codLayoutView.setAttribute("options", options);
+            codLayoutView.setAttribute("options", JSON.stringify(options));
           });
       });
     </script>
