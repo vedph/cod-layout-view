@@ -8,7 +8,10 @@ import {
   ParsingError,
 } from "./models";
 
-const DEFAULT_SVG_OPTIONS: CodLayoutSvgOptions = {
+export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
+  showVertical: true,
+  showHorizontal: true,
+  showAreas: true,
   vLineColor: "#666",
   hLineColor: "#666",
   textAreaLineColor: "#00f",
@@ -333,7 +336,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
   private appendValue(value: CodLayoutValue, sb: string[]): void {
     // N or (N) or (N) [N], optionally followed by :label
     sb.push(value.isOriginal ? "" : "(");
-    sb.push(value.value.toString());
+    sb.push(value.value ? value.value.toString() : "-");
     sb.push(value.isOriginal ? "" : ")");
     if (value.originalValue) {
       sb.push(" [");
@@ -406,7 +409,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
     vSpans: CodLayoutSpan[],
     hSpans: CodLayoutSpan[],
     options: CodLayoutSvgOptions,
-    useOriginal: boolean
+    useOriginal?: boolean
   ): Array<{
     x: number;
     y: number;
@@ -470,22 +473,18 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
    */
   public buildSvg(
     formula: CodLayoutFormula,
-    options: Partial<CodLayoutSvgOptions> = {},
-    showVertical: boolean = true,
-    showHorizontal: boolean = true,
-    showAreas: boolean = false,
-    useOriginal: boolean = false
+    options: Partial<CodLayoutSvgOptions> = {}
   ): string {
-    const opts = { ...DEFAULT_SVG_OPTIONS, ...options };
+    const opts = { ...DEFAULT_BO_SVG_OPTIONS, ...options };
 
-    // Use original values if specified
+    // use original values if specified
     const getSize = (
       value: CodLayoutValue
-    ): { size: number; isFallback: boolean } => {
-      if (useOriginal && value.originalValue !== undefined) {
+    ): { size: number; isFallback?: boolean } => {
+      if (options.useOriginal && value.originalValue !== undefined) {
         return { size: value.originalValue, isFallback: false };
       }
-      return { size: value.value, isFallback: useOriginal };
+      return { size: value.value, isFallback: options.useOriginal };
     };
 
     const width = getSize(formula.width).size * opts.scale! + opts.padding * 2;
@@ -506,9 +505,9 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
     const vSpans = formula.spans.filter((s) => !s.isHorizontal);
     const hSpans = formula.spans.filter((s) => s.isHorizontal);
 
-    // Draw areas if enabled
-    if (showAreas) {
-      const areas = this.calculateAreas(vSpans, hSpans, opts, useOriginal);
+    // draw areas if enabled
+    if (options.showAreas) {
+      const areas = this.calculateAreas(vSpans, hSpans, opts, options.useOriginal);
       for (const area of areas) {
         let fillColor = opts.areaColors.default;
         if (area.type === "text") {
@@ -525,11 +524,11 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       }
     }
 
-    // Draw gridlines
+    // draw gridlines
     let currentPos = opts.padding;
 
-    // Vertical gridlines
-    if (showVertical) {
+    // vertical gridlines
+    if (options.showVertical) {
       currentPos = opts.padding;
       for (const span of vSpans) {
         const { size, isFallback } = getSize(span);
@@ -557,8 +556,8 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
       }
     }
 
-    // Horizontal gridlines
-    if (showHorizontal) {
+    // horizontal gridlines
+    if (options.showHorizontal) {
       currentPos = opts.padding;
       for (const span of hSpans) {
         const { size, isFallback } = getSize(span);

@@ -1,33 +1,45 @@
-import { BOCodLayoutFormulaService } from "./bo-cod-layout-formula.service";
+import {
+  BOCodLayoutFormulaService,
+  DEFAULT_BO_SVG_OPTIONS,
+} from "./bo-cod-layout-formula.service";
+import { CodLayoutSvgOptions } from "./models";
 
+/**
+ * A web component to visualize codicological layout formulas.
+ * Usage: `<cod-layout-view formula="..." options="..."></cod-layout-view>`.
+ */
 export class CodLayoutViewComponent extends HTMLElement {
-  private svg: string = "";
-  private zoom: number = 1;
-  private isDragging: boolean = false;
-  private dragStart: { x: number; y: number } = { x: 0, y: 0 };
-  private viewPosition: { x: number; y: number } = { x: 0, y: 0 };
-  private showVertical: boolean = true;
-  private showHorizontal: boolean = true;
-  private showAreas: boolean = false;
-  private useOriginal: boolean = false;
+  private _svg: string = "";
+  private _zoom: number = 1;
+  private _isDragging: boolean = false;
+  private _dragStart: { x: number; y: number } = { x: 0, y: 0 };
+  private _viewPosition: { x: number; y: number } = { x: 0, y: 0 };
+  private _options: CodLayoutSvgOptions;
 
   constructor() {
     super();
+    this._options = DEFAULT_BO_SVG_OPTIONS;
     this.attachShadow({ mode: "open" });
   }
 
-  static get observedAttributes() {
-    return ["formula"];
+  public static get observedAttributes() {
+    return ["formula", "options"];
   }
 
-  connectedCallback() {
+  public connectedCallback() {
     this.render();
     this.setupInteractions();
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+  public attributeChangedCallback(
+    name: string,
+    oldValue: string,
+    newValue: string
+  ) {
     if (name === "formula" && oldValue !== newValue) {
       this.updateFormula(newValue);
+    } else if (name === "options" && oldValue !== newValue) {
+      this.updateOptions(newValue);
     }
   }
 
@@ -35,8 +47,17 @@ export class CodLayoutViewComponent extends HTMLElement {
     const service = new BOCodLayoutFormulaService();
     const formula = service.parseFormula(formulaText);
     if (formula) {
-      this.svg = service.buildSvg(formula);
-      this.render();
+      this._svg = service.buildSvg(formula);
+      this.updateVisualization();
+    }
+  }
+
+  private updateOptions(optionsText: string) {
+    try {
+      this._options = JSON.parse(optionsText);
+      this.updateVisualization();
+    } catch (e) {
+      console.error("Invalid options JSON", e);
     }
   }
 
@@ -46,13 +67,13 @@ export class CodLayoutViewComponent extends HTMLElement {
     ) as HTMLElement;
     if (!container) return;
 
-    // Zoom with mouse wheel
+    // zoom with mouse wheel
     container.addEventListener(
       "wheel",
       (e: WheelEvent) => {
         e.preventDefault();
         const delta = e.deltaY > 0 ? 0.9 : 1.1;
-        this.zoom = Math.min(Math.max(0.1, this.zoom * delta), 5);
+        this._zoom = Math.min(Math.max(0.1, this._zoom * delta), 5);
         this.updateTransform();
       },
       { passive: false }
@@ -60,26 +81,26 @@ export class CodLayoutViewComponent extends HTMLElement {
 
     // pan with mouse drag
     container.addEventListener("mousedown", (e: MouseEvent) => {
-      this.isDragging = true;
-      this.dragStart = { x: e.clientX, y: e.clientY };
+      this._isDragging = true;
+      this._dragStart = { x: e.clientX, y: e.clientY };
     });
 
     // use proper types for event listeners
     const mouseMoveHandler = (e: MouseEvent) => {
-      if (!this.isDragging) return;
+      if (!this._isDragging) return;
 
-      const dx = e.clientX - this.dragStart.x;
-      const dy = e.clientY - this.dragStart.y;
+      const dx = e.clientX - this._dragStart.x;
+      const dy = e.clientY - this._dragStart.y;
 
-      this.viewPosition.x += dx;
-      this.viewPosition.y += dy;
+      this._viewPosition.x += dx;
+      this._viewPosition.y += dy;
 
-      this.dragStart = { x: e.clientX, y: e.clientY };
+      this._dragStart = { x: e.clientX, y: e.clientY };
       this.updateTransform();
     };
 
     const mouseUpHandler = () => {
-      this.isDragging = false;
+      this._isDragging = false;
     };
 
     window.addEventListener("mousemove", mouseMoveHandler);
@@ -97,8 +118,8 @@ export class CodLayoutViewComponent extends HTMLElement {
     if (!svg) return;
 
     svg.style.transform =
-      `translate(${this.viewPosition.x}px, ${this.viewPosition.y}px) ` +
-      `scale(${this.zoom})`;
+      `translate(${this._viewPosition.x}px, ${this._viewPosition.y}px) ` +
+      `scale(${this._zoom})`;
   }
 
   private createToggleButton(
@@ -129,14 +150,7 @@ export class CodLayoutViewComponent extends HTMLElement {
       const service = new BOCodLayoutFormulaService();
       const parsedFormula = service.parseFormula(formula);
       if (parsedFormula) {
-        this.svg = service.buildSvg(
-          parsedFormula,
-          undefined,
-          this.showVertical,
-          this.showHorizontal,
-          this.showAreas,
-          this.useOriginal
-        );
+        this._svg = service.buildSvg(parsedFormula, this._options);
         this.render();
       }
     }
@@ -188,50 +202,58 @@ export class CodLayoutViewComponent extends HTMLElement {
       </style>
       <div class="controls"></div>
       <div class="viewer-container">
-        ${this.svg}
+        ${this._svg}
       </div>
     `;
 
     const controls = this.shadowRoot.querySelector(".controls");
     if (controls) {
-      // Vertical lines toggle
+      // vertical lines toggle
       controls.appendChild(
         this.createToggleButton(
           "Vertical Lines",
-          this.showVertical,
+          this._options.showVertical ? true : false,
           (state) => {
-            this.showVertical = state;
+            this._options.showVertical = state;
             this.updateVisualization();
           }
         )
       );
 
-      // Horizontal lines toggle
+      // horizontal lines toggle
       controls.appendChild(
         this.createToggleButton(
           "Horizontal Lines",
-          this.showHorizontal,
+          this._options.showHorizontal ? true : false,
           (state) => {
-            this.showHorizontal = state;
+            this._options.showHorizontal = state;
             this.updateVisualization();
           }
         )
       );
 
-      // Areas toggle
+      // areas toggle
       controls.appendChild(
-        this.createToggleButton("Show Areas", this.showAreas, (state) => {
-          this.showAreas = state;
-          this.updateVisualization();
-        })
+        this.createToggleButton(
+          "Show Areas",
+          this._options.showAreas ? true : false,
+          (state) => {
+            this._options.showAreas = state;
+            this.updateVisualization();
+          }
+        )
       );
 
-      // Original sizes toggle
+      // original sizes toggle
       controls.appendChild(
-        this.createToggleButton("Original Sizes", this.useOriginal, (state) => {
-          this.useOriginal = state;
-          this.updateVisualization();
-        })
+        this.createToggleButton(
+          "Original Sizes",
+          this._options.useOriginal ? true : false,
+          (state) => {
+            this._options.useOriginal = state;
+            this.updateVisualization();
+          }
+        )
       );
     }
 

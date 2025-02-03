@@ -115,6 +115,23 @@ export interface CodLayoutFormulaService {
 }
 
 export interface CodLayoutSvgOptions {
+  /**
+   * Show vertical gridlines.
+   */
+  showVertical?: boolean;
+  /**
+   * Show horizontal gridlines.
+   */
+  showHorizontal?: boolean;
+  /**
+   * Show areas defined by combining vertical and horizontal gridlines.
+   */
+  showAreas?: boolean;
+  /**
+   * Use original values for dimensions when available.
+   */
+  useOriginal?: boolean;
+
   // grid colors
   vLineColor: string;
   hLineColor: string;
