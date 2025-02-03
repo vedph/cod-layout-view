@@ -91,6 +91,13 @@ export interface CodLayoutFormula {
   spans: CodLayoutSpan[];
 }
 
+export interface CodLayoutArea {
+  y: number;
+  x: number;
+  colIndexes: string[];
+  rowIndexes: string[];
+}
+
 /**
  * A service to parse and build codicological layout formulas.
  */

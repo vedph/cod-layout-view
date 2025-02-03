@@ -126,7 +126,7 @@ describe("BOCodLayoutFormulaService", () => {
     expect(formula!.spans.length).toBe(6);
 
     // vertical: margin=4, body=10, margin=6 (all originals)
-    const vspans = formula!.spans.filter(s => !s.isHorizontal);
+    const vspans = formula!.spans.filter((s) => !s.isHorizontal);
     expect(vspans.length).toBe(3);
 
     expect(vspans[0].value).toBe(4);
@@ -136,14 +136,14 @@ describe("BOCodLayoutFormulaService", () => {
     expect(vspans[1].value).toBe(10);
     expect(vspans[1].isOriginal).toBe(true);
     expect(vspans[1].originalValue).toBeUndefined();
-    expect(vspans[1].type).toBe('text');
+    expect(vspans[1].type).toBe("text");
 
     expect(vspans[2].value).toBe(6);
     expect(vspans[2].isOriginal).toBe(true);
     expect(vspans[2].originalValue).toBeUndefined();
 
     // horizontal: margin=2, body=7, margin=3 (all originals)
-    const hspans = formula!.spans.filter(s => s.isHorizontal);
+    const hspans = formula!.spans.filter((s) => s.isHorizontal);
     expect(hspans.length).toBe(3);
 
     expect(hspans[0].value).toBe(2);
@@ -153,7 +153,7 @@ describe("BOCodLayoutFormulaService", () => {
     expect(hspans[1].value).toBe(7);
     expect(hspans[1].isOriginal).toBe(true);
     expect(hspans[1].originalValue).toBeUndefined();
-    expect(hspans[1].type).toBe('text');
+    expect(hspans[1].type).toBe("text");
 
     expect(hspans[2].value).toBe(3);
     expect(hspans[2].isOriginal).toBe(true);
@@ -175,7 +175,7 @@ describe("BOCodLayoutFormulaService", () => {
     expect(formula!.spans.length).toBe(6);
 
     // vertical: margin=4 (original=6), body=10, margin=6
-    const vspans = formula!.spans.filter(s => !s.isHorizontal);
+    const vspans = formula!.spans.filter((s) => !s.isHorizontal);
     expect(vspans.length).toBe(3);
 
     expect(vspans[0].value).toBe(4);
@@ -185,14 +185,14 @@ describe("BOCodLayoutFormulaService", () => {
     expect(vspans[1].value).toBe(10);
     expect(vspans[1].isOriginal).toBe(true);
     expect(vspans[1].originalValue).toBeUndefined();
-    expect(vspans[1].type).toBe('text');
+    expect(vspans[1].type).toBe("text");
 
     expect(vspans[2].value).toBe(6);
     expect(vspans[2].isOriginal).toBe(true);
     expect(vspans[2].originalValue).toBeUndefined();
 
     // horizontal: margin=2 (non original), body=7, margin=3
-    const hspans = formula!.spans.filter(s => s.isHorizontal);
+    const hspans = formula!.spans.filter((s) => s.isHorizontal);
     expect(hspans.length).toBe(3);
 
     expect(hspans[0].value).toBe(2);
@@ -202,7 +202,7 @@ describe("BOCodLayoutFormulaService", () => {
     expect(hspans[1].value).toBe(7);
     expect(hspans[1].isOriginal).toBe(true);
     expect(hspans[1].originalValue).toBeUndefined();
-    expect(hspans[1].type).toBe('text');
+    expect(hspans[1].type).toBe("text");
 
     expect(hspans[2].value).toBe(3);
     expect(hspans[2].isOriginal).toBe(true);
@@ -223,7 +223,7 @@ describe("BOCodLayoutFormulaService", () => {
     expect(formula!.spans.length).toBe(8);
 
     // vertical: margin=18, body=282, margin=36 (all original)
-    const vspans = formula!.spans.filter(s => !s.isHorizontal);
+    const vspans = formula!.spans.filter((s) => !s.isHorizontal);
     expect(vspans.length).toBe(3);
 
     expect(vspans[0].value).toBe(18);
@@ -233,14 +233,14 @@ describe("BOCodLayoutFormulaService", () => {
     expect(vspans[1].value).toBe(282);
     expect(vspans[1].isOriginal).toBe(true);
     expect(vspans[1].originalValue).toBeUndefined();
-    expect(vspans[1].type).toBe('text');
+    expect(vspans[1].type).toBe("text");
 
     expect(vspans[2].value).toBe(36);
     expect(vspans[2].isOriginal).toBe(true);
     expect(vspans[2].originalValue).toBeUndefined();
 
     // horizontal: margin=25, initials=4, body=174, initials=4, margin=33 (all original)
-    const hspans = formula!.spans.filter(s => s.isHorizontal);
+    const hspans = formula!.spans.filter((s) => s.isHorizontal);
     expect(hspans.length).toBe(5);
 
     expect(hspans[0].value).toBe(25);
@@ -250,23 +250,23 @@ describe("BOCodLayoutFormulaService", () => {
     expect(hspans[1].value).toBe(4);
     expect(hspans[1].isOriginal).toBe(true);
     expect(hspans[1].originalValue).toBeUndefined();
-    expect(hspans[1].label).toBe('initials');
+    expect(hspans[1].label).toBe("initials");
 
     expect(hspans[2].value).toBe(174);
     expect(hspans[2].isOriginal).toBe(true);
     expect(hspans[2].originalValue).toBeUndefined();
-    expect(hspans[2].type).toBe('text');
+    expect(hspans[2].type).toBe("text");
 
     expect(hspans[3].value).toBe(4);
     expect(hspans[3].isOriginal).toBe(true);
     expect(hspans[3].originalValue).toBeUndefined();
-    expect(hspans[3].label).toBe('initials');
+    expect(hspans[3].label).toBe("initials");
 
     expect(hspans[4].value).toBe(33);
     expect(hspans[4].isOriginal).toBe(true);
     expect(hspans[4].originalValue).toBeUndefined();
   });
-  
+
   it("should build formula from size with original height and width", () => {
     const formula: CodLayoutFormula = {
       type: "BO",
@@ -279,8 +279,8 @@ describe("BOCodLayoutFormulaService", () => {
         { value: 6, isHorizontal: false, isOriginal: true },
         { value: 2, isHorizontal: true, isOriginal: true },
         { value: 7, isHorizontal: true, isOriginal: true, type: "text" },
-        { value: 3, isHorizontal: true, isOriginal: true }
-      ]
+        { value: 3, isHorizontal: true, isOriginal: true },
+      ],
     };
     const text = service.buildFormula(formula);
     expect(text).toBe("mm 20 x 10 = 4 // 10 // 6 x 2 // 7 // 3");
@@ -298,8 +298,8 @@ describe("BOCodLayoutFormulaService", () => {
         { value: 6, isHorizontal: false, isOriginal: true },
         { value: 2, isHorizontal: true, isOriginal: true },
         { value: 7, isHorizontal: true, isOriginal: true, type: "text" },
-        { value: 3, isHorizontal: true, isOriginal: true }
-      ]
+        { value: 3, isHorizontal: true, isOriginal: true },
+      ],
     };
     const text = service.buildFormula(formula);
     expect(text).toBe("mm 20 x (10) [12] = 4 // 10 // 6 x 2 // 7 // 3");
@@ -317,10 +317,23 @@ describe("BOCodLayoutFormulaService", () => {
         { value: 6, isHorizontal: false, isOriginal: true },
         { value: 2, isHorizontal: true, isOriginal: false },
         { value: 7, isHorizontal: true, isOriginal: true, type: "text" },
-        { value: 3, isHorizontal: true, isOriginal: true }
-      ]
+        { value: 3, isHorizontal: true, isOriginal: true },
+      ],
     };
     const text = service.buildFormula(formula);
     expect(text).toBe("mm (20) [22] x 10 = (4) [6] // 10 // 6 x (2) // 7 // 3");
+  });
+
+  it("should get 12 areas from 3 vspans by 4 hspans", () => {
+    const text = "cm 10 x 8 = 1:mt // 7 // 2:mb x 2:ml / 1:i // 3 // 2:mr";
+    const formula = service.parseFormula(text);
+    const areas = service.getAreas(formula!.spans);
+    // areas
+    expect(areas.length).toBe(12);
+    const a = areas[0];
+    expect(a.y).toBe(1);
+    expect(a.x).toBe(1);
+    // TODO
+    expect(a.rowIndexes).toEqual(["mt"]);
   });
 });

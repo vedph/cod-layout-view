@@ -1,3 +1,4 @@
+import { CodLayoutFormulaBase } from "./cod-layout-formula-base";
 import {
   CodLayoutFormula,
   CodLayoutFormulaService,
@@ -44,7 +45,10 @@ export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
  * - add an optional :label after each dimension to provide labels for additional
  *   areas like columns for initials etc. This must be a short string without spaces.
  */
-export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
+export class BOCodLayoutFormulaService
+  extends CodLayoutFormulaBase
+  implements CodLayoutFormulaService
+{
   //#region Parsing formula
   /**
    * Preprocess a formula text before parsing. This replaces - with 0 and pairs of
