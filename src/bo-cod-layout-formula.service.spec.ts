@@ -330,10 +330,77 @@ describe("BOCodLayoutFormulaService", () => {
     const areas = service.getAreas(formula!.spans);
     // areas
     expect(areas.length).toBe(12);
-    const a = areas[0];
+    // y=1,x=1
+    let a = areas[0];
     expect(a.y).toBe(1);
     expect(a.x).toBe(1);
-    // TODO
     expect(a.rowIndexes).toEqual(["mt"]);
+    expect(a.colIndexes).toEqual(["ml"]);
+    // y=1,x=2
+    a = areas[1];
+    expect(a.y).toBe(1);
+    expect(a.x).toBe(2);
+    expect(a.rowIndexes).toEqual(["mt"]);
+    expect(a.colIndexes).toEqual(["i"]);
+    // y=1,x=3
+    a = areas[2];
+    expect(a.y).toBe(1);
+    expect(a.x).toBe(3);
+    expect(a.rowIndexes).toEqual(["mt"]);
+    expect(a.colIndexes).toEqual(["$text"]);
+    // y=1,x=4
+    a = areas[3];
+    expect(a.y).toBe(1);
+    expect(a.x).toBe(4);
+    expect(a.rowIndexes).toEqual(["mt"]);
+    expect(a.colIndexes).toEqual(["mr"]);
+    // y=2,x=1
+    a = areas[4];
+    expect(a.y).toBe(2);
+    expect(a.x).toBe(1);
+    expect(a.rowIndexes).toEqual(["$text"]);
+    expect(a.colIndexes).toEqual(["ml"]);
+    // y=2,x=2
+    a = areas[5];
+    expect(a.y).toBe(2);
+    expect(a.x).toBe(2);
+    expect(a.rowIndexes).toEqual(["$text"]);
+    expect(a.colIndexes).toEqual(["i"]);
+    // y=2,x=3
+    a = areas[6];
+    expect(a.y).toBe(2);
+    expect(a.x).toBe(3);
+    expect(a.rowIndexes).toEqual(["$text"]);
+    expect(a.colIndexes).toEqual(["$text"]);
+    // y=2,x=4
+    a = areas[7];
+    expect(a.y).toBe(2);
+    expect(a.x).toBe(4);
+    expect(a.rowIndexes).toEqual(["$text"]);
+    expect(a.colIndexes).toEqual(["mr"]);
+    // y=3,x=1
+    a = areas[8];
+    expect(a.y).toBe(3);
+    expect(a.x).toBe(1);
+    expect(a.rowIndexes).toEqual(["mb"]);
+    expect(a.colIndexes).toEqual(["ml"]);
+    // y=3,x=2
+    a = areas[9];
+    expect(a.y).toBe(3);
+    expect(a.x).toBe(2);
+    expect(a.rowIndexes).toEqual(["mb"]);
+    expect(a.colIndexes).toEqual(["i"]);
+    // y=3,x=3
+    a = areas[10];
+    expect(a.y).toBe(3);
+    expect(a.x).toBe(3);
+    expect(a.rowIndexes).toEqual(["mb"]);
+    expect(a.colIndexes).toEqual(["$text"]);
+    // y=3,x=4
+    a = areas[11];
+    expect(a.y).toBe(3);
+    expect(a.x).toBe(4);
+    expect(a.rowIndexes).toEqual(["mb"]);
+    expect(a.colIndexes).toEqual(["mr"]);
   });
 });

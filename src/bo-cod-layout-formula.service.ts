@@ -28,7 +28,7 @@ export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
   scale: 2,
   areaColors: {
     default: "#eee",
-    text: "#e6e9ff",
+    text: "#adadad",
   },
   areaOpacity: 0.5,
   fallbackLineStyle: "5,5",
@@ -477,6 +477,7 @@ export class BOCodLayoutFormulaService
 
     return areas;
   }
+
   /**
    * Build SVG code for the visualization of the layout formula.
    * @param formula The formula to visualize.

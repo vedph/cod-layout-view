@@ -23,6 +23,7 @@ export class CodLayoutFormulaBase {
       if (spans[i].type) {
         area.colIndexes.push(`$${spans[i].type}`);
       }
+      areas.push(area);
     }
 
     return areas;
@@ -38,10 +39,10 @@ export class CodLayoutFormulaBase {
    * top margin (mt), text, and bottom margin (bm), and 4 horizontal
    * spans (along the width) for left margin (lm), initials (i), text
    * and right margin (mr), the areas will be 12:
-   *                   col 1    col 2   col 3      col 4
-   *   - row 1 (mt):   ml_mt,   i_mt,   $txt_mt,   mr_mt
-   *   - row 2 (text): ml_$txt, i_$txt, $txt_$txt, mr_$txt 
-   *   - row 3 (mb):   ml_mb,   i_mb,   $txt_mb,   mr_mb
+   *                   col 1     col 2    col 3        col 4
+   *   - row 1 (mt):   mt_ml,    mt_i,    mt_$text,    mt_mr
+   *   - row 2 (text): $text_ml, $text_i, $text_$text, $text_mr
+   *   - row 3 (mb):   mb_ml,    mb_i,    mb_$text,    mb_mr
    * @param spans The formula spans.
    * @returns The areas.
    */
@@ -71,6 +72,7 @@ export class CodLayoutFormulaBase {
         if (vspans[v].type) {
           area.rowIndexes.push(`$${vspans[v].type}`);
         }
+        areas.push(area);
       }
     }
     return areas;
