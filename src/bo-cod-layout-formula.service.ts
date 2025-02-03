@@ -543,7 +543,7 @@ export class BOCodLayoutFormulaService
         }
 
         // use area color if defined in colorMap
-        const key = `${area.row}_${area.col}`;
+        const key = `@${area.row}_${area.col}`;
         if (colorMap.has(key)) {
           fillColor = colorMap.get(key)!;
         }
