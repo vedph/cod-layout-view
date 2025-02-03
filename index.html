@@ -4,18 +4,81 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Test Component</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.min.css"
+    />
     <script type="module" src="./dist/index.js"></script>
   </head>
   <body>
     <h1>Library Development Shell</h1>
     <article>
       <h2>Codicological Layout Formula View Component</h2>
-      <div style="border: 1px solid silver">
-        <cod-layout-view
-          formula="mm 336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33"
+      <div style="border: 1px solid rgb(231, 114, 114)">
+        <cod-layout-view id="view"
+          formula="mm 336 x 240 = 18:margtop // 282 // 36:margbtm x 25 / 4:initials // 174 // 4:initials / 33"
           style="width: 1200px; height: 1600px"
         ></cod-layout-view>
       </div>
+      <div>
+        <br />
+        <h3>Attributes</h3>
+        <label for="formulaTextarea">Formula:</label>
+        <textarea id="formulaTextarea" rows="2" cols="50"></textarea>
+        <br />
+        <label for="optionsTextarea">Options (JSON):</label>
+        <textarea id="optionsTextarea" rows="10" cols="50"></textarea>
+        <br />
+        <button type="button" id="updateButton">Update</button>
+      </div>
     </article>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // setup initial values
+        const formula =
+          "mm 336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33";
+        const options = {
+          showVertical: true,
+          showHorizontal: true,
+          showAreas: true,
+          vLineColor: "#666",
+          hLineColor: "#666",
+          textAreaLineColor: "#00f",
+          vLineWidth: 1,
+          hLineWidth: 1,
+          labelColor: "#333",
+          labelFontSize: 10,
+          labelFontFamily: "Arial",
+          showValueLabels: true,
+          valueLabelColor: "#333",
+          valueLabelPadding: 40,
+          padding: 20,
+          scale: 2,
+          areaColors: {
+            default: "#eee",
+            text: "#e6e9ff",
+          },
+          areaOpacity: 0.5,
+          fallbackLineStyle: "5,5",
+        };
+        document.getElementById("formulaTextarea").value = formula;
+        document.getElementById("optionsTextarea").value = JSON.stringify(
+          options,
+          null,
+          2
+        );
+
+        // on click update button, update the component
+        document
+          .getElementById("updateButton")
+          .addEventListener("click", () => {
+            const formula = document.getElementById("formulaTextarea").value;
+            const options = document.getElementById("optionsTextarea").value;
+            const codLayoutView = document.getElementById("view");
+            codLayoutView.setAttribute("formula", formula);
+            codLayoutView.setAttribute("options", options);
+          });
+      });
+    </script>
   </body>
 </html>
