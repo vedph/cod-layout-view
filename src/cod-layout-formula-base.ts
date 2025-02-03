@@ -77,4 +77,37 @@ export class CodLayoutFormulaBase {
     }
     return areas;
   }
+
+  /**
+   * Find an area by name in a list of areas.
+   * @param name The area name. This can be @y_x when matching by y and x values,
+   * or any combination of row and column indexes, separated by underscore.
+   * @param areas The areas to search in.
+   * @returns The area that matches the name.
+   */
+  public findArea(
+    name: string,
+    areas: CodLayoutArea[]
+  ): CodLayoutArea | undefined {
+    if (!name) {
+      return undefined;
+    }
+    // if name starts with @, it's @y_x
+    if (name.startsWith("@")) {
+      const i = name.indexOf("_");
+      const y = parseInt(name.substring(1, i), 10);
+      const x = parseInt(name.substring(i + 1), 10);
+      return areas.find((a) => a.y === y && a.x === x);
+    }
+    // assuming that name is row_col, find the first area having any
+    // of its rowIndexes equal to row, and any of its colIndexes equal to col
+    const i = name.indexOf("_");
+    const row = name.substring(0, i);
+    const col = name.substring(i + 1);
+    return areas.find(
+      (a) =>
+        a.rowIndexes.some((r) => r === row) &&
+        a.colIndexes.some((c) => c === col)
+    );
+  }
 }

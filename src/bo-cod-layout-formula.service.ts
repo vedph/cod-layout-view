@@ -36,6 +36,17 @@ export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
   fallbackLineStyle: "5,5",
 };
 
+interface AreaToRender {
+  x: number;
+  y: number;
+  col: number;
+  row: number; 
+  width: number;
+  height: number;
+  type?: string;
+  label?: string;
+}
+
 /**
  * Service to parse and build layout formulas in the format defined for
  * codicological fragments. See D. Bianconi, I Codices Graeci Antiquiores tra
@@ -421,22 +432,8 @@ export class BOCodLayoutFormulaService
     hSpans: CodLayoutSpan[],
     options: CodLayoutSvgOptions,
     useOriginal?: boolean
-  ): Array<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    type?: string;
-    label?: string;
-  }> {
-    const areas: Array<{
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-      type?: string;
-      label?: string;
-    }> = [];
+  ): Array<AreaToRender> {
+    const areas: Array<AreaToRender> = [];
 
     // calculate vertical positions
     const vPositions: number[] = [options.padding];
@@ -471,6 +468,8 @@ export class BOCodLayoutFormulaService
         areas.push({
           x: hPositions[j],
           y: vPositions[i],
+          col: j + 1,
+          row: i + 1,
           width: hPositions[j + 1] - hPositions[j],
           height: vPositions[i + 1] - vPositions[i],
           type: vSpan.type || hSpan.type,
@@ -533,11 +532,14 @@ export class BOCodLayoutFormulaService
         options.useOriginal
       );
       for (const area of areas) {
+        // start with default color
         let fillColor = opts.areaColors.default;
+        // use text color for text areas
         if (area.type === "text") {
           fillColor = opts.areaColors.text;
-          // TODO colors
-        } else if (area.label && opts.areaColors[area.label]) {
+        }
+        // TODO
+        if (area.label && opts.areaColors[area.label]) {
           fillColor = opts.areaColors[area.label];
         }
 
