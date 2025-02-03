@@ -16,6 +16,7 @@ export class CodLayoutViewComponent extends HTMLElement {
   private _viewPosition: { x: number; y: number } = { x: 0, y: 0 };
   private _options: CodLayoutSvgOptions;
   private _isTransformUpdateScheduled: boolean = false;
+  private _controls: HTMLElement | null = null;
 
   constructor() {
     super();
@@ -41,6 +42,7 @@ export class CodLayoutViewComponent extends HTMLElement {
       this.updateFormula(newValue);
     } else if (name === "options" && oldValue !== newValue) {
       this.updateOptions(newValue);
+      this.updateToggleButtons();
     }
   }
 
@@ -60,6 +62,50 @@ export class CodLayoutViewComponent extends HTMLElement {
     } catch (e) {
       console.error("Invalid options JSON", e);
     }
+  }
+
+  private updateToggleButtons() {
+    if (this._controls && this._options.showToolbar) {
+      // update vertical lines toggle
+      this.updateToggleButtonState(
+        "V",
+        this._options.showVertical ? true : false
+      );
+
+      // update horizontal lines toggle
+      this.updateToggleButtonState(
+        "H",
+        this._options.showHorizontal ? true : false
+      );
+
+      // update areas toggle
+      this.updateToggleButtonState("A", this._options.showAreas ? true : false);
+
+      // update original sizes toggle
+      this.updateToggleButtonState(
+        "O",
+        this._options.useOriginal ? true : false
+      );
+    }
+  }
+
+  private updateToggleButtonState(buttonId: string, state: boolean) {
+    const button = this._controls!.querySelector(
+      `#${buttonId}`
+    ) as HTMLInputElement;
+    if (button) {
+      button.checked = state;
+    }
+  }
+
+  private emitOptionsChange() {
+    this.dispatchEvent(
+      new CustomEvent("optionsChange", {
+        detail: this._options,
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   private setupInteractions() {
@@ -211,55 +257,61 @@ export class CodLayoutViewComponent extends HTMLElement {
       </div>
     `;
 
-    const controls = this.shadowRoot.querySelector(".controls");
-    if (controls) {
-      // vertical lines toggle
-      controls.appendChild(
-        this.createToggleButton(
-          "V",
-          this._options.showVertical ? true : false,
-          (state) => {
-            this._options.showVertical = state;
-            this.updateVisualization();
-          }
-        )
-      );
+    if (this._options.showToolbar) {
+      this._controls = this.shadowRoot.querySelector(".controls");
+      if (this._controls) {
+        // vertical lines toggle
+        this._controls.appendChild(
+          this.createToggleButton(
+            "V",
+            this._options.showVertical ? true : false,
+            (state) => {
+              this._options.showVertical = state;
+              this.updateVisualization();
+              this.emitOptionsChange();
+            }
+          )
+        );
 
-      // horizontal lines toggle
-      controls.appendChild(
-        this.createToggleButton(
-          "H",
-          this._options.showHorizontal ? true : false,
-          (state) => {
-            this._options.showHorizontal = state;
-            this.updateVisualization();
-          }
-        )
-      );
+        // horizontal lines toggle
+        this._controls.appendChild(
+          this.createToggleButton(
+            "H",
+            this._options.showHorizontal ? true : false,
+            (state) => {
+              this._options.showHorizontal = state;
+              this.updateVisualization();
+              this.emitOptionsChange();
+            }
+          )
+        );
 
-      // areas toggle
-      controls.appendChild(
-        this.createToggleButton(
-          "A",
-          this._options.showAreas ? true : false,
-          (state) => {
-            this._options.showAreas = state;
-            this.updateVisualization();
-          }
-        )
-      );
+        // areas toggle
+        this._controls.appendChild(
+          this.createToggleButton(
+            "A",
+            this._options.showAreas ? true : false,
+            (state) => {
+              this._options.showAreas = state;
+              this.updateVisualization();
+              this.emitOptionsChange();
+            }
+          )
+        );
 
-      // original sizes toggle
-      controls.appendChild(
-        this.createToggleButton(
-          "O",
-          this._options.useOriginal ? true : false,
-          (state) => {
-            this._options.useOriginal = state;
-            this.updateVisualization();
-          }
-        )
-      );
+        // original sizes toggle
+        this._controls.appendChild(
+          this.createToggleButton(
+            "O",
+            this._options.useOriginal ? true : false,
+            (state) => {
+              this._options.useOriginal = state;
+              this.updateVisualization();
+              this.emitOptionsChange();
+            }
+          )
+        );
+      }
     }
 
     this.setupInteractions();

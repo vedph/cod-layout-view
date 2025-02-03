@@ -64,6 +64,7 @@
         const formula =
           "mm 336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33";
         const options = {
+          showToolbar: true,
           showVertical: true,
           showHorizontal: true,
           showAreas: true,
@@ -103,6 +104,13 @@
         document.getElementById("showValueLabels").checked =
           options.showValueLabels;
 
+        const codLayoutView = document.getElementById("view");
+
+        // listen for options change event
+        codLayoutView.addEventListener("optionsChange", (event) => {
+          console.log("Options changed:", event.detail);
+        });
+
         // on click update button, update the component
         document
           .getElementById("updateButton")
@@ -131,7 +139,6 @@
             );
 
             // update the component
-            const codLayoutView = document.getElementById("view");
             codLayoutView.setAttribute("formula", formula);
             codLayoutView.setAttribute("options", JSON.stringify(options));
           });

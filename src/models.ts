@@ -131,6 +131,10 @@ export interface CodLayoutSvgOptions {
    * Use original values for dimensions when available.
    */
   useOriginal?: boolean;
+  /**
+   * Show the toolbar for toggling gridlines and areas.
+   */
+  showToolbar?: boolean;
 
   // grid colors
   vLineColor: string;

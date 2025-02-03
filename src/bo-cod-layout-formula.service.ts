@@ -9,6 +9,7 @@ import {
 } from "./models";
 
 export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
+  showToolbar: true,
   showVertical: true,
   showHorizontal: true,
   showAreas: true,
