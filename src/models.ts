@@ -159,10 +159,6 @@ export interface CodLayoutSvgOptions {
    * Color for value labels.
    */
   valueLabelColor: string;
-  /**
-   * Extra padding for value labels (in pixels).
-   */
-  valueLabelPadding: number;
 
   // SVG properties
   padding: number;

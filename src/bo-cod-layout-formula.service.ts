@@ -22,7 +22,6 @@ export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
   labelFontFamily: "Arial",
   showValueLabels: true,
   valueLabelColor: "#333",
-  valueLabelPadding: 40,
   padding: 20,
   scale: 2,
   areaColors: {
@@ -495,15 +494,9 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
     };
 
     // Calculate base dimensions
-    const baseWidth =
-      getSize(formula.width).size * opts.scale! + opts.padding * 2;
-    const baseHeight =
+    const width = getSize(formula.width).size * opts.scale! + opts.padding * 2;
+    const height =
       getSize(formula.height).size * opts.scale! + opts.padding * 2;
-
-    // Add extra space for value labels if enabled
-    const extraSpace = opts.showValueLabels ? opts.valueLabelPadding || 40 : 0;
-    const width = baseWidth + extraSpace;
-    const height = baseHeight + extraSpace;
 
     const svg: string[] = [
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`,
@@ -557,7 +550,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
 
         svg.push(
           `<line x1="${opts.padding}" y1="${currentPos}" ` +
-            `x2="${baseWidth - opts.padding}" y2="${currentPos}" ` +
+            `x2="${width - opts.padding}" y2="${currentPos}" ` +
             `stroke="${lineColor}" stroke-width="${opts.vLineWidth}" ` +
             `${
               isFallback ? `stroke-dasharray="${opts.fallbackLineStyle}"` : ""
@@ -578,9 +571,9 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
         // value label at the right
         if (opts.showValueLabels) {
           svg.push(
-            `<text class="layout-label" x="${
-              baseWidth - opts.padding - 5
-            }" y="${currentPos - 2}" ` +
+            `<text class="layout-label" x="${width - opts.padding - 5}" y="${
+              currentPos - 2
+            }" ` +
               `text-anchor="end" fill="${opts.valueLabelColor}">${size}${formula.unit}</text>`
           );
         }
@@ -598,7 +591,7 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
 
         svg.push(
           `<line x1="${currentPos}" y1="${opts.padding}" ` +
-            `x2="${currentPos}" y2="${baseHeight - opts.padding}" ` +
+            `x2="${currentPos}" y2="${height - opts.padding}" ` +
             `stroke="${lineColor}" stroke-width="${opts.hLineWidth}" ` +
             `${
               isFallback ? `stroke-dasharray="${opts.fallbackLineStyle}"` : ""
@@ -621,10 +614,10 @@ export class BOCodLayoutFormulaService implements CodLayoutFormulaService {
         if (opts.showValueLabels) {
           svg.push(
             `<text class="layout-label" x="${currentPos + 2}" y="${
-              baseHeight - opts.padding + 15
+              height - opts.padding + 15
             }" ` +
               `transform="rotate(-90 ${currentPos + 2} ${
-                baseHeight - opts.padding + 15
+                height - opts.padding + 15
               })" ` +
               `text-anchor="start" fill="${opts.valueLabelColor}">${size}${formula.unit}</text>`
           );
