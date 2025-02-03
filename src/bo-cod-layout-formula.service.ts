@@ -1,6 +1,7 @@
 import { CodLayoutFormulaBase } from "./cod-layout-formula-base";
 import {
   CodLayoutFormula,
+  CodLayoutFormulaRenderer,
   CodLayoutFormulaService,
   CodLayoutSpan,
   CodLayoutSvgOptions,
@@ -47,7 +48,7 @@ export const DEFAULT_BO_SVG_OPTIONS: CodLayoutSvgOptions = {
  */
 export class BOCodLayoutFormulaService
   extends CodLayoutFormulaBase
-  implements CodLayoutFormulaService
+  implements CodLayoutFormulaService, CodLayoutFormulaRenderer
 {
   //#region Parsing formula
   /**

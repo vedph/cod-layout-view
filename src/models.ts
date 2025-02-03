@@ -98,6 +98,13 @@ export interface CodLayoutArea {
   rowIndexes: string[];
 }
 
+export interface CodLayoutFormulaRenderer {
+  buildSvg(
+    formula: CodLayoutFormula,
+    options: Partial<CodLayoutSvgOptions>
+  ): string;
+}
+
 /**
  * A service to parse and build codicological layout formulas.
  */
