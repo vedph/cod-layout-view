@@ -128,6 +128,9 @@ export interface CodLayoutFormulaService {
   buildFormula(formula?: CodLayoutFormula | null): string | null;
 }
 
+/**
+ * Options for rendering a codicological layout formula as SVG.
+ */
 export interface CodLayoutSvgOptions {
   /**
    * Show vertical gridlines.

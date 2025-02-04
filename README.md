@@ -33,9 +33,13 @@ These gridlines, as defined by spans (dimensions), form **areas** at their inter
 
 As spans can be labelled, areas can get a more human-friendly designation by combining the label from the vertical gridline with the label from the horizontal gridline. For instance:
 
-col 1     | col 2    | col 3        | col 4
-----------|----------|--------------|----------
-1,1=mt_ml | 1,2=mt_i | 1,3=mt_$text | 1,4=mt_mr
+col 1          | col 2         | col 3             | col 4
+---------------|---------------|-------------------|---------------
+1,1=`mt_ml`    | 1,2=`mt_i`    | 1,3=`mt_$text`    | 1,4=`mt_mr`
+2,1=`$text_ml` | 2,2=`$text_i` | 2,3=`$text_$text` | 2,4=`$text_mr`
+3,1=`mb_ml`    | 3,2=`mb_i`    | 3,3=`mb_$text`    | 3,4=`mb_mr`
+
+As you can see, here we are using the labels assigned to each span, or their type (preceded by `$`) when a label is not present. This convention can be used to define colors for each region.
 
 ```mermaid
 classDiagram
@@ -106,6 +110,43 @@ Codicological layout formulas essentially represent the layout scheme of a page 
 - also, often we add the possibility of representing the current dimension vs. its original value. In most cases pages were trimmed, so that the current dimensions are not equal to the original ones, which in many cases can be reconstructed. This implies that each measurement can have an associated reconstructed value.
 
 The vertical measurements (defining horizontal grid lines from top to bottom) combined with the horizontal measurements (defining vertical grid lines from left to right) are combined to define rectangular areas, which represent the layout of a page.
+
+Each service implementing a layout formula provides:
+
+- a function to parse the formula's text into the formula model illustrated above;
+- a function to convert the formula model into text;
+- an optional function to render the formula's text into SVG.
+
+SVG rendering options are:
+
+- `showVertical`: true to show vertical gridlines.
+- `showHorizontal`: true to show horizontal gridlines.
+- `showAreas`: true to show areas defined by combining vertical and horizontal gridlines.
+- `useOriginal`: use original values for dimensions when available. When not available, gridlines will use the current value and will be dotted.
+- `showToolbar`: show toolbar for toggling gridlines and areas.
+- `vLineColor`: color of vertical lines.
+- `hLineColor`: color of horizontal lines.
+- `textAreaLineColor`: color of text area lines.
+- `vLineWidth`: width of vertical lines.
+- `hLineWidth`: width of horizontal lines.
+- `areaGap`: gap between lines.
+- `labelColor`: label's color.
+- `labelFontSize`: labels' font size.
+- `labelFontFamily`: label's font family.
+- `labelColors`: customized colors for each label.
+- `showValueLabels`: show value labels on gridlines.
+- `valueLabelColor`: value label color.
+- `padding`: padding.
+- `scale`: scale (unit to pixels).
+- `areaColors`
+  - `default`: the default area color, used when no other color is specified.
+  - key=value map for other areas. Each area is identified in any of the following ways:
+    - `@y_x`: Y and X values (see the sample diagram above), separated by underscore.
+    - `row_col`: the label/type from vertical and horizontal gridlines, separated by underscore.
+    - `row_`: the label/type from vertical gridlines only.
+    - `_col`: the label/type from horizontal gridlines only.
+- `areaOpacity`: the area opacity.
+- `fallbackLineStyle`: line style used when original values are requested but we are falling back to the current values.
 
 ### Bianconi-Orsini
 
