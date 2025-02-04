@@ -156,9 +156,12 @@ export class CodLayoutViewComponent extends HTMLElement {
       "wheel",
       (e: WheelEvent) => {
         e.preventDefault();
+        const rect = container.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
         const delta = e.deltaY > 0 ? 0.9 : 1.1;
         this._zoom = Math.min(Math.max(0.1, this._zoom * delta), 5);
-        this.updateTransform();
+        this.updateTransform(offsetX, offsetY);
       },
       { passive: false }
     );
@@ -222,18 +225,25 @@ export class CodLayoutViewComponent extends HTMLElement {
     this.updateTransform();
   }
 
-  private updateTransform() {
+  private updateTransform(offsetX?: number, offsetY?: number) {
     const svg = this.shadowRoot!.querySelector("svg");
     if (!svg) return;
 
-    const centerX = svg.clientWidth / 2;
-    const centerY = svg.clientHeight / 2;
+    if (offsetX !== undefined && offsetY !== undefined) {
+      const rect = svg.getBoundingClientRect();
+      const svgX = offsetX - rect.left;
+      const svgY = offsetY - rect.top;
+      const prevZoom = this._zoom;
+      this._zoom = Math.min(Math.max(0.1, this._zoom), 5);
+      const zoomFactor = this._zoom / prevZoom;
 
-    svg.style.transform = `translate(${
-      -centerX * (this._zoom - 1) + this._viewPosition.x
-    }px, ${-centerY * (this._zoom - 1) + this._viewPosition.y}px) scale(${
-      this._zoom
-    })`;
+      this._viewPosition.x = (this._viewPosition.x - svgX) * zoomFactor + svgX;
+      this._viewPosition.y = (this._viewPosition.y - svgY) * zoomFactor + svgY;
+    }
+
+    svg.style.transition = "transform 0.1s ease-out";
+    svg.style.transformOrigin = "0 0";
+    svg.style.transform = `translate(${this._viewPosition.x}px, ${this._viewPosition.y}px) scale(${this._zoom})`;
 
     this._isTransformUpdateScheduled = false;
   }
@@ -316,6 +326,7 @@ export class CodLayoutViewComponent extends HTMLElement {
           width: 100%;
           height: 100%;
           display: block;
+          transition: transform 0.1s ease-out;
         }
       </style>
       <div class="controls"></div>
