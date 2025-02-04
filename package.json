@@ -19,10 +19,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vedph/gve-snapshot-view"
+    "url": "https://github.com/vedph/cod-layout-view"
   },
   "dependencies": {
-    "svg-pan-zoom": "^3.6.2",
     "typescript": "^5.6.2"
   },
   "devDependencies": {

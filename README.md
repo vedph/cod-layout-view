@@ -1,5 +1,7 @@
 # CodLayoutView
 
+👉 Quick start: download or clone the repository, open a terminal in its folder, restore NPM packages (`npm i`), and run with `npm run start`. When started open your browser at <localhost:3000>. The library has no additional dependencies.
+
 - building: `npm run build`.
 - running: `npm run start`.
 - testing: use VSCode extensions or just `npm run test`.
@@ -94,7 +96,7 @@ CodLayoutFormulaRenderer <|-- BOCodLayoutFormula
 CodLayoutFormulaService <|-- BOCodLayoutFormula
 ```
 
-## Quick Start
+## Usage
 
 1. 📦 install package: `npm i @myrmidon/cod-layout-view`.
 2. add the component in your HTML template like `<cod-layout-view formula="..." options="..."></cod-layout-view>`.
@@ -214,6 +216,50 @@ Examples (see pp.110-111):
 - `(27)`: external margin width
 
 >Note that the above examples were fixed as they seem to have typos in the original document (see nr.2 and 3).
+
+For instance, the formula `mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr` is displayed like in the screenshot below:
+
+![demo rendition](demo.png)
+
+Here notice the labels on top of horizontal gridlines and to the left of vertical gridlines, and their dimension values to their right or bottom, respectively. The central area is colored according to the options defined, which specify a color for the area identified by `$text_$text`. The labels in the formula represent:
+
+- `mt` = margin, top;
+- `mb` = margin, bottom;
+- `ml` = margin, left;
+- `i` = initials column;
+- `mr` = margin, right.
+
+The options used in this demo are:
+
+```js
+const options = {
+  showToolbar: true,
+  showVertical: true,
+  showHorizontal: true,
+  showAreas: true,
+  vLineColor: "#666",
+  hLineColor: "#666",
+  textAreaLineColor: "#00f",
+  vLineWidth: 1,
+  hLineWidth: 1,
+  labelColor: "#333",
+  labelFontSize: 10,
+  labelFontFamily: "Arial",
+  showValueLabels: true,
+  valueLabelColor: "#333",
+  valueLabelPadding: 40,
+  padding: 20,
+  scale: 2,
+  areaColors: {
+    default: "transparent",
+    $text_$text: "#ff6961",
+  },
+  areaOpacity: 0.5,
+  fallbackLineStyle: "5,5",
+};
+```
+
+The toolbar (not shown in the above screenshot) allows you to quickly toggle gridlines and areas and zoom the drawing to fit the container.
 
 ## Workspace Setup
 
