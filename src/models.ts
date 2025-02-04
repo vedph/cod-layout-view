@@ -70,7 +70,7 @@ export interface CodLayoutSpan extends CodLayoutValue {
  */
 export interface CodLayoutFormula {
   /**
-   * The formula type, e.g. "BO" for Bianconi-Orsini.
+   * The formula type identifier, e.g. "BO" for Bianconi-Orsini.
    */
   readonly type?: string;
   /**
@@ -109,6 +109,11 @@ export interface CodLayoutFormulaRenderer {
  * A service to parse and build codicological layout formulas.
  */
 export interface CodLayoutFormulaService {
+  /**
+   * The formula type identifier, e.g. "BO" for Bianconi-Orsini.
+   */
+  readonly type: string;
+
   /**
    * Parse a codicological layout formula from a text string.
    * @param text The text of the formula to parse or null or

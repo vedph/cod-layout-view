@@ -2,7 +2,11 @@ import {
   BOCodLayoutFormulaService,
   DEFAULT_BO_SVG_OPTIONS,
 } from "./bo-cod-layout-formula.service";
-import { CodLayoutSvgOptions } from "./models";
+import {
+  CodLayoutFormulaService,
+  CodLayoutSvgOptions,
+  CodLayoutFormulaRenderer,
+} from "./models";
 
 /**
  * A web component to visualize codicological layout formulas.
@@ -17,6 +21,7 @@ export class CodLayoutViewComponent extends HTMLElement {
   private _options: CodLayoutSvgOptions;
   private _isTransformUpdateScheduled: boolean = false;
   private _controls: HTMLElement | null = null;
+  private _service?: CodLayoutFormulaService;
 
   constructor() {
     super();
@@ -46,11 +51,43 @@ export class CodLayoutViewComponent extends HTMLElement {
     }
   }
 
+  private ensureService(type?: string): void {
+    if (!this._service || (type && this._service.type !== type)) {
+      switch (type) {
+        case "BO":
+          console.log("Using BO formula service");
+          this._service = new BOCodLayoutFormulaService();
+          break;
+        default:
+          console.log("Unknown formula type, using BO as default");
+          this._service = new BOCodLayoutFormulaService();
+          break;
+      }
+    }
+  }
+
+  private evalFormulaType(formulaText: string): string {
+    // extract formula type from the first token when formula starts with $
+    // else assume BO as default
+    const typeMatch = formulaText.match(/^\$([^\s]+)\s+/);
+    const type = typeMatch ? typeMatch[1] : "BO";
+    this.ensureService(type);
+    if (typeMatch) {
+      formulaText = formulaText.substring(typeMatch[0].length);
+    }
+    return formulaText;
+  }
+
   private updateFormula(formulaText: string) {
-    const service = new BOCodLayoutFormulaService();
-    const formula = service.parseFormula(formulaText);
+    formulaText = this.evalFormulaType(formulaText);
+
+    const formula = this._service!.parseFormula(formulaText);
     if (formula) {
-      this._svg = service.buildSvg(formula);
+      if ((this._service as unknown as CodLayoutFormulaRenderer).buildSvg) {
+        this._svg = (
+          this._service! as unknown as CodLayoutFormulaRenderer
+        ).buildSvg(formula, this._options);
+      }
       this.updateVisualization();
     }
   }
@@ -196,13 +233,17 @@ export class CodLayoutViewComponent extends HTMLElement {
   }
 
   private updateVisualization() {
-    const formula = this.getAttribute("formula");
+    let formula = this.getAttribute("formula");
     if (formula) {
-      const service = new BOCodLayoutFormulaService();
-      const parsedFormula = service.parseFormula(formula);
+      formula = this.evalFormulaType(formula);
+      const parsedFormula = this._service!.parseFormula(formula);
       if (parsedFormula) {
-        this._svg = service.buildSvg(parsedFormula, this._options);
-        this.render();
+        if ((this._service as unknown as CodLayoutFormulaRenderer).buildSvg) {
+          this._svg = (
+            this._service as unknown as CodLayoutFormulaRenderer
+          ).buildSvg(parsedFormula, this._options);
+          this.render();
+        }
       }
     }
   }

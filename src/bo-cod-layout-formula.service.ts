@@ -61,6 +61,11 @@ export class BOCodLayoutFormulaService
   extends CodLayoutFormulaBase
   implements CodLayoutFormulaService, CodLayoutFormulaRenderer
 {
+  /**
+   * The type of the layout formula (BO).
+   */
+  public readonly type = "BO";
+
   //#region Parsing formula
   /**
    * Preprocess a formula text before parsing. This replaces - with 0 and pairs of
