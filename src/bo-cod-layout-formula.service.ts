@@ -1,6 +1,5 @@
 import { CodLayoutFormulaBase } from "./cod-layout-formula-base";
 import {
-  CodLayoutArea,
   CodLayoutFormula,
   CodLayoutFormulaRenderer,
   CodLayoutFormulaService,

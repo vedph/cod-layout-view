@@ -1,14 +1,72 @@
 # CodLayoutView
 
-Codicological layout formulas services and view web component in a framework-independent Typescript library. This library contains services and models representing manuscript layout formulas. Such formulas are text strings which represent in a compact way the size and gridlines of a manuscript page. We give a list of vertical gridlines, with the span between each of them, from top to bottom; and a list of horizontal gridlines, with the span between each of them, from left to right. Once we virtually draw these lines, we get a grid which defines the various layout areas. A specific label tags those areas designed to contain text. Other areas are used for empty areas like margins, or for areas designed for special purposes, like holding initials.
-
 - building: `npm run build`.
 - running: `npm run start`.
 - testing: use VSCode extensions or just `npm run test`.
 
-## Usage
+## Model
 
-📦 `npm i @myrmidon/cod-layout-view`
+Codicological layout formulas services and view web component in a framework-independent Typescript library. This library contains services and models representing manuscript layout formulas.
+
+Such formulas are text strings which represent in a compact way the size and gridlines of a manuscript page. We give a list of vertical gridlines, with the span between each of them, from top to bottom; and a list of horizontal gridlines, with the span between each of them, from left to right. Once we virtually draw these lines, we get a grid which defines the various layout areas. A specific label tags those areas designed to contain text. Other areas are used for empty areas like margins, or for areas designed for special purposes, like holding initials.
+
+```mermaid
+classDiagram
+
+CodLayoutValue : +number value
+CodLayoutValue : +boolean isOriginal
+CodLayoutValue : +number originalValue
+CodLayoutValue : +string label
+
+CodLayoutValue <|-- CodLayoutSpan
+CodLayoutSpan : +string type
+CodLayoutSpan : +boolean isHorizontal
+
+CodLayoutFormula : +string type
+CodLayoutFormula : +CodLayoutUnit unit
+CodLayoutFormula : +CodLayoutValue height
+CodLayoutFormula : +CodLayoutValue width
+CodLayoutFormula : +CodLayoutSpan[] spans
+
+CodLayoutArea : +number y
+CodLayoutArea : +number x
+CodLayoutArea : +number colIndexes
+CodLayoutArea : +number rowIndexes
+
+CodLayoutSvgOptions : +boolean showVertical
+CodLayoutSvgOptions : +boolean showHorizontal
+CodLayoutSvgOptions : +boolean showAreas
+CodLayoutSvgOptions : +boolean useOriginal
+CodLayoutSvgOptions : +boolean showToolbar
+CodLayoutSvgOptions : +number vLineWidth
+CodLayoutSvgOptions : +number hLineWidth
+CodLayoutSvgOptions : +number areaGap
+CodLayoutSvgOptions : +string labelColor
+CodLayoutSvgOptions : +number labelFontSize
+CodLayoutSvgOptions : +string labelFontFamily
+CodLayoutSvgOptions : +Map~string,string~ labelColors
+CodLayoutSvgOptions : +boolean showValueLabels
+CodLayoutSvgOptions : +string valueLabelColor
+CodLayoutSvgOptions : +number padding
+CodLayoutSvgOptions : +number scale
+CodLayoutSvgOptions : +Map~string,string~ areaColors
+CodLayoutSvgOptions : +number areaOpacity
+CodLayoutSvgOptions : +string fallbackLineStyle
+
+CodLayoutFormulaRenderer : +string buildSvg(formula, options)
+
+CodLayoutFormulaService : +CodLayoutFormula parseFormula(text)
+CodLayoutFormulaService : +string buildFormula(formula)
+
+CodLayoutFormulaBase <|-- BOCodLayoutFormula
+CodLayoutFormulaRenderer <|-- BOCodLayoutFormula
+CodLayoutFormulaService <|-- BOCodLayoutFormula
+```
+
+## Quick Start
+
+1. 📦 install package: `npm i @myrmidon/cod-layout-view`.
+2. add the component in your HTML template like `<cod-layout-view formula="..." options="..."></cod-layout-view>`.
 
 ## Formulas
 

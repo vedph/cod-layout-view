@@ -1,4 +1,4 @@
-import { CodLayoutArea, CodLayoutSpan, CodLayoutSvgOptions } from "./models";
+import { CodLayoutArea, CodLayoutSpan } from "./models";
 
 /**
  * Base class for codicological layout formula services.
