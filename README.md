@@ -10,6 +10,27 @@ Codicological layout formulas services and view web component in a framework-ind
 
 Such formulas are text strings which represent in a compact way the size and gridlines of a manuscript page. We give a list of vertical gridlines, with the span between each of them, from top to bottom; and a list of horizontal gridlines, with the span between each of them, from left to right. Once we virtually draw these lines, we get a grid which defines the various layout areas. A specific label tags those areas designed to contain text. Other areas are used for empty areas like margins, or for areas designed for special purposes, like holding initials.
 
+Some generic models are used whatever the formula:
+
+- **dimension**: a single numeric value (`CodLayoutValue`): this couples a value with an optional label, and a second optional value representing the original (reconstructed) value. Also, `isOriginal` tells whether the current value also is the original one (which most often is not the case). So, the dimension value can be represented by:
+  - a current value equal to the original one (`isOriginal`=true).
+  - a current value not equal to the original one, which can't be reconstructed (`isOriginal`=false).
+  - a current value not equal to the original one, which can be reconstructed (`isOriginal`=false, `originalValue` specified).
+- **size**: a pair of dimensions for the sheet's width and height.
+- **span**: a dimension measured from the sheet's edge (top or left) along the horizontal or vertical axis. For instance, on the vertical axis you can get 3 spans: top margin (from sheet's top edge), text, bottom margin. Each is a dimension which gets measured from the previous span or from the sheet's edge. Dimensions along the vertical axis are visually represented by horizontal gridlines, and dimensions along the horizontal axis by vertical gridlines.
+
+Consider this mock example:
+
+![layout example](sample.png)
+
+Here we have:
+
+- size: height=10, width=8.
+- vertical spans: top margin (`mt`) = 1, text = 7, bottom margin (`mb`) = 2. The horizontal gridlines here are green.
+- horizontal spans: left margin (`ml`) = 2, initials column (`i`) = 1, text = 3, right margin (`mr`) = 2.
+
+These gridlines, as defined by spans (dimensions), form **areas** at their intersections. In the above diagram we conventionally number these areas with their Y and X values: so the top left area is 1,1; the area at its right is 1,2; the area below it is 2,1; etc.
+
 ```mermaid
 classDiagram
 
