@@ -392,7 +392,7 @@ export class CodLayoutViewComponent extends HTMLElement {
 
         // fit to container button
         const fitButton = document.createElement("button");
-        fitButton.textContent = "Fit";
+        fitButton.textContent = "\u26cb";
         fitButton.className = "toggle-button";
         fitButton.addEventListener("click", () => {
           this.fitToContainer();
