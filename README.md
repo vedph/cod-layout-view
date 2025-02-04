@@ -99,7 +99,9 @@ CodLayoutFormulaService <|-- BOCodLayoutFormula
 1. 📦 install package: `npm i @myrmidon/cod-layout-view`.
 2. add the component in your HTML template like `<cod-layout-view formula="..." options="..."></cod-layout-view>`.
 
-The component is generic and its formula service is replaceable. Currently there is a single service, identified by `BO` (Bianconi-Orsini). Other services may be added. To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...`.
+The component is generic and its formula service is replaceable. Currently there is a single service, identified by `BO` (Bianconi-Orsini). Other services may be added. To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...`. If you don't specify a service, the default will be `BO`.
+
+>⚠️ The service identifier is case sensitive.
 
 ## Formulas
 
