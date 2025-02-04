@@ -201,12 +201,40 @@ export class CodLayoutViewComponent extends HTMLElement {
     });
   }
 
+  private fitToContainer() {
+    const svg = this.shadowRoot!.querySelector("svg");
+    const container = this.shadowRoot!.querySelector(".viewer-container");
+
+    if (!svg || !container) return;
+
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    const svgWidth = svg.clientWidth; // Use clientWidth for rendered width
+    const svgHeight = svg.clientHeight; // Use clientHeight for rendered height
+
+    const scale = Math.min(
+      containerWidth / svgWidth,
+      containerHeight / svgHeight
+    );
+
+    this._zoom = scale;
+    this._viewPosition = { x: 0, y: 0 }; // Reset position
+    this.updateTransform();
+  }
+
   private updateTransform() {
     const svg = this.shadowRoot!.querySelector("svg");
     if (!svg) return;
 
-    svg.style.transform = `translate(${this._viewPosition.x}px, ${this._viewPosition.y}px) scale(${this._zoom})`;
-    // allow the next animation frame to schedule an update
+    const centerX = svg.clientWidth / 2;
+    const centerY = svg.clientHeight / 2;
+
+    svg.style.transform = `translate(${
+      -centerX * (this._zoom - 1) + this._viewPosition.x
+    }px, ${-centerY * (this._zoom - 1) + this._viewPosition.y}px) scale(${
+      this._zoom
+    })`;
+
     this._isTransformUpdateScheduled = false;
   }
 
@@ -285,11 +313,9 @@ export class CodLayoutViewComponent extends HTMLElement {
           color: white;
         }
         svg {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform-origin: center center;
-          transition: transform 0.1s ease-out;
+          width: 100%;
+          height: 100%;
+          display: block;
         }
       </style>
       <div class="controls"></div>
@@ -352,10 +378,20 @@ export class CodLayoutViewComponent extends HTMLElement {
             }
           )
         );
+
+        // fit to container button
+        const fitButton = document.createElement("button");
+        fitButton.textContent = "Fit";
+        fitButton.className = "toggle-button";
+        fitButton.addEventListener("click", () => {
+          this.fitToContainer();
+        });
+        this._controls.appendChild(fitButton);
       }
     }
 
     this.setupInteractions();
+    this.fitToContainer();
   }
 }
 
