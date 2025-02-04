@@ -17,7 +17,7 @@ Some generic models are used whatever the formula:
   - a current value not equal to the original one, which can't be reconstructed (`isOriginal`=false).
   - a current value not equal to the original one, which can be reconstructed (`isOriginal`=false, `originalValue` specified).
 - **size**: a pair of dimensions for the sheet's width and height.
-- **span**: a dimension measured from the sheet's edge (top or left) along the horizontal or vertical axis. For instance, on the vertical axis you can get 3 spans: top margin (from sheet's top edge), text, bottom margin. Each is a dimension which gets measured from the previous span or from the sheet's edge. Dimensions along the vertical axis are visually represented by horizontal gridlines, and dimensions along the horizontal axis by vertical gridlines.
+- **span**: a dimension measured from the sheet's edge (top or left) along the horizontal or vertical axis. For instance, on the vertical axis you can get 3 spans: top margin (from sheet's top edge), text, bottom margin. Each is a dimension which gets measured from the previous span or from the sheet's edge. Dimensions along the vertical axis are visually represented by horizontal gridlines, and dimensions along the horizontal axis by vertical gridlines. Spans are dimensions having a direction (horizontal or vertical) and a type (in most cases undefined except when it is `text`, which defines an area designed to contain text).
 
 Consider this mock example:
 
@@ -30,6 +30,12 @@ Here we have:
 - horizontal spans: left margin (`ml`) = 2, initials column (`i`) = 1, text = 3, right margin (`mr`) = 2.
 
 These gridlines, as defined by spans (dimensions), form **areas** at their intersections. In the above diagram we conventionally number these areas with their Y and X values: so the top left area is 1,1; the area at its right is 1,2; the area below it is 2,1; etc.
+
+As spans can be labelled, areas can get a more human-friendly designation by combining the label from the vertical gridline with the label from the horizontal gridline. For instance:
+
+col 1     | col 2    | col 3        | col 4
+----------|----------|--------------|----------
+1,1=mt_ml | 1,2=mt_i | 1,3=mt_$text | 1,4=mt_mr
 
 ```mermaid
 classDiagram
