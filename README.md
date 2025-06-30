@@ -114,11 +114,37 @@ CodLayoutFormulaService <|-- BOCodLayoutFormula
 ## Usage
 
 1. 📦 install package: `npm i @myrmidon/cod-layout-view`.
-2. add the component in your HTML template like `<cod-layout-view formula="..." options="..."></cod-layout-view>`.
 
-The component is generic and its formula service is replaceable. Currently there is a single service, identified by `BO` (Bianconi-Orsini). Other services may be added. To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...`. If you don't specify a service, the default will be `BO`.
+>The component is generic and its formula service is replaceable. Currently there is a single service, identified by `BO` (Bianconi-Orsini). Other services may be added. To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...`. If you don't specify a service, the default will be `BO`. Note that the service identifier is case sensitive.
 
->⚠️ The service identifier is case sensitive.
+2. in your component code, import the web component like this:
+
+```ts
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
+import '@myrmidon/cod-layout-view';
+
+@Component({
+  selector: 'my-component',
+  imports: [
+  	// ...
+  ],
+  // ADD this line:
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  // ...
+})
+```
+
+3. in your component template, use it like (in this example, `layout` is a `FormControl<string>`):
+
+```html
+<cod-layout-view
+  [attr.formula]="layout.value"
+  style="width: 100%; height: 900px"
+></cod-layout-view>
+```
+
+>Web Components (Custom Elements) typically use attributes for data binding, while Angular components use properties. This is a common integration point to be aware of. That's why you *must* use `[attr.NAME]` rather than `[NAME]`. In the same way, you can bind `[attr.options]` for custom options too.
 
 ## Formulas
 
