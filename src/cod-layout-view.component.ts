@@ -29,7 +29,7 @@ export class CodLayoutViewComponent extends HTMLElement {
 
   constructor() {
     super();
-    this._options = DEFAULT_BO_SVG_OPTIONS;
+    this._options = DEFAULT_IT_SVG_OPTIONS;
     this.attachShadow({ mode: "open" });
   }
 
@@ -69,9 +69,9 @@ export class CodLayoutViewComponent extends HTMLElement {
           this._options = { ...DEFAULT_IT_SVG_OPTIONS, ...this._options };
           break;
         default:
-          console.log("Unknown formula type, using BO as default");
-          this._service = new BOCodLayoutFormulaService();
-          this._options = { ...DEFAULT_BO_SVG_OPTIONS, ...this._options };
+          console.log("Unknown formula type, using IT as default");
+          this._service = new ITCodLayoutFormulaService();
+          this._options = { ...DEFAULT_IT_SVG_OPTIONS, ...this._options };
           break;
       }
     }
@@ -79,9 +79,9 @@ export class CodLayoutViewComponent extends HTMLElement {
 
   private evalFormulaType(formulaText: string): string {
     // extract formula type from the first token when formula starts with $
-    // else assume BO as default
+    // else assume IT as default (IT predates BO and existing production code uses IT without prefix)
     const typeMatch = formulaText.match(/^\$([^\s]+)\s+/);
-    const type = typeMatch ? typeMatch[1] : "BO";
+    const type = typeMatch ? typeMatch[1] : "IT";
     this.ensureService(type);
     if (typeMatch) {
       formulaText = formulaText.substring(typeMatch[0].length);

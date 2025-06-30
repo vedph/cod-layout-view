@@ -116,7 +116,7 @@ CodLayoutFormulaService <|-- BOCodLayoutFormula
 
 1. 📦 install package: `npm i @myrmidon/cod-layout-view`.
 
-> The component is generic and its formula service is replaceable. Currently there is a single service, identified by `BO` (Bianconi-Orsini). Other services may be added. To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...`. If you don't specify a service, the default will be `BO`. Note that the service identifier is case sensitive.
+> The component is generic and its formula service is replaceable. Currently there are two services available: `IT` (Itinera, default) and `BO` (Bianconi-Orsini). To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...` or `$IT ...formula here...`. If you don't specify a service, the default will be `IT` (Itinera), as this format predates BO and there is existing production code using IT formulas without any prefix. Note that the service identifier is case sensitive.
 
 2. in your component code, import the web component like this:
 

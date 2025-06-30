@@ -28,20 +28,20 @@
     <article>
       <h2>Codicological Layout Formula View Component</h2>
       
-      <h3>BO (Bianconi-Orsini) Formula Example</h3>
-      <div style="border: 1px solid rgb(231, 114, 114)">
+      <h3>IT (Itinera) Formula Example - Default</h3>
+      <div style="border: 1px solid rgb(114, 231, 114)">
         <cod-layout-view
           id="view"
-          formula="mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr";
+          formula="250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
           style="width: 100%; height: 800px"
         ></cod-layout-view>
       </div>
 
-      <h3>IT (Itinera) Formula Example</h3>
-      <div style="border: 1px solid rgb(114, 231, 114)">
+      <h3>BO (Bianconi-Orsini) Formula Example - With $BO Prefix</h3>
+      <div style="border: 1px solid rgb(231, 114, 114)">
         <cod-layout-view
-          id="itView"
-          formula="$IT 250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
+          id="boView"
+          formula="$BO mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr";
           style="width: 100%; height: 800px"
         ></cod-layout-view>
       </div>
@@ -63,13 +63,13 @@
         <div>
           <p><strong>Formula Types:</strong></p>
           <ul>
-            <li><strong>BO (default):</strong> Bianconi-Orsini format with // and labels</li>
-            <li><strong>IT:</strong> Itinera format with square brackets and specific structure (prefix with $IT)</li>
+            <li><strong>IT (default):</strong> Itinera format with square brackets and specific structure</li>
+            <li><strong>BO:</strong> Bianconi-Orsini format with // and labels (prefix with $BO)</li>
           </ul>
           <p><strong>Example formulas:</strong></p>
           <ul>
-            <li>BO: <code>mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr</code></li>
-            <li>IT: <code>$IT 250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15</code></li>
+            <li>IT (default): <code>250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15</code></li>
+            <li>BO: <code>$BO mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr</code></li>
           </ul>
         </div>
         <label for="formulaTextarea">Formula:</label>
@@ -85,9 +85,9 @@
     </article>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // setup initial values
+        // setup initial values (using IT as default)
         const formula =
-          "mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr";
+          "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
         const options = {
           showToolbar: true,
           showVertical: true,
@@ -171,13 +171,13 @@
         // Load example formulas
         document.getElementById("loadBoExample").addEventListener("click", () => {
           document.getElementById("formulaTextarea").value = 
-            "mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr";
+            "$BO mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr";
           updateComponent();
         });
 
         document.getElementById("loadItExample").addEventListener("click", () => {
           document.getElementById("formulaTextarea").value = 
-            "$IT 250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
+            "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
           updateComponent();
         });
       });
