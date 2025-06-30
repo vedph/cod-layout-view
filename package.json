@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cod-layout-view",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Codicological layout formulas viewer",
   "main": "./dist/index.js",
   "type": "module",

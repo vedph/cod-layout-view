@@ -9,6 +9,8 @@
   - [Dev Workspace Setup](#dev-workspace-setup)
     - [Lite Server](#lite-server)
   - [History](#history)
+    - [1.0.0](#100)
+    - [0.0.1](#001)
 
 Codicological layout formulas services and view web component in a framework-independent Typescript library. This library contains services and models representing manuscript layout formulas, and is a generalization inspired by [Cadmus codicology layout formulas](https://github.com/vedph/cadmus-codicology-shell/blob/master/projects/myrmidon/cadmus-codicology-ui/src/lib/services/cod-layout.service.ts).
 
@@ -443,9 +445,15 @@ Now, when you run `npm start`, it will start both the TypeScript compiler in wat
 
 ## History
 
+### 1.0.0
+
 - 2025-06-30:
   - updated dev dependencies.
   - added IT (Itinera) formula service implementing the original Angular service syntax.
   - updated component to support multiple formula types with `$TYPE` prefix.
   - added comprehensive test suite for IT formula service.
   - updated demo with examples of both BO and IT formulas.
+
+### 0.0.1
+
+Original version with single (BO) formula.
