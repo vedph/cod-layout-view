@@ -1,5 +1,14 @@
 # CodLayoutView
 
+- [CodLayoutView](#codlayoutview)
+  - [Model](#model)
+  - [Usage](#usage)
+  - [Formulas](#formulas)
+    - [Bianconi-Orsini](#bianconi-orsini)
+  - [Dev Workspace Setup](#dev-workspace-setup)
+    - [Lite Server](#lite-server)
+  - [History](#history)
+
 Codicological layout formulas services and view web component in a framework-independent Typescript library. This library contains services and models representing manuscript layout formulas, and is a generalization inspired by [Cadmus codicology layout formulas](https://github.com/vedph/cadmus-codicology-shell/blob/master/projects/myrmidon/cadmus-codicology-ui/src/lib/services/cod-layout.service.ts).
 
 Such formulas are text strings which represent in a compact way the size and gridlines of a manuscript page. We give a list of vertical gridlines, with the span between each of them, from top to bottom; and a list of horizontal gridlines, with the span between each of them, from left to right. Once we virtually draw these lines, we get a grid which defines the various layout areas. A specific label tags those areas designed to contain text. Other areas are used for empty areas like margins, or for areas designed for special purposes, like holding initials.
@@ -267,7 +276,7 @@ const options = {
 
 The toolbar (not shown in the above screenshot) allows you to quickly toggle gridlines and areas and zoom the drawing to fit the container.
 
-## Workspace Setup
+## Dev Workspace Setup
 
 These steps were used to build this workspace for a pure Typescript library:
 
@@ -338,3 +347,7 @@ Once installed this Update your start script to run both commands:
 ```
 
 Now, when you run `npm start`, it will start both the TypeScript compiler in watch mode and lite-server. When you make changes to your TypeScript files, they will be automatically recompiled, and `lite-server` will refresh your browser.
+
+## History
+
+- 2025-06-30: updated dev dependencies.
