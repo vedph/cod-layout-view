@@ -3,6 +3,10 @@ import {
   DEFAULT_BO_SVG_OPTIONS,
 } from "./bo-cod-layout-formula.service";
 import {
+  ITCodLayoutFormulaService,
+  DEFAULT_IT_SVG_OPTIONS,
+} from "./it-cod-layout-formula.service";
+import {
   CodLayoutFormulaService,
   CodLayoutSvgOptions,
   CodLayoutFormulaRenderer,
@@ -57,10 +61,17 @@ export class CodLayoutViewComponent extends HTMLElement {
         case "BO":
           console.log("Using BO formula service");
           this._service = new BOCodLayoutFormulaService();
+          this._options = { ...DEFAULT_BO_SVG_OPTIONS, ...this._options };
+          break;
+        case "IT":
+          console.log("Using IT formula service");
+          this._service = new ITCodLayoutFormulaService();
+          this._options = { ...DEFAULT_IT_SVG_OPTIONS, ...this._options };
           break;
         default:
           console.log("Unknown formula type, using BO as default");
           this._service = new BOCodLayoutFormulaService();
+          this._options = { ...DEFAULT_BO_SVG_OPTIONS, ...this._options };
           break;
       }
     }

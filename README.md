@@ -5,6 +5,7 @@
   - [Usage](#usage)
   - [Formulas](#formulas)
     - [Bianconi-Orsini](#bianconi-orsini)
+    - [Itinera (IT)](#itinera-it)
   - [Dev Workspace Setup](#dev-workspace-setup)
     - [Lite Server](#lite-server)
   - [History](#history)
@@ -50,11 +51,11 @@ These gridlines, as defined by spans (dimensions), form **areas** at their inter
 
 As spans can be labelled, areas can get a more human-friendly designation by combining the label from the vertical gridline with the label from the horizontal gridline. For instance:
 
-col 1          | col 2         | col 3             | col 4
----------------|---------------|-------------------|---------------
-1,1=`mt_ml`    | 1,2=`mt_i`    | 1,3=`mt_$text`    | 1,4=`mt_mr`
-2,1=`$text_ml` | 2,2=`$text_i` | 2,3=`$text_$text` | 2,4=`$text_mr`
-3,1=`mb_ml`    | 3,2=`mb_i`    | 3,3=`mb_$text`    | 3,4=`mb_mr`
+| col 1          | col 2         | col 3             | col 4          |
+| -------------- | ------------- | ----------------- | -------------- |
+| 1,1=`mt_ml`    | 1,2=`mt_i`    | 1,3=`mt_$text`    | 1,4=`mt_mr`    |
+| 2,1=`$text_ml` | 2,2=`$text_i` | 2,3=`$text_$text` | 2,4=`$text_mr` |
+| 3,1=`mb_ml`    | 3,2=`mb_i`    | 3,3=`mb_$text`    | 3,4=`mb_mr`    |
 
 As you can see, here we are using the labels assigned to each span, or their type (preceded by `$`) when a label is not present. This convention can be used to define colors for each region.
 
@@ -115,7 +116,7 @@ CodLayoutFormulaService <|-- BOCodLayoutFormula
 
 1. 📦 install package: `npm i @myrmidon/cod-layout-view`.
 
->The component is generic and its formula service is replaceable. Currently there is a single service, identified by `BO` (Bianconi-Orsini). Other services may be added. To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...`. If you don't specify a service, the default will be `BO`. Note that the service identifier is case sensitive.
+> The component is generic and its formula service is replaceable. Currently there is a single service, identified by `BO` (Bianconi-Orsini). Other services may be added. To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...`. If you don't specify a service, the default will be `BO`. Note that the service identifier is case sensitive.
 
 2. in your component code, import the web component like this:
 
@@ -144,7 +145,7 @@ import '@myrmidon/cod-layout-view';
 ></cod-layout-view>
 ```
 
->Web Components (Custom Elements) typically use attributes for data binding, while Angular components use properties. This is a common integration point to be aware of. That's why you *must* use `[attr.NAME]` rather than `[NAME]`. In the same way, you can bind `[attr.options]` for custom options too.
+> Web Components (Custom Elements) typically use attributes for data binding, while Angular components use properties. This is a common integration point to be aware of. That's why you _must_ use `[attr.NAME]` rather than `[NAME]`. In the same way, you can bind `[attr.options]` for custom options too.
 
 ## Formulas
 
@@ -201,9 +202,7 @@ This formula targets size and mirror and is derived from D. Bianconi, _I Codices
 
 The formula always targets a _recto_ page used as the sample. Its parts are:
 
-1. size:
-   2. unit, e.g. `mm`
-   3. `H [H] x W [W]`, where `H` and/or `W` can be wrapped in `()` (current dimensions not corresponding to the original ones). Each can be followed by another dimension in `[]` which is the reconstructed dimension. If a dimension is missing, it is replaced by `-` (here we use a dash rather than an EM dash for better accessibility); from a practical point of view, this `-` is thus equal to `0`.
+1. size: 2. unit, e.g. `mm` 3. `H [H] x W [W]`, where `H` and/or `W` can be wrapped in `()` (current dimensions not corresponding to the original ones). Each can be followed by another dimension in `[]` which is the reconstructed dimension. If a dimension is missing, it is replaced by `-` (here we use a dash rather than an EM dash for better accessibility); from a practical point of view, this `-` is thus equal to `0`.
 2. `=` followed by horizontal ruling spans. Each measurement number here can be wrapped in `()` and followed by another measurement in `[]` as above (1.2).
 3. `x` (or `×` U+00D7) followed by vertical ruling spans, as above (2).
 
@@ -212,7 +211,75 @@ For 2-3 each measurement can be separated by:
 - `/` for single ruled areas (=this marks the start of a new area);
 - `//` for the writing mirror (=this occurs in pairs, delimiting the writing mirror).
 
->In addition, a short label (a string without spaces) can be added after each measurement prefixed by `:`. This addition is required by the generic layout formula model and allows to customize the interpretation of non basic areas (see example 2 below).
+> In addition, a short label (a string without spaces) can be added after each measurement prefixed by `:`. This addition is required by the generic layout formula model and allows to customize the interpretation of non basic areas (see example 2 below).
+
+### Itinera (IT)
+
+This formula service implements the original Itinera codicological layout formula syntax, which predates the Bianconi-Orsini format. It uses a different syntax with square brackets having specific meanings and maintains compatibility with the existing Angular service implementation.
+
+The IT formula syntax follows this pattern: `H × W = height_details × width_details`
+
+Where:
+
+**Height details** follow the pattern: `mt[/he][ah][/fe]mb` or `mt[hw/]ah[fw/]mb`
+
+- `mt`: margin-top
+- `he`: head-empty (optional)
+- `hw`: head-written (optional)
+- `ah`: area-height (main text area)
+- `fw`: foot-written (optional)
+- `fe`: foot-empty (optional)
+- `mb`: margin-bottom
+
+**Width details** follow the pattern: `ml[columns]mr`
+
+- `ml`: margin-left
+- `mr`: margin-right
+- Columns can include gaps denoted by `(N)` and various combinations of left/right margins and widths
+- Empty areas are marked with `*`
+
+**Examples:**
+
+1. Single column with all dimensions:
+
+   ```text
+   250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15
+   ```
+
+   - Height: 250, Width: 160
+   - Height details: mt=30, he=5, ah=170, fw=5, mb=40
+   - Width details: ml=15, col-left-w=3, col-width=50, col-right-w=5, mr=15
+
+2. Two-column layout with gap:
+
+   ```text
+   250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15
+   ```
+
+   - Same height structure as above
+   - Width details: ml=15, col1(left-w=5, width=50, right-e=5), gap=20, col2(left-w=5, width=40), mr=15
+   - The `*` indicates empty (non-text) areas
+
+3. Simple layout without head/foot:
+
+   ```text
+   200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15
+   ```
+
+   - Height: mt=30, ah=130, mb=40
+   - Width: ml=15, col1-width=60, gap=10, col2-width=60, mr=15
+
+To use the IT formula service, prefix your formula with `$IT`:
+
+```text
+$IT 250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15
+```
+
+The IT service automatically assigns appropriate labels to spans:
+
+- Height spans: `mt`, `he`, `hw`, `ah`, `fw`, `fe`, `mb`
+- Width spans: `ml`, `mr`, `col1`, `col2`, etc., with suffixes `l` and `r` for left/right margins
+- Text areas are marked with `type: "text"`, empty areas have no type
 
 Examples (see pp.110-111):
 
@@ -242,7 +309,7 @@ Examples (see pp.110-111):
 - `4`: column for initials width
 - `/ 33`: external margin width
 
->Here we might use a label to tag the initials column area, e.g. `mm 336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33`.
+> Here we might use a label to tag the initials column area, e.g. `mm 336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33`.
 
 (3) `mm (245) x (162) = (10) // 206 // (29) x (21) // 114 // (27)`
 
@@ -256,7 +323,7 @@ Examples (see pp.110-111):
 - `// 114 //`: writing mirror width
 - `(27)`: external margin width
 
->Note that the above examples were fixed as they seem to have typos in the original document (see nr.2 and 3).
+> Note that the above examples were fixed as they seem to have typos in the original document (see nr.2 and 3).
 
 For instance, the formula `mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr` is displayed like in the screenshot below:
 
@@ -310,16 +377,16 @@ These steps were used to build this workspace for a pure Typescript library:
 2. enter it and run `npm init`.
 3. install these packages:
 
-    ```bash
-    npm i typescript
+   ```bash
+   npm i typescript
 
-    npm i --save-dev lite-server
-    npm i --save-dev concurrently
+   npm i --save-dev lite-server
+   npm i --save-dev concurrently
 
-    npm i --save-dev jest
-    npm i --save-dev @types/jest
-    npm i --save-dev ts-jest
-    ```
+   npm i --save-dev jest
+   npm i --save-dev @types/jest
+   npm i --save-dev ts-jest
+   ```
 
 4. create in `.vscode` [tasks.json](./.vscode/tasks.json) for building (ctrl+shift+B in VSCode) and [launch.json](./.vscode/launch.json) for debugging:
 
@@ -327,29 +394,29 @@ These steps were used to build this workspace for a pure Typescript library:
 
 6. add [index.html](index.html) to the root to host your controls for testing, e.g.:
 
-    ```html
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Test Component</title>
-        <script type="module" src="./dist/components/mock.component.js"></script>
-        <script type="module" src="./dist/services/roman-number.js"></script>
-      </head>
-      <body>
-        <h1>Library Development Shell</h1>
-        <article>
-          <h2>Mock component</h2>
-          <div style="border: 1px solid silver">
-            <mock-component></mock-component>
-          </div>
-        </article>
-      </body>
-    </html>
-    ```
+   ```html
+   <!DOCTYPE html>
+   <html lang="en">
+     <head>
+       <meta charset="UTF-8" />
+       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+       <title>Test Component</title>
+       <script type="module" src="./dist/components/mock.component.js"></script>
+       <script type="module" src="./dist/services/roman-number.js"></script>
+     </head>
+     <body>
+       <h1>Library Development Shell</h1>
+       <article>
+         <h2>Mock component</h2>
+         <div style="border: 1px solid silver">
+           <mock-component></mock-component>
+         </div>
+       </article>
+     </body>
+   </html>
+   ```
 
-    >Optionally you can also add some JS client code by adding `index.js` and importing it into this page.
+   > Optionally you can also add some JS client code by adding `index.js` and importing it into this page.
 
 7. add your code (services and components) under `src`.
 8. export all the required objects from the `src/index.ts` API entrypoint.
@@ -376,4 +443,9 @@ Now, when you run `npm start`, it will start both the TypeScript compiler in wat
 
 ## History
 
-- 2025-06-30: updated dev dependencies.
+- 2025-06-30:
+  - updated dev dependencies.
+  - added IT (Itinera) formula service implementing the original Angular service syntax.
+  - updated component to support multiple formula types with `$TYPE` prefix.
+  - added comprehensive test suite for IT formula service.
+  - updated demo with examples of both BO and IT formulas.
