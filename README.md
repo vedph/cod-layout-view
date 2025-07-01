@@ -204,7 +204,7 @@ SVG rendering options (`CodLayoutSvgOptions`) are:
 
 ### Itinera (IT)
 
-This formula service implements the original [Itinera](https://github.com/vedph/cadmus-codicology-shell/blob/master/projects/myrmidon/cadmus-codicology-ui/src/lib/services/cod-layout.service.ts) codicological layout formula syntax, which predates Bianconi-Orsini formula.
+This formula service implements the original [Itinera](https://github.com/vedph/cadmus-codicology-shell/blob/master/projects/myrmidon/cadmus-codicology-ui/src/lib/services/cod-layout.service.ts) codicological layout formula syntax, which predates Bianconi-Orsini formula. To use the IT formula service, prefix your formula with `$IT`, or just omit the prefix, because this is the default service. This ensures compatibility with existing data from the _Itinera_ project, where the only formula service was IT and there were no alternatives.
 
 The IT formula syntax follows this pattern: `H × W = height_details × width_details`, where:
 
@@ -255,37 +255,34 @@ The diagram below shows the formula's structure using an example (portions marke
                mt   he ah    fw mb   ml  cl  cw   cr mr
    ```
 
-   - Height: 250, Width: 160.
-   - Height details: mt=30, he=5, ah=170, fw=5, mb=40.
-   - Width details: ml=15, col-left-w=3, col-width=50, col-right-w=5, mr=15.
+   - height: 250, Width: 160.
+   - height details: mt=30, he=5, ah=170, fw=5, mb=40.
+   - width details: ml=15, col-left-w=3, col-width=50, col-right-w=5, mr=15.
 
 2. Two-column layout with gap:
 
    ```text
    250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15
    hhh   www   hhhhhhhhhhhhhhhhhhh   wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-               mt   he ah    fw mb   ml  11111111111  gap 22222222222
-                                         cle clw  cre     clw cw  cre mr
+               mt   he ah    fw mb   ml  11111111111  gap 222222222   mr
+                                         cle clw  cre     clw cw  cre
    ```
 
-   - Same height structure as above.
-   - Width details: ml=15, col1(left-w=5, width=50, right-e=5), gap=20, col2(left-w=5, width=40, right-e=5), mr=15.
-   - The `*` indicates empty (non-text) areas.
+   - same height structure as above.
+   - width details: ml=15, col1(left-w=5, width=50, right-e=5), gap=20, col2(left-w=5, width=40, right-e=5), mr=15.
+   - the `*` indicates empty (non-text) areas.
 
 3. Simple layout without head/foot:
 
    ```text
    200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15
+   hhh   www   hhhhhhhhhhh   wwwwwwwwwwwwwwwwww
+               mt ah    mb   ml  11  gap 22  mr
+                                 
    ```
 
-   - Height: mt=30, ah=130, mb=40
-   - Width: ml=15, col1-width=60, gap=10, col2-width=60, mr=15
-
-To use the IT formula service, prefix your formula with `$IT`:
-
-```text
-$IT 250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15
-```
+   - height: mt=30, ah=130, mb=40.
+   - width: ml=15, col1-width=60, gap=10, col2-width=60, mr=15.
 
 The IT service automatically assigns appropriate labels to spans:
 
