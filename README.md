@@ -209,18 +209,21 @@ This formula service implements the original [Itinera](https://github.com/vedph/
 The IT formula syntax follows this pattern: `H × W = height_details × width_details`, where:
 
 - **height details** follow the pattern: `mt[/he][ah][/fe]mb` or `mt[hw/]ah[fw/]mb`:
-  - `mt`: margin-top
-  - `he`: head-empty (optional)
-  - `hw`: head-written (optional)
-  - `ah`: area-height (main text area)
-  - `fw`: foot-written (optional)
-  - `fe`: foot-empty (optional)
-  - `mb`: margin-bottom
+  - `mt`: margin-top.
+  - `he`: head-empty (optional) or `hw`: head-written (optional).
+  - `ah`: area-height (main text area).
+  - `fe`: foot-empty (optional) or `fw`: foot-written (optional).
+  - `mb`: margin-bottom.
 - **width details** follow the pattern: `ml[columns]mr`:
-  - `ml`: margin-left
-  - `mr`: margin-right
+  - `ml`: margin-left.
+  - `colN`: optional columns, each having:
+    - `col-N-gap` (`gap`): gap between two columns. As this separates columns, it is not found before the first column.
+    - `col-N-left-e` (`cle`) or `col-n-left-w` (`clw`) (optional).
+    - `col-N-width` (`cw`).
+    - `col-N-right-e` (`cre`) or `col-n-right-w` (`crw`) (optional).
+  - `mr`: margin-right.
 
-Columns can include gaps denoted by `(N)` and various combinations of left/right margins and widths. Empty areas are marked with `*`.
+Empty areas are marked with an asterisk `*` suffix.
 
 The diagram below shows the formula's structure using an example (portions marked with `-` and `+` are reciprocally exclusive; `!`=required, `?`=optional):
 
@@ -265,7 +268,7 @@ The diagram below shows the formula's structure using an example (portions marke
    250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15
    hhh   www   hhhhhhhhhhhhhhhhhhh   wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
                mt   he ah    fw mb   ml  11111111111  gap 222222222   mr
-                                         cle clw  cre     clw cw  cre
+                                         cle cw   cre     clw cw  cre
    ```
 
    - same height structure as above.
