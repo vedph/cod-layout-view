@@ -57,41 +57,24 @@ export class ITCodLayoutFormulaService
    */
   public readonly type = "IT";
 
-  // Main formula pattern: HxW=height×width (based on Angular service)
-  private static readonly SECT_REGEX =
-    /^(\d+(?:\.\d+)?)\s*[×x]\s*(\d+(?:\.\d+)?)\s*=\s*([^×x]+)[×x](.+)$/i;
+  // main formula pattern: HxW=height×width (matches legacy _sectRegex)
+  private static readonly SECT_REGEX = /^(\d+)[Xx×](\d+)=([^Xx×]+)[Xx×](.+)$/;
 
-  // Height pattern: mt[/he][ah][/fe]mb or mt[hw/]ah[fw/]mb (based on Angular service)
-  // Pattern: mt / he [ ah / fw ] fe / mb or mt [ hw / ah ] mb etc.
+  // height pattern: mt[/he][ah][/fe]mb or mt[hw/]ah[fw/]mb (matches legacy _heightRegex)
   private static readonly HEIGHT_REGEX =
-    /^(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?\s*\[\s*(?:(\d+(?:\.\d+)?)\/)?(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?\s*\]\s*(?:(\d+(?:\.\d+)?)\/)?(\d+(?:\.\d+)?)$/;
+    /^(\d+)(?:\/(\d+))?\[(?:(\d+)\/)?(\d+)(?:\/(\d+))?\](?:(\d+)\/)?(\d+)/;
 
-  // Margin patterns for width
-  private static readonly MARGIN_LEFT_REGEX = /^(\d+(?:\.\d+)?)/;
-  private static readonly MARGIN_RIGHT_REGEX = /(\d+(?:\.\d+)?)$/;
+  // margin patterns for width (matches legacy _wmlRegex and _wmrRegex)
+  private static readonly MARGIN_LEFT_REGEX = /^(\d+)\b/;
+  private static readonly MARGIN_RIGHT_REGEX = /\b(\d+)$/;
 
-  // Column number extraction
+  // column number extraction (matches legacy _colNRegex)
   private static readonly COL_N_REGEX = /^col-(\d+)-/;
 
   //#region Parsing
-  /**
-   * Parse a dimension value that represents a single number.
-   */
-  private parseSimpleValue(text: string, label?: string): CodLayoutValue {
-    const value = parseFloat(text.trim());
-    if (isNaN(value)) {
-      throw new Error(`Invalid numeric value: ${text}`);
-    }
-    const result: CodLayoutValue = { value };
-    if (label) {
-      result.label = label;
-    }
-    return result;
-  }
 
   /**
-   * Parse the height portion of the formula.
-   * Pattern matches Angular service: mt[/he][ah][/fe]mb or mt[hw/]ah[fw/]mb
+   * Parse the height portion of the formula using the exact legacy logic.
    */
   private parseHeight(
     text: string,
@@ -100,9 +83,9 @@ export class ITCodLayoutFormulaService
     height: CodLayoutValue;
     spans: CodLayoutSpan[];
   } {
-    const heightRegex =
-      /^(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?\[(?:(\d+(?:\.\d+)?)\/)?(\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?\](?:(\d+(?:\.\d+)?)\/)?(\d+(?:\.\d+)?)$/;
-    const match = heightRegex.exec(text.replace(/\s+/g, "")); // remove all spaces for parsing
+    // Remove all whitespace for consistent parsing (matches legacy)
+    const cleanText = text.replace(/\s+/g, "");
+    const match = ITCodLayoutFormulaService.HEIGHT_REGEX.exec(cleanText);
 
     if (!match) {
       throw new ParsingError("Invalid height format", formula, 0, text.length);
@@ -111,7 +94,7 @@ export class ITCodLayoutFormulaService
     const spans: CodLayoutSpan[] = [];
     let totalHeight = 0;
 
-    // parse height dimensions
+    // Parse height dimensions exactly like legacy parseHeightMatch
     const mt = parseFloat(match[1]);
     const he = match[2] ? parseFloat(match[2]) : undefined;
     const hw = match[3] ? parseFloat(match[3]) : undefined;
@@ -122,7 +105,8 @@ export class ITCodLayoutFormulaService
 
     // margin-top
     spans.push({
-      ...this.parseSimpleValue(match[1], "mt"),
+      value: mt,
+      label: "mt",
       isHorizontal: false,
     });
     totalHeight += mt;
@@ -130,7 +114,8 @@ export class ITCodLayoutFormulaService
     // head-e
     if (he !== undefined) {
       spans.push({
-        ...this.parseSimpleValue(match[2]!, "he"),
+        value: he,
+        label: "he",
         isHorizontal: false,
       });
       totalHeight += he;
@@ -139,53 +124,28 @@ export class ITCodLayoutFormulaService
     // head-w
     if (hw !== undefined) {
       spans.push({
-        ...this.parseSimpleValue(match[3]!, "hw"),
+        value: hw,
+        label: "hw",
         isHorizontal: false,
-        type: "text",
       });
       totalHeight += hw;
     }
 
-    // correction for ambiguous [N/N] case
-    let actualAh = ah;
-    let actualFw = fw;
-    if (hw !== undefined && ah < hw) {
-      // hw is rather ah, ah is rather fw
-      actualAh = hw;
-      actualFw = ah;
-      // remove hw span and add it as ah
-      spans.pop(); // remove hw span
-      spans.push({
-        value: actualAh,
-        label: "ah",
-        isHorizontal: false,
-        type: "text",
-      });
-      totalHeight = totalHeight - hw + actualAh;
-    } else {
-      // area-height
-      spans.push({
-        ...this.parseSimpleValue(match[4], "ah"),
-        isHorizontal: false,
-        type: "text",
-      });
-      totalHeight += ah;
-    }
+    // area-height
+    spans.push({
+      value: ah,
+      label: "ah",
+      isHorizontal: false,
+      type: "text",
+    });
+    totalHeight += ah;
 
     // foot-w
-    if (actualFw !== undefined) {
+    if (fw !== undefined) {
       spans.push({
-        value: actualFw,
+        value: fw,
         label: "fw",
         isHorizontal: false,
-        type: "text",
-      });
-      totalHeight += actualFw;
-    } else if (fw !== undefined) {
-      spans.push({
-        ...this.parseSimpleValue(match[5]!, "fw"),
-        isHorizontal: false,
-        type: "text",
       });
       totalHeight += fw;
     }
@@ -193,7 +153,8 @@ export class ITCodLayoutFormulaService
     // foot-e
     if (fe !== undefined) {
       spans.push({
-        ...this.parseSimpleValue(match[6]!, "fe"),
+        value: fe,
+        label: "fe",
         isHorizontal: false,
       });
       totalHeight += fe;
@@ -201,10 +162,39 @@ export class ITCodLayoutFormulaService
 
     // margin-bottom
     spans.push({
-      ...this.parseSimpleValue(match[7], "mb"),
+      value: mb,
+      label: "mb",
       isHorizontal: false,
     });
     totalHeight += mb;
+
+    // apply correction for ambiguous [N/N] case
+    const hwSpan = spans.find((s) => s.label === "hw");
+    const ahSpan = spans.find((s) => s.label === "ah");
+
+    if (hwSpan && ahSpan && ahSpan.value < hwSpan.value) {
+      // hw is rather ah, ah is rather fw
+      const actualAh = hwSpan.value;
+      const actualFw = ahSpan.value;
+
+      // remove hw span
+      const hwIndex = spans.findIndex((s) => s.label === "hw");
+      spans.splice(hwIndex, 1);
+
+      // update ah span
+      ahSpan.value = actualAh;
+
+      // add fw span
+      spans.push({
+        value: actualFw,
+        label: "fw",
+        isHorizontal: false,
+      });
+
+      // recalculate total
+      totalHeight =
+        totalHeight - hwSpan.value + actualAh + actualFw - ahSpan.value;
+    }
 
     return {
       height: { value: totalHeight },
@@ -213,15 +203,17 @@ export class ITCodLayoutFormulaService
   }
 
   /**
-   * Parse a column definition following the Angular service logic.
+   * Parse a column definition using the exact legacy logic.
    */
   private parseColumn(colText: string, colIndex: number): CodLayoutSpan[] {
     const spans: CodLayoutSpan[] = [];
-    const colLabel = `col${colIndex}`;
+    const prefix = `col-${colIndex}-`;
 
-    // column has 1-3 N variously separated by / and [],
-    // and eventually postfixed with * for empty shapes.
-    const nrRegex = /(?:(\]?)(\d+(?:\.\d+)?)(\*)?(\[)?)/g;
+    // [1]=]
+    // [2]=N
+    // [3]=*
+    // [4]=[
+    const nrRegex = /(?:(\]?)(\d+)(\*)?(\[)?)/g;
     let match: RegExpExecArray | null;
     const nrMatches: RegExpExecArray[] = [];
 
@@ -239,19 +231,18 @@ export class ITCodLayoutFormulaService
 
     switch (nrMatches.length) {
       case 3:
-        // cl, cw, cr
+        // cl, cw, cr - with 3 N, we have clx, cw, crx
         const ml = nrMatches[0];
         const cle = ml[3] || ml[4]; // has * or [
         spans.push({
           value: parseFloat(ml[2]),
-          label: `${colLabel}l`,
+          label: prefix + (cle ? "left-e" : "left-w"),
           isHorizontal: true,
-          type: cle ? undefined : "text",
         });
 
         spans.push({
           value: parseFloat(nrMatches[1][2]),
-          label: colLabel,
+          label: prefix + "width",
           isHorizontal: true,
           type: "text",
         });
@@ -260,13 +251,13 @@ export class ITCodLayoutFormulaService
         const cre = mr[3] || mr[1]; // has * or ]
         spans.push({
           value: parseFloat(mr[2]),
-          label: `${colLabel}r`,
+          label: prefix + (cre ? "right-e" : "right-w"),
           isHorizontal: true,
-          type: cre ? undefined : "text",
         });
         break;
 
       case 2:
+        // with 2 N we have various combinations
         const a = nrMatches[0];
         const b = nrMatches[1];
 
@@ -279,13 +270,12 @@ export class ITCodLayoutFormulaService
           // a has *, so a=cle, b=cw
           spans.push({
             value: parseFloat(a[2]),
-            label: `${colLabel}l`,
+            label: prefix + "left-e",
             isHorizontal: true,
-            type: undefined,
           });
           spans.push({
             value: parseFloat(b[2]),
-            label: colLabel,
+            label: prefix + "width",
             isHorizontal: true,
             type: "text",
           });
@@ -293,15 +283,14 @@ export class ITCodLayoutFormulaService
           // b has *, so a=cw, b=cre
           spans.push({
             value: parseFloat(a[2]),
-            label: colLabel,
+            label: prefix + "width",
             isHorizontal: true,
             type: "text",
           });
           spans.push({
             value: parseFloat(b[2]),
-            label: `${colLabel}r`,
+            label: prefix + "right-e",
             isHorizontal: true,
-            type: undefined,
           });
         } else {
           // neither has *, determine by size
@@ -311,30 +300,28 @@ export class ITCodLayoutFormulaService
             );
           }
           if (parseFloat(a[2]) > parseFloat(b[2])) {
-            // a=cw, b=cr
+            // a=cw, b=crx (cre of ]N, else crw)
             spans.push({
               value: parseFloat(a[2]),
-              label: colLabel,
+              label: prefix + "width",
               isHorizontal: true,
               type: "text",
             });
             spans.push({
               value: parseFloat(b[2]),
-              label: `${colLabel}r`,
+              label: prefix + (b[1] ? "right-e" : "right-w"),
               isHorizontal: true,
-              type: b[1] ? undefined : "text", // ]N means empty
             });
           } else {
-            // a=cl, b=cw
+            // a=clx, b=cw (cle if [N, else clw)
             spans.push({
               value: parseFloat(a[2]),
-              label: `${colLabel}l`,
+              label: prefix + (a[4] ? "left-e" : "left-w"),
               isHorizontal: true,
-              type: a[4] ? undefined : "text", // [N means empty
             });
             spans.push({
               value: parseFloat(b[2]),
-              label: colLabel,
+              label: prefix + "width",
               isHorizontal: true,
               type: "text",
             });
@@ -346,7 +333,7 @@ export class ITCodLayoutFormulaService
         // just column width
         spans.push({
           value: parseFloat(nrMatches[0][2]),
-          label: colLabel,
+          label: prefix + "width",
           isHorizontal: true,
           type: "text",
         });
@@ -360,7 +347,7 @@ export class ITCodLayoutFormulaService
   }
 
   /**
-   * Parse the width portion of the formula.
+   * Parse the width portion of the formula using exact legacy logic.
    */
   private parseWidth(
     text: string,
@@ -372,10 +359,10 @@ export class ITCodLayoutFormulaService
     const spans: CodLayoutSpan[] = [];
     let totalWidth = 0;
 
-    // remove all spaces for consistent parsing
+    // remove all spaces for consistent parsing (matches legacy)
     const cleanText = text.replace(/\s+/g, "");
 
-    // extract margins
+    // extract margins using legacy regex
     const mlMatch = ITCodLayoutFormulaService.MARGIN_LEFT_REGEX.exec(cleanText);
     const mrMatch =
       ITCodLayoutFormulaService.MARGIN_RIGHT_REGEX.exec(cleanText);
@@ -393,61 +380,55 @@ export class ITCodLayoutFormulaService
     const mr = parseFloat(mrMatch[1]);
 
     spans.push({
-      ...this.parseSimpleValue(mlMatch[1], "ml"),
+      value: ml,
+      label: "margin-left",
       isHorizontal: true,
     });
     totalWidth += ml;
 
-    // extract content between margins
-    const mlLength = mlMatch[0].length;
-    const mrStart = mrMatch.index!;
-    let content = cleanText.substring(mlLength, mrStart);
+    // strip margins to get columns only (matches legacy logic)
+    const cols = cleanText.substring(
+      mlMatch[0].length,
+      mlMatch[0].length + (mrMatch.index! - mlMatch[0].length)
+    );
 
-    // remove outer brackets if present
-    if (content.startsWith("[") && content.endsWith("]")) {
-      content = content.substring(1, content.length - 1);
-    }
-
-    // parse columns and gaps using the Angular service approach
-    const gapRegex = /\((\d+(?:\.\d+)?)\)/g;
+    // process gaps and columns exactly like legacy
+    const gapRegex = /\((\d+)\)/g;
     let gapMatch: RegExpExecArray | null;
     let start = 0;
-    let colIndex = 1;
+    let colIndex = 0;
 
-    while ((gapMatch = gapRegex.exec(content))) {
+    while ((gapMatch = gapRegex.exec(cols))) {
+      colIndex++;
+
       // parse column before this gap
-      const colText = content.substring(start, gapMatch.index);
-      if (colText) {
-        const colSpans = this.parseColumn(colText, colIndex);
-        spans.push(...colSpans);
-        colSpans.forEach((span) => (totalWidth += span.value));
-        colIndex++;
-      }
+      const colText = cols.substring(start, gapMatch.index!);
+      const colSpans = this.parseColumn(colText, colIndex);
+      spans.push(...colSpans);
+      colSpans.forEach((span) => (totalWidth += span.value));
 
-      // add gap
-      const gapValue = parseFloat(gapMatch[1]);
+      // add gap span
       spans.push({
-        value: gapValue,
-        label: `gap${colIndex - 1}`,
+        value: parseFloat(gapMatch[1]),
+        label: `col-${colIndex}-gap`,
         isHorizontal: true,
       });
-      totalWidth += gapValue;
+      totalWidth += parseFloat(gapMatch[1]);
 
-      start = gapMatch.index + gapMatch[0].length;
+      start = gapMatch.index! + gapMatch[0].length;
     }
 
-    // parse last column if any
-    if (start < content.length) {
-      const colText = content.substring(start);
-      if (colText) {
-        const colSpans = this.parseColumn(colText, colIndex);
-        spans.push(...colSpans);
-        colSpans.forEach((span) => (totalWidth += span.value));
-      }
+    // process the last column if pending
+    if (start < cols.length) {
+      const colText = cols.substring(start);
+      const colSpans = this.parseColumn(colText, ++colIndex);
+      spans.push(...colSpans);
+      colSpans.forEach((span) => (totalWidth += span.value));
     }
 
     spans.push({
-      ...this.parseSimpleValue(mrMatch[1], "mr"),
+      value: mr,
+      label: "margin-right",
       isHorizontal: true,
     });
     totalWidth += mr;
@@ -459,20 +440,21 @@ export class ITCodLayoutFormulaService
   }
 
   /**
-   * Parse a codicological layout formula from a text string.
+   * Parse a codicological layout formula from a text string using exact legacy logic.
    */
   public parseFormula(text?: string | null): CodLayoutFormula | null {
     if (!text?.trim()) {
       return null;
     }
 
-    const input = text.trim();
+    // remove whitespaces exactly like legacy
+    const input = text.replace(/\s+/g, "");
 
-    // match main sections
+    // match main sections using legacy regex
     const match = ITCodLayoutFormulaService.SECT_REGEX.exec(input);
     if (!match) {
       throw new ParsingError(
-        "Invalid formula format (expected H × W = height × width)",
+        "Invalid formula (expected H x W = height x width)",
         input,
         0,
         input.length

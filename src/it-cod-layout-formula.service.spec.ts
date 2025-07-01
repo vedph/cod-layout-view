@@ -22,7 +22,8 @@ describe("ITCodLayoutFormulaService", () => {
     expect(result).toBeNull();
   });
 
-  it("should parse simple single column formula", () => {
+  it("should parse single column clw-cw-crw", () => {
+    //                           mt   he ah    fw mb   ml clw  cw  crw mr
     const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
     const result = service.parseFormula(formula);
 
@@ -35,25 +36,219 @@ describe("ITCodLayoutFormulaService", () => {
     const hSpans = result!.spans.filter((s) => s.isHorizontal);
 
     // check vertical spans
-    expect(vSpans.length).toBeGreaterThan(0);
-    const mtSpan = vSpans.find((s) => s.label === "mt");
+    expect(vSpans.length).toBe(5);
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
     expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeFalsy();
 
-    const ahSpan = vSpans.find((s) => s.label === "ah");
+    const heSpan = vSpans.find((s) => s.label === "head-e");
+    expect(heSpan?.value).toBe(5);
+    expect(heSpan?.type).toBeFalsy();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
     expect(ahSpan?.value).toBe(170);
     expect(ahSpan?.type).toBe("text");
 
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
+    expect(fwSpan?.value).toBe(5);
+    expect(fwSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeFalsy();
+
     // check horizontal spans
-    expect(hSpans.length).toBeGreaterThan(0);
-    const mlSpan = hSpans.find((s) => s.label === "ml");
+    expect(hSpans.length).toBe(5);
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
     expect(mlSpan?.value).toBe(15);
+    expect(mlSpan?.type).toBeFalsy();
+
+    const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
+    expect(col1lwSpan?.value).toBe(3);
+    expect(col1lwSpan?.type).toBe("text");
+
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(50);
+    expect(col1wSpan?.type).toBe("text");
+
+    const col1rwSpan = hSpans.find((s) => s.label?.includes("col-1-right-w"));
+    expect(col1rwSpan?.value).toBe(5);
+    expect(col1rwSpan?.type).toBe("text");
+
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
+    expect(mrSpan?.value).toBe(15);
+    expect(mrSpan?.type).toBeFalsy();
+  });
+
+  it("should parse single column cle-cw-crw", () => {
+    //                           mt   he ah    fw mb   ml  cle cw  crw mr
+    const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 / 3 [50 / 5] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(250);
+    expect(result!.width.value).toBe(160);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    // check vertical spans
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeFalsy();
+
+    const heSpan = vSpans.find((s) => s.label === "head-e");
+    expect(heSpan?.value).toBe(5);
+    expect(heSpan?.type).toBeFalsy();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(170);
+    expect(ahSpan?.type).toBe("text");
+
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
+    expect(fwSpan?.value).toBe(5);
+    expect(fwSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeFalsy();
+
+    // check horizontal spans
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    expect(mlSpan?.value).toBe(15);
+    expect(mlSpan?.type).toBeFalsy();
+
+    const col1leSpan = hSpans.find((s) => s.label?.includes("col-1-left-e"));
+    expect(col1leSpan?.value).toBe(3);
+    expect(col1leSpan?.type).toBeFalsy();
+
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(50);
+    expect(col1wSpan?.type).toBe("text");
+
+    const col1rwSpan = hSpans.find((s) => s.label?.includes("col-1-right-w"));
+    expect(col1rwSpan?.value).toBe(5);
+    expect(col1rwSpan?.type).toBe("text");
 
     const mrSpan = hSpans.find((s) => s.label === "mr");
     expect(mrSpan?.value).toBe(15);
+    expect(mrSpan?.type).toBeFalsy();
+  });
+
+  it("should parse single column clw-cw-cre", () => {
+    //                           mt   he ah    fw mb   ml clw  cw  cre mr
+    const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(250);
+    expect(result!.width.value).toBe(160);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    // check vertical spans
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeFalsy();
+
+    const heSpan = vSpans.find((s) => s.label === "head-e");
+    expect(heSpan?.value).toBe(5);
+    expect(heSpan?.type).toBeFalsy();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(170);
+    expect(ahSpan?.type).toBe("text");
+
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
+    expect(fwSpan?.value).toBe(5);
+    expect(fwSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeFalsy();
+
+    // check horizontal spans
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    expect(mlSpan?.value).toBe(15);
+    expect(mlSpan?.type).toBeFalsy();
+
+    const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
+    expect(col1lwSpan?.value).toBe(3);
+    expect(col1lwSpan?.type).toBe("text");
+
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(50);
+    expect(col1wSpan?.type).toBe("text");
+
+    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
+    expect(col1reSpan?.value).toBe(5);
+    expect(col1reSpan?.type).toBeFalsy();
+
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
+    expect(mrSpan?.value).toBe(15);
+    expect(mrSpan?.type).toBeFalsy();
+  });
+
+  it("should parse single column cle-cw-cre", () => {
+    //                           mt   he ah    fw mb   ml   cle  cw cre  mr
+    const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 / 3 [50] 5 / 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(250);
+    expect(result!.width.value).toBe(160);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    // check vertical spans
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeFalsy();
+
+    const heSpan = vSpans.find((s) => s.label === "head-e");
+    expect(heSpan?.value).toBe(5);
+    expect(heSpan?.type).toBeFalsy();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(170);
+    expect(ahSpan?.type).toBe("text");
+
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
+    expect(fwSpan?.value).toBe(5);
+    expect(fwSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeFalsy();
+
+    // check horizontal spans
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    expect(mlSpan?.value).toBe(15);
+    expect(mlSpan?.type).toBeFalsy();
+
+    const col1leSpan = hSpans.find((s) => s.label?.includes("col-1-left-e"));
+    expect(col1leSpan?.value).toBe(3);
+    expect(col1leSpan?.type).toBeFalsy();
+
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(50);
+    expect(col1wSpan?.type).toBe("text");
+
+    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
+    expect(col1reSpan?.value).toBe(5);
+    expect(col1reSpan?.type).toBeFalsy();
+
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
+    expect(mrSpan?.value).toBe(15);
+    expect(mrSpan?.type).toBeFalsy();
   });
 
   it("should parse two-column formula", () => {
     const formula =
+      //             mt   he ah    fw mb   ml  11111111111 gap  222222222   mr
+      //                                       clw cw  crw      clw cw  cre
       "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
     const result = service.parseFormula(formula);
 
@@ -61,29 +256,125 @@ describe("ITCodLayoutFormulaService", () => {
     expect(result!.height.value).toBe(250);
     expect(result!.width.value).toBe(160);
 
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
     const hSpans = result!.spans.filter((s) => s.isHorizontal);
 
-    // should have margin left, column 1 parts, gap, column 2 parts, margin right
-    const mlSpan = hSpans.find((s) => s.label === "ml");
+    // check vertical spans
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeFalsy();
+
+    const heSpan = vSpans.find((s) => s.label === "head-e");
+    expect(heSpan?.value).toBe(5);
+    expect(heSpan?.type).toBeFalsy();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(170);
+    expect(ahSpan?.type).toBe("text");
+
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
+    expect(fwSpan?.value).toBe(5);
+    expect(fwSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeFalsy();
+
+    // check horizontal spans
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
     expect(mlSpan?.value).toBe(15);
+    expect(mlSpan?.type).toBeFalsy();
 
-    const col1Span = hSpans.find((s) => s.label === "col1");
-    expect(col1Span?.value).toBe(50);
-    expect(col1Span?.type).toBe("text");
+    const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
+    expect(col1lwSpan?.value).toBe(5);
+    expect(col1lwSpan?.type).toBe("text");
 
-    const gapSpan = hSpans.find((s) => s.label?.startsWith("gap"));
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(50);
+    expect(col1wSpan?.type).toBe("text");
+
+    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
+    expect(col1reSpan?.value).toBe(5);
+    expect(col1reSpan?.type).toBeFalsy();
+
+    const gapSpan = hSpans.find((s) => s.label?.includes("col-1-gap"));
     expect(gapSpan?.value).toBe(20);
+    expect(gapSpan?.type).toBeFalsy();
 
-    const col2Span = hSpans.find((s) => s.label === "col2");
-    expect(col2Span?.value).toBe(40);
-    expect(col2Span?.type).toBe("text");
+    const col2lwSpan = hSpans.find((s) => s.label?.includes("col-2-left-w"));
+    expect(col2lwSpan?.value).toBe(5);
+    expect(col2lwSpan?.type).toBe("text");
 
-    const mrSpan = hSpans.find((s) => s.label === "mr");
+    const col2wSpan = hSpans.find((s) => s.label?.includes("col-2-width"));
+    expect(col2wSpan?.value).toBe(40);
+    expect(col2wSpan?.type).toBe("text");
+
+    const col2reSpan = hSpans.find((s) => s.label?.includes("col-2-right-e"));
+    expect(col2reSpan?.value).toBe(5);
+    expect(col2reSpan?.type).toBeFalsy();
+
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
     expect(mrSpan?.value).toBe(15);
+    expect(mrSpan?.type).toBeFalsy();
+  });
+
+  it("should parse two-column formula with x separator", () => {
+    const formula =
+      //             mt  ah   mb   ml  1111111111 gap  2222222222  mr
+      //                               clw cw  crw     clw cw  crw
+      "200 x 160 = 30 [130] 40 x 15 [5 / 50 / 5 (10) 5 / 50 / 5] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+    expect(result!.width.value).toBe(160);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    // verify it handles x separator correctly for both height and width
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeFalsy();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(130);
+    expect(ahSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeFalsy();
+
+    // check horizontal spans for two columns
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    expect(mlSpan?.value).toBe(15);
+    expect(mlSpan?.type).toBeFalsy();
+
+    const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
+    expect(col1lwSpan?.value).toBe(5);
+    expect(col1lwSpan?.type).toBe("text");
+
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(50);
+    expect(col1wSpan?.type).toBe("text");
+
+    const gapSpan = hSpans.find((s) => s.label?.includes("col-1-gap"));
+    expect(gapSpan?.value).toBe(10);
+    expect(gapSpan?.type).toBeFalsy();
+
+    const col2wSpan = hSpans.find((s) => s.label?.includes("col-2-width"));
+    expect(col2wSpan?.value).toBe(50);
+    expect(col2wSpan?.type).toBe("text");
+
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
+    expect(mrSpan?.value).toBe(15);
+    expect(mrSpan?.type).toBeFalsy();
   });
 
   it("should parse formula without head/foot", () => {
     const formula =
+      //             mt ah    mb   ml  11111111111 gap  22222222222  mr
+      //                               clw cw  crw     clw   cw  crw
       "200 × 160 = 30 [130] 40 × 15 [5 / 50 / 5* (10) 5* / 50 / 5] 15";
     const result = service.parseFormula(formula);
 
@@ -92,8 +383,84 @@ describe("ITCodLayoutFormulaService", () => {
     expect(result!.width.value).toBe(160);
 
     const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
 
-    // should have margin-top, area-height, margin-bottom
+    // should have margin-top, area-height, margin-bottom (no head/foot)
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeFalsy();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(130);
+    expect(ahSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeFalsy();
+
+    // should NOT have head/foot spans
+    const heSpan = vSpans.find((s) => s.label === "head-e");
+    expect(heSpan).toBeUndefined();
+
+    const hwSpan = vSpans.find((s) => s.label === "head-w");
+    expect(hwSpan).toBeUndefined();
+    const feSpan = vSpans.find((s) => s.label === "foot-e");
+    expect(feSpan).toBeUndefined();
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
+    expect(fwSpan).toBeUndefined();
+
+    // check horizontal spans - two columns with gaps
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    expect(mlSpan?.value).toBe(15);
+    expect(mlSpan?.type).toBeFalsy();
+
+    const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
+    expect(col1lwSpan?.value).toBe(5);
+    expect(col1lwSpan?.type).toBeFalsy();
+
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(50);
+    expect(col1wSpan?.type).toBe("text");
+
+    // first column right should be empty (marked with *)
+    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
+    expect(col1reSpan?.value).toBe(5);
+    expect(col1reSpan?.type).toBeFalsy();
+
+    const gapSpan = hSpans.find((s) => s.label?.includes("col-1-gap"));
+    expect(gapSpan?.value).toBe(10);
+    expect(gapSpan?.type).toBeFalsy();
+
+    // second column left should be empty (marked with *)
+    const col2leSpan = hSpans.find((s) => s.label?.includes("col-2-left-e"));
+    expect(col2leSpan?.value).toBe(5);
+    expect(col2leSpan?.type).toBeFalsy();
+
+    const col2wSpan = hSpans.find((s) => s.label?.includes("col-2-width"));
+    expect(col2wSpan?.value).toBe(50);
+    expect(col2wSpan?.type).toBe("text");
+
+    const col2rwSpan = hSpans.find((s) => s.label?.includes("col-2-right-w"));
+    expect(col2rwSpan?.value).toBe(5);
+    expect(col2rwSpan?.type).toBe("text");
+
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
+    expect(mrSpan?.value).toBe(15);
+    expect(mrSpan?.type).toBeFalsy();
+  });
+
+  // Height dimension variations
+  it("should parse mt ah mb", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 / 5 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+    expect(result!.width.value).toBe(200);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+
+    // should have margin-top, area-height, margin-bottom (no head/foot)
     const mtSpan = vSpans.find((s) => s.label === "mt");
     expect(mtSpan?.value).toBe(30);
 
@@ -103,6 +470,384 @@ describe("ITCodLayoutFormulaService", () => {
 
     const mbSpan = vSpans.find((s) => s.label === "mb");
     expect(mbSpan?.value).toBe(40);
+
+    // should NOT have head/foot spans
+    const heSpan = vSpans.find((s) => s.label === "he");
+    expect(heSpan).toBeUndefined();
+    const hwSpan = vSpans.find((s) => s.label === "hw");
+    expect(hwSpan).toBeUndefined();
+    const feSpan = vSpans.find((s) => s.label === "fe");
+    expect(feSpan).toBeUndefined();
+    const fwSpan = vSpans.find((s) => s.label === "fw");
+    expect(fwSpan).toBeUndefined();
+  });
+
+  it("should parse mt he ah mb", () => {
+    const formula = "200 × 200 = 30 / 10 [120] 40 × 30 / 5 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+
+    const mtSpan = vSpans.find((s) => s.label === "mt");
+    expect(mtSpan?.value).toBe(30);
+
+    const heSpan = vSpans.find((s) => s.label === "he");
+    expect(heSpan?.value).toBe(10);
+
+    const ahSpan = vSpans.find((s) => s.label === "ah");
+    expect(ahSpan?.value).toBe(120);
+    expect(ahSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "mb");
+    expect(mbSpan?.value).toBe(40);
+
+    // should NOT have hw, fe, fw spans
+    const hwSpan = vSpans.find((s) => s.label === "hw");
+    expect(hwSpan).toBeUndefined();
+    const feSpan = vSpans.find((s) => s.label === "fe");
+    expect(feSpan).toBeUndefined();
+    const fwSpan = vSpans.find((s) => s.label === "fw");
+    expect(fwSpan).toBeUndefined();
+  });
+
+  it("should parse mt hw ah mb", () => {
+    const formula = "200 × 200 = 30 [10 / 120] 40 × 30 / 5 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+
+    const mtSpan = vSpans.find((s) => s.label === "mt");
+    expect(mtSpan?.value).toBe(30);
+
+    const hwSpan = vSpans.find((s) => s.label === "hw");
+    expect(hwSpan?.value).toBe(10);
+
+    const ahSpan = vSpans.find((s) => s.label === "ah");
+    expect(ahSpan?.value).toBe(120);
+    expect(ahSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "mb");
+    expect(mbSpan?.value).toBe(40);
+
+    // should NOT have he, fe, fw spans
+    const heSpan = vSpans.find((s) => s.label === "he");
+    expect(heSpan).toBeUndefined();
+    const feSpan = vSpans.find((s) => s.label === "fe");
+    expect(feSpan).toBeUndefined();
+    const fwSpan = vSpans.find((s) => s.label === "fw");
+    expect(fwSpan).toBeUndefined();
+  });
+
+  it("should parse mt ah fe mb", () => {
+    const formula = "200 × 200 = 30 [120] 10 / 40 × 30 / 5 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+  });
+
+  it("should parse mt ah fw mb", () => {
+    const formula = "200 × 200 = 30 [120 / 10] 40 × 30 / 5 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+  });
+
+  it("should parse mt he ah fe mb", () => {
+    const formula = "200 × 200 = 30 / 5 [120] 5 / 40 × 30 / 5 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+  });
+
+  it("should parse mt he ah fw mb", () => {
+    const formula = "200 × 200 = 30 / 5 [120 / 5] 40 × 30 / 5 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+  });
+
+  it("should parse mt hw ah fe mb", () => {
+    const formula = "200 × 200 = 30 [5 / 120] 5 / 40 × 30 / 5 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+  });
+
+  it("should parse mt hw ah fw mb", () => {
+    const formula = "200 × 200 = 30 [5 / 120 / 5] 40 × 30 / 5 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.height.value).toBe(200);
+  });
+
+  // Width dimension variations - single column
+  it("should parse ml cw mr", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    // should have margin-left, column-width, margin-right (no column left/right)
+    const mlSpan = hSpans.find((s) => s.label === "ml");
+    expect(mlSpan?.value).toBe(30);
+
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(130);
+    expect(col1wSpan?.type).toBe("text");
+
+    const mrSpan = hSpans.find((s) => s.label === "mr");
+    expect(mrSpan?.value).toBe(40);
+
+    // should NOT have column left/right spans
+    const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
+    expect(col1lwSpan).toBeUndefined();
+    const col1leSpan = hSpans.find((s) => s.label?.includes("col-1-left-e"));
+    expect(col1leSpan).toBeUndefined();
+    const col1rwSpan = hSpans.find((s) => s.label?.includes("col-1-right-w"));
+    expect(col1rwSpan).toBeUndefined();
+    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
+    expect(col1reSpan).toBeUndefined();
+  });
+
+  it("should parse ml cle cw mr", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 / 10 [120] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+  });
+
+  it("should parse ml clw cw mr", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 [10 / 120] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+  });
+
+  it("should parse ml cw cre mr", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 [120] 10 / 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+  });
+
+  it("should parse ml cw crw mr", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 [120 / 10] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+  });
+
+  it("should parse ml cle cw cre mr", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 / 5 [120] 5 / 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    const mlSpan = hSpans.find((s) => s.label === "ml");
+    expect(mlSpan?.value).toBe(30);
+
+    const col1leSpan = hSpans.find((s) => s.label?.includes("col-1-left-e"));
+    expect(col1leSpan?.value).toBe(5);
+
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(120);
+    expect(col1wSpan?.type).toBe("text");
+
+    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
+    expect(col1reSpan?.value).toBe(5);
+
+    const mrSpan = hSpans.find((s) => s.label === "mr");
+    expect(mrSpan?.value).toBe(40);
+
+    // should NOT have column left/right width spans
+    const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
+    expect(col1lwSpan).toBeUndefined();
+    const col1rwSpan = hSpans.find((s) => s.label?.includes("col-1-right-w"));
+    expect(col1rwSpan).toBeUndefined();
+  });
+
+  it("should parse ml cle cw crw mr", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 / 5 [120 / 5] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+  });
+
+  it("should parse ml clw cw cre mr", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 [5 / 120] 5 / 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+  });
+
+  it("should parse ml clw cw crw mr", () => {
+    const formula = "200 × 200 = 30 [130] 40 × 30 [5 / 120 / 5] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+  });
+
+  // Two-column width variations
+  it("should parse cw1 cg cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse clw1 cw1 cg cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [5 / 55 (10) 60] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cle1 cw1 cg cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 / 5 [55 (10) 60] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cw1 crw1 cg cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [55 / 5 (10) 60] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cw1 cre1 cg cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [55 / 5* (10) 60] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse clw1 cw1 crw1 cg cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [5 / 50 / 5 (10) 60] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse clw1 cw1 cre1 cg cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [5 / 50 / 5* (10) 60] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cle1 cw1 crw1 cg cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 / 5 [50 / 5 (10) 60] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cle1 cw1 cre1 cg cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 / 5 [50 / 5* (10) 60] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  // Second column variations
+  it("should parse cw1 cg clw2 cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 5 / 55] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cw1 cg cle2 cw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 5* / 55] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cw1 cg cw2 crw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 55 / 5] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cw1 cg cw2 cre2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 55] 5 / 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cw1 cg clw2 cw2 crw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 5 / 50 / 5] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cw1 cg clw2 cw2 cre2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 5 / 50] 5 / 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cw1 cg cle2 cw2 crw2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 5* / 50 / 5] 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
+  });
+
+  it("should parse cw1 cg cle2 cw2 cre2", () => {
+    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 5* / 50] 5 / 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(160);
   });
 
   it("should build formula from parsed result", () => {

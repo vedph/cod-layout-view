@@ -163,7 +163,7 @@ Codicological layout formulas essentially represent the layout scheme of a page 
 - usually, we distinguish between areas designed to contain text and areas for other content (or just for margins).
 - also, often we add the possibility of representing the current dimension vs. its original value. In most cases pages were trimmed, so that the current dimensions are not equal to the original ones, which in many cases can be reconstructed. This implies that each measurement can have an associated reconstructed value.
 
-The vertical measurements (defining horizontal grid lines from top to bottom) combined with the horizontal measurements (defining vertical grid lines from left to right) are combined to define rectangular areas, which represent the layout of a page.
+The vertical measurements (defining horizontal grid lines from top to bottom) combined with the horizontal measurements (defining vertical grid lines from left to right) define rectangular areas, which represent the layout of a page.
 
 Each service implementing a layout formula provides:
 
@@ -223,7 +223,7 @@ The IT formula syntax follows this pattern: `H × W = height_details × width_de
     - `col-N-right-e` (`cre`) or `col-n-right-w` (`crw`) (optional).
   - `mr`: margin-right.
 
-Empty areas are marked with an asterisk `*` suffix.
+Empty areas are marked with an asterisk `*` suffix. Tokens inside square brackets represent written areas; other tokens are empty areas.
 
 The diagram below shows the formula's structure using an example (portions marked with `-` and `+` are reciprocally exclusive; `!`=required, `?`=optional):
 
