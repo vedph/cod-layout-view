@@ -373,8 +373,8 @@ describe("ITCodLayoutFormulaService", () => {
 
   it("should parse formula without head/foot", () => {
     const formula =
-      //             mt ah    mb   ml  11111111111 gap  22222222222  mr
-      //                               clw cw  crw     clw   cw  crw
+      //           mt ah    mb   ml  11111111111 gap  22222222222  mr
+      //                             clw cw  crw     clw   cw  crw
       "200 × 160 = 30 [130] 40 × 15 [5 / 50 / 5* (10) 5* / 50 / 5] 15";
     const result = service.parseFormula(formula);
 
@@ -449,8 +449,8 @@ describe("ITCodLayoutFormulaService", () => {
     expect(mrSpan?.type).toBeFalsy();
   });
 
-  // Height dimension variations
   it("should parse mt ah mb", () => {
+    //                           mt  ah   mb   ml  cle cw   mr
     const formula = "200 × 200 = 30 [130] 40 × 30 / 5 [130] 40";
     const result = service.parseFormula(formula);
 
@@ -460,25 +460,24 @@ describe("ITCodLayoutFormulaService", () => {
 
     const vSpans = result!.spans.filter((s) => !s.isHorizontal);
 
-    // should have margin-top, area-height, margin-bottom (no head/foot)
-    const mtSpan = vSpans.find((s) => s.label === "mt");
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
     expect(mtSpan?.value).toBe(30);
 
-    const ahSpan = vSpans.find((s) => s.label === "ah");
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
     expect(ahSpan?.value).toBe(130);
     expect(ahSpan?.type).toBe("text");
 
-    const mbSpan = vSpans.find((s) => s.label === "mb");
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
     expect(mbSpan?.value).toBe(40);
 
     // should NOT have head/foot spans
-    const heSpan = vSpans.find((s) => s.label === "he");
+    const heSpan = vSpans.find((s) => s.label === "head-e");
     expect(heSpan).toBeUndefined();
-    const hwSpan = vSpans.find((s) => s.label === "hw");
+    const hwSpan = vSpans.find((s) => s.label === "head-w");
     expect(hwSpan).toBeUndefined();
-    const feSpan = vSpans.find((s) => s.label === "fe");
+    const feSpan = vSpans.find((s) => s.label === "foot-e");
     expect(feSpan).toBeUndefined();
-    const fwSpan = vSpans.find((s) => s.label === "fw");
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
     expect(fwSpan).toBeUndefined();
   });
 
