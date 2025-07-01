@@ -525,28 +525,29 @@ describe("ITCodLayoutFormulaService", () => {
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
+    expect(result!.width.value).toBe(200);
 
     const vSpans = result!.spans.filter((s) => !s.isHorizontal);
 
-    const mtSpan = vSpans.find((s) => s.label === "mt");
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
     expect(mtSpan?.value).toBe(30);
 
-    const hwSpan = vSpans.find((s) => s.label === "hw");
+    const hwSpan = vSpans.find((s) => s.label === "head-w");
     expect(hwSpan?.value).toBe(10);
 
-    const ahSpan = vSpans.find((s) => s.label === "ah");
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
     expect(ahSpan?.value).toBe(120);
     expect(ahSpan?.type).toBe("text");
 
-    const mbSpan = vSpans.find((s) => s.label === "mb");
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
     expect(mbSpan?.value).toBe(40);
 
     // should NOT have he, fe, fw spans
-    const heSpan = vSpans.find((s) => s.label === "he");
+    const heSpan = vSpans.find((s) => s.label === "head-e");
     expect(heSpan).toBeUndefined();
-    const feSpan = vSpans.find((s) => s.label === "fe");
+    const feSpan = vSpans.find((s) => s.label === "foot-e");
     expect(feSpan).toBeUndefined();
-    const fwSpan = vSpans.find((s) => s.label === "fw");
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
     expect(fwSpan).toBeUndefined();
   });
 
