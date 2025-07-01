@@ -798,59 +798,175 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse mt hw ah fw mb", () => {
+    //                           mt  hw  ah   fw  mb   ml  cle cw   mr
     const formula = "200 × 200 = 30 [5 / 120 / 5] 40 × 30 / 5 [130] 40";
     const result = service.parseFormula(formula);
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
-  });
-
-  // Width dimension variations - single column
-  it("should parse ml cw mr", () => {
-    const formula = "200 × 200 = 30 [130] 40 × 30 [130] 40";
-    const result = service.parseFormula(formula);
-
-    expect(result).toBeTruthy();
     expect(result!.width.value).toBe(200);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeUndefined();
+
+    const hwSpan = vSpans.find((s) => s.label === "head-w");
+    expect(hwSpan?.value).toBe(5);
+    expect(hwSpan?.type).toBe("text");
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(120);
+    expect(ahSpan?.type).toBe("text");
+
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
+    expect(fwSpan?.value).toBe(5);
+    expect(fwSpan?.type).toBeUndefined();
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeUndefined();
 
     const hSpans = result!.spans.filter((s) => s.isHorizontal);
 
-    // should have margin-left, column-width, margin-right (no column left/right)
-    const mlSpan = hSpans.find((s) => s.label === "ml");
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
     expect(mlSpan?.value).toBe(30);
+    expect(mlSpan?.type).toBeUndefined();
+
+    const cle1Span = hSpans.find((s) => s.label?.includes("col-1-left-e"));
+    expect(cle1Span?.value).toBe(5);
+    expect(cle1Span?.type).toBeUndefined();
 
     const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
     expect(col1wSpan?.value).toBe(130);
     expect(col1wSpan?.type).toBe("text");
 
-    const mrSpan = hSpans.find((s) => s.label === "mr");
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
     expect(mrSpan?.value).toBe(40);
+    expect(mrSpan?.type).toBeUndefined();
+  });
 
-    // should NOT have column left/right spans
-    const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
-    expect(col1lwSpan).toBeUndefined();
-    const col1leSpan = hSpans.find((s) => s.label?.includes("col-1-left-e"));
-    expect(col1leSpan).toBeUndefined();
-    const col1rwSpan = hSpans.find((s) => s.label?.includes("col-1-right-w"));
-    expect(col1rwSpan).toBeUndefined();
-    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
-    expect(col1reSpan).toBeUndefined();
+  it("should parse ml cw mr", () => {
+    //                           mt  ah   mb   ml  cw   mr
+    const formula = "200 × 200 = 30 [130] 40 × 30 [130] 40";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.width.value).toBe(200);
+    expect(result!.height.value).toBe(200);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeUndefined();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(130);
+    expect(ahSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeUndefined();
+
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    expect(mlSpan?.value).toBe(30);
+    expect(mlSpan?.type).toBeUndefined();
+
+    const cwSpan = hSpans.find((s) => s.label === "col-1-width");
+    expect(cwSpan?.value).toBe(130);
+    expect(cwSpan?.type).toBe("text");
+
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
+    expect(mrSpan?.value).toBe(40);
+    expect(mrSpan?.type).toBeUndefined();
   });
 
   it("should parse ml cle cw mr", () => {
+    //                           mt  ah   mb   ml  cle cw    mr
     const formula = "200 × 200 = 30 [130] 40 × 30 / 10 [120] 40";
     const result = service.parseFormula(formula);
 
     expect(result).toBeTruthy();
     expect(result!.width.value).toBe(200);
+    expect(result!.height.value).toBe(200);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeUndefined();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(130);
+    expect(ahSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeUndefined();
+
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    expect(mlSpan?.value).toBe(30);
+    expect(mlSpan?.type).toBeUndefined();
+
+    const cleSpan = hSpans.find((s) => s.label?.includes("col-1-left-e"));
+    expect(cleSpan?.value).toBe(10);
+    expect(cleSpan?.type).toBeUndefined();
+
+    const cwSpan = hSpans.find((s) => s.label === "col-1-width");
+    expect(cwSpan?.value).toBe(120);
+    expect(cwSpan?.type).toBe("text");
+
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
+    expect(mrSpan?.value).toBe(40);
+    expect(mrSpan?.type).toBeUndefined();
   });
 
   it("should parse ml clw cw mr", () => {
+    //                           mt  ah   mb   ml  clw  cw   mr
     const formula = "200 × 200 = 30 [130] 40 × 30 [10 / 120] 40";
     const result = service.parseFormula(formula);
 
     expect(result).toBeTruthy();
     expect(result!.width.value).toBe(200);
+    expect(result!.height.value).toBe(200);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeUndefined();
+
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(130);
+    expect(ahSpan?.type).toBe("text");
+
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeUndefined();
+
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    expect(mlSpan?.value).toBe(30);
+    expect(mlSpan?.type).toBeUndefined();
+
+    const clwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
+    expect(clwSpan?.value).toBe(10);
+    expect(clwSpan?.type).toBeUndefined();
+
+    const cwSpan = hSpans.find((s) => s.label === "col-1-width");
+    expect(cwSpan?.value).toBe(120);
+    expect(cwSpan?.type).toBe("text");
+
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
+    expect(mrSpan?.value).toBe(40);
+    expect(mrSpan?.type).toBeUndefined();
   });
 
   it("should parse ml cw cre mr", () => {
