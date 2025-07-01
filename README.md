@@ -4,8 +4,8 @@
   - [Model](#model)
   - [Usage](#usage)
   - [Formulas](#formulas)
-    - [Bianconi-Orsini](#bianconi-orsini)
     - [Itinera (IT)](#itinera-it)
+    - [Bianconi-Orsini](#bianconi-orsini)
   - [Dev Workspace Setup](#dev-workspace-setup)
     - [Lite Server](#lite-server)
   - [History](#history)
@@ -14,7 +14,11 @@
 
 Codicological layout formulas services and view web component in a framework-independent Typescript library. This library contains services and models representing manuscript layout formulas, and is a generalization inspired by [Cadmus codicology layout formulas](https://github.com/vedph/cadmus-codicology-shell/blob/master/projects/myrmidon/cadmus-codicology-ui/src/lib/services/cod-layout.service.ts).
 
-Such formulas are text strings which represent in a compact way the size and gridlines of a manuscript page. We give a list of vertical gridlines, with the span between each of them, from top to bottom; and a list of horizontal gridlines, with the span between each of them, from left to right. Once we virtually draw these lines, we get a grid which defines the various layout areas. A specific label tags those areas designed to contain text. Other areas are used for empty areas like margins, or for areas designed for special purposes, like holding initials.
+Formulas are text strings which represent in a compact way the size and gridlines of a manuscript page.
+
+In this general model, we have a list of vertical _gridlines_, with the span between each of them, from top to bottom; and a list of horizontal gridlines, with the span between each of them, from left to right.
+
+Once we virtually draw these lines, we get a grid which defines layout _areas_. A specific label tags those areas designed to contain text. Other areas are used for empty areas like margins, or for areas designed for special purposes, like holding initials.
 
 This library provides:
 
@@ -22,7 +26,7 @@ This library provides:
 - a layout view custom web component, which can display an interactive view of the layout represented by the formula;
 - layout formula services, which can be swapped in the same layout view component.
 
-👉 Quick start: download or clone the repository, open a terminal in its folder, restore NPM packages (`npm i`), and run with `npm run start`. When started open your browser at <localhost:3000>. The library has no additional dependencies.
+👉 Quick start for this repository: download or clone the repository, open a terminal in its folder, restore NPM packages (`npm i`), and run with `npm run start`. When started open your browser at <localhost:3000>. The library has no additional dependencies.
 
 - building: `npm run build`.
 - running: `npm run start`.
@@ -30,7 +34,7 @@ This library provides:
 
 ## Model
 
-Some generic models are used whatever the formula:
+All the formulas share the same [model](src/models.ts), which is based on these elements:
 
 - **dimension**: a single numeric value (`CodLayoutValue`): this couples a value with an optional label, and a second optional value representing the original (reconstructed) value. Also, `isOriginal` tells whether the current value also is the original one (which most often is not the case). So, the dimension value can be represented by:
   - a current value equal to the original one (`isOriginal`=true).
@@ -59,7 +63,7 @@ As spans can be labelled, areas can get a more human-friendly designation by com
 | 2,1=`$text_ml` | 2,2=`$text_i` | 2,3=`$text_$text` | 2,4=`$text_mr` |
 | 3,1=`mb_ml`    | 3,2=`mb_i`    | 3,3=`mb_$text`    | 3,4=`mb_mr`    |
 
-As you can see, here we are using the labels assigned to each span, or their type (preceded by `$`) when a label is not present. This convention can be used to define colors for each region.
+As you can see, here we are using the (Y and X) labels assigned to each span, or their type (preceded by `$`) when a label is not present. This convention can be used to define colors for each region.
 
 ```mermaid
 classDiagram
@@ -118,7 +122,7 @@ CodLayoutFormulaService <|-- BOCodLayoutFormula
 
 1. 📦 install package: `npm i @myrmidon/cod-layout-view`.
 
-> The component is generic and its formula service is replaceable. Currently there are two services available: `IT` (Itinera, default) and `BO` (Bianconi-Orsini). To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...` or `$IT ...formula here...`. If you don't specify a service, the default will be `IT` (Itinera), as this format predates BO and there is existing production code using IT formulas without any prefix. Note that the service identifier is case sensitive.
+>The component is generic and its formula service is replaceable. Currently there are two services available: `IT` (Itinera, default) and `BO` (Bianconi-Orsini). To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...` or `$IT ...formula here...`. If you don't specify a service, the default will be `IT` (Itinera), as this format predates BO and there is existing production code using IT formulas without any prefix. Note that the service identifier is case sensitive.
 
 2. in your component code, import the web component like this:
 
@@ -130,7 +134,7 @@ import '@myrmidon/cod-layout-view';
 @Component({
   selector: 'my-component',
   imports: [
-  	// ...
+    // ...
   ],
   // ADD this line:
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -167,7 +171,7 @@ Each service implementing a layout formula provides:
 - a function to convert the formula model into text;
 - an optional function to render the formula's text into SVG.
 
-SVG rendering options are:
+SVG rendering options (`CodLayoutSvgOptions`) are:
 
 - `showVertical`: true to show vertical gridlines.
 - `showHorizontal`: true to show horizontal gridlines.
@@ -198,47 +202,48 @@ SVG rendering options are:
 - `areaOpacity`: the area opacity.
 - `fallbackLineStyle`: line style used when original values are requested but we are falling back to the current values.
 
-### Bianconi-Orsini
-
-This formula targets size and mirror and is derived from D. Bianconi, _I Codices Graeci Antiquiores tra scavo e biblioteca_, in _Greek Manuscript Cataloguing: Past, Present, and Future_, edited by P. Degni, P. Eleuteri, M. Maniaci, Turnhout, Brepols, 2018 (Bibliologia, 48), 99-135, especially 110-111.
-
-The formula always targets a _recto_ page used as the sample. Its parts are:
-
-1. size: 2. unit, e.g. `mm` 3. `H [H] x W [W]`, where `H` and/or `W` can be wrapped in `()` (current dimensions not corresponding to the original ones). Each can be followed by another dimension in `[]` which is the reconstructed dimension. If a dimension is missing, it is replaced by `-` (here we use a dash rather than an EM dash for better accessibility); from a practical point of view, this `-` is thus equal to `0`.
-2. `=` followed by horizontal ruling spans. Each measurement number here can be wrapped in `()` and followed by another measurement in `[]` as above (1.2).
-3. `x` (or `×` U+00D7) followed by vertical ruling spans, as above (2).
-
-For 2-3 each measurement can be separated by:
-
-- `/` for single ruled areas (=this marks the start of a new area);
-- `//` for the writing mirror (=this occurs in pairs, delimiting the writing mirror).
-
-> In addition, a short label (a string without spaces) can be added after each measurement prefixed by `:`. This addition is required by the generic layout formula model and allows to customize the interpretation of non basic areas (see example 2 below).
-
 ### Itinera (IT)
 
-This formula service implements the original Itinera codicological layout formula syntax, which predates the Bianconi-Orsini format. It uses a different syntax with square brackets having specific meanings and maintains compatibility with the existing Angular service implementation.
+This formula service implements the original [Itinera](https://github.com/vedph/cadmus-codicology-shell/blob/master/projects/myrmidon/cadmus-codicology-ui/src/lib/services/cod-layout.service.ts) codicological layout formula syntax, which predates Bianconi-Orsini formula.
 
-The IT formula syntax follows this pattern: `H × W = height_details × width_details`
+The IT formula syntax follows this pattern: `H × W = height_details × width_details`, where:
 
-Where:
+- **height details** follow the pattern: `mt[/he][ah][/fe]mb` or `mt[hw/]ah[fw/]mb`:
+  - `mt`: margin-top
+  - `he`: head-empty (optional)
+  - `hw`: head-written (optional)
+  - `ah`: area-height (main text area)
+  - `fw`: foot-written (optional)
+  - `fe`: foot-empty (optional)
+  - `mb`: margin-bottom
+- **width details** follow the pattern: `ml[columns]mr`:
+  - `ml`: margin-left
+  - `mr`: margin-right
 
-**Height details** follow the pattern: `mt[/he][ah][/fe]mb` or `mt[hw/]ah[fw/]mb`
+Columns can include gaps denoted by `(N)` and various combinations of left/right margins and widths. Empty areas are marked with `*`.
 
-- `mt`: margin-top
-- `he`: head-empty (optional)
-- `hw`: head-written (optional)
-- `ah`: area-height (main text area)
-- `fw`: foot-written (optional)
-- `fe`: foot-empty (optional)
-- `mb`: margin-bottom
+The diagram below shows the formula's structure using an example (portions marked with `-` and `+` are reciprocally exclusive; `!`=required, `?`=optional):
 
-**Width details** follow the pattern: `ml[columns]mr`
+```txt
+ 240 × 150 = 30 / 5 [5 / 170 / 5] 5 / 40 × 15 / 5 [5 / 50 / 5* (20) 5* / 40 / 5] 5 / 15
+                ----++++    +++++----         ----++++       -  ||   -      ++++----
+ hhh   www   hhhhhhhhhhhhhhhhhhhhhhhhhhh   wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+                                              1111111111111111  ||  22222222222222
+ h     w     mt he  hw   ah fw    fe  mb   ml cle clw  cw   crX cg  clX  cw crw cre  mr
+ !     !     !  ? / ?    !  ?   / ?   !    !  ? / ?    !    ?   !   ?    !  ? / ?    !
 
-- `ml`: margin-left
-- `mr`: margin-right
-- Columns can include gaps denoted by `(N)` and various combinations of left/right margins and widths
-- Empty areas are marked with `*`
+ height:
+
+ [mt   ]
+ [he/hw]
+ [ah   ]
+ [fe/fw]
+ [mb   ]
+
+ width:
+      col1                   col2
+ [ml] [cle/clw][cw][cre/crw] [cg][cle/clw][cw][cre/crw]... [mr]
+```
 
 **Examples:**
 
@@ -246,11 +251,13 @@ Where:
 
    ```text
    250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15
+               hhhhhhhhhhhhhhhhhhh   wwwwwwwwwwwwwwwwww
+   hhh   www   mt   he ah    fw mb   ml  cl  cw   cr mr
    ```
 
-   - Height: 250, Width: 160
-   - Height details: mt=30, he=5, ah=170, fw=5, mb=40
-   - Width details: ml=15, col-left-w=3, col-width=50, col-right-w=5, mr=15
+   - Height: 250, Width: 160.
+   - Height details: mt=30, he=5, ah=170, fw=5, mb=40.
+   - Width details: ml=15, col-left-w=3, col-width=50, col-right-w=5, mr=15.
 
 2. Two-column layout with gap:
 
@@ -279,9 +286,28 @@ $IT 250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15
 
 The IT service automatically assigns appropriate labels to spans:
 
-- Height spans: `mt`, `he`, `hw`, `ah`, `fw`, `fe`, `mb`
-- Width spans: `ml`, `mr`, `col1`, `col2`, etc., with suffixes `l` and `r` for left/right margins
-- Text areas are marked with `type: "text"`, empty areas have no type
+- height spans: `mt`, `he`, `hw`, `ah`, `fw`, `fe`, `mb`.
+- width spans: `ml`, `mr`, `col1`, `col2`, etc., with suffixes `l` and `r` for left/right margins.
+- text areas are marked with `type: "text"`, empty areas have no type.
+
+### Bianconi-Orsini
+
+This formula targets size and areas and is derived from D. Bianconi, _I Codices Graeci Antiquiores tra scavo e biblioteca_, in _Greek Manuscript Cataloguing: Past, Present, and Future_, edited by P. Degni, P. Eleuteri, M. Maniaci, Turnhout, Brepols, 2018 (Bibliologia, 48), 99-135, especially 110-111.
+
+The formula always targets a _recto_ page used as the sample. Its parts are:
+
+1. **size**:
+   1. **unit**, e.g. `mm`.
+   2. **height x width**: `H [H] x W [W]`, where `H` and/or `W` can be wrapped in `()` (current dimensions not corresponding to the original ones). Each can be followed by another dimension in `[]` which is the reconstructed dimension. If a dimension is missing, it is replaced by `-` (here we use a dash rather than an EM dash for better accessibility); from a practical point of view, this `-` is thus equal to `0`.
+2. `=` followed by **horizontal spans**. Each measurement number here can be wrapped in `()` and followed by another measurement in `[]` as above (1.2).
+3. `x` (or `×` U+00D7) followed by **vertical spans**, as above (2).
+
+For 2-3 each measurement can be **separated** by:
+
+- `/` for single ruled areas (=this marks the start of a new area);
+- `//` for the writing area (=this occurs in pairs, delimiting the writing area).
+
+In addition, a short **label** (a string without spaces) can be added after each measurement prefixed by `:`. This addition is required by the generic layout formula model and allows to customize the interpretation of non basic areas (see example 2 below).
 
 Examples (see pp.110-111):
 
@@ -291,10 +317,10 @@ Examples (see pp.110-111):
 - `(57) [175]`: height
 - `x (145) [150]`: width
 - `= (22)`: top margin height
-- `// 35 [115]`: writing mirror height
+- `// 35 [115]`: writing area height
 - `// -`: missing bottom margin
 - `x 10`: internal margin width
-- `// 115 //`: writing mirror width
+- `// 115 //`: writing area width
 - `20`: external margin width
 
 (2) `mm 336 x 240 = 18 // 282 // 36 x 25 / 4 // 174 // 4 / 33`
@@ -303,15 +329,15 @@ Examples (see pp.110-111):
 - `336`: height
 - `x 240`: width
 - `= 18`: top margin height
-- `// 282 //`: writing mirror height
+- `// 282 //`: writing area height
 - `36`: bottom margin height
 - `x 25`: internal margin width
 - `4`: column for initials width
-- `// 174 //`: writing mirror width
+- `// 174 //`: writing area width
 - `4`: column for initials width
 - `/ 33`: external margin width
 
-> Here we might use a label to tag the initials column area, e.g. `mm 336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33`.
+>Here we might use a label to tag the initials column area, e.g. `mm 336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33`.
 
 (3) `mm (245) x (162) = (10) // 206 // (29) x (21) // 114 // (27)`
 
@@ -319,13 +345,13 @@ Examples (see pp.110-111):
 - `245`: height
 - `x 162`: width
 - `= (10)`: top margin height
-- `// 206 //`: writing mirror height
+- `// 206 //`: writing area height
 - `(29)`: bottom margin height
 - `x (21)`: internal margin width
-- `// 114 //`: writing mirror width
+- `// 114 //`: writing area width
 - `(27)`: external margin width
 
-> Note that the above examples were fixed as they seem to have typos in the original document (see nr.2 and 3).
+>Note that the above examples were fixed as they seem to have typos in the original document (see nr.2 and 3).
 
 For instance, the formula `mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr` is displayed like in the screenshot below:
 
