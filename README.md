@@ -251,8 +251,8 @@ The diagram below shows the formula's structure using an example (portions marke
 
    ```text
    250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15
-               hhhhhhhhhhhhhhhhhhh   wwwwwwwwwwwwwwwwww
-   hhh   www   mt   he ah    fw mb   ml  cl  cw   cr mr
+   hhh   www   hhhhhhhhhhhhhhhhhhh   wwwwwwwwwwwwwwwwww
+               mt   he ah    fw mb   ml  cl  cw   cr mr
    ```
 
    - Height: 250, Width: 160.
@@ -263,11 +263,14 @@ The diagram below shows the formula's structure using an example (portions marke
 
    ```text
    250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15
+   hhh   www   hhhhhhhhhhhhhhhhhhh   wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+               mt   he ah    fw mb   ml  11111111111  gap 22222222222
+                                         cle clw  cre     clw cw  cre mr
    ```
 
-   - Same height structure as above
-   - Width details: ml=15, col1(left-w=5, width=50, right-e=5), gap=20, col2(left-w=5, width=40), mr=15
-   - The `*` indicates empty (non-text) areas
+   - Same height structure as above.
+   - Width details: ml=15, col1(left-w=5, width=50, right-e=5), gap=20, col2(left-w=5, width=40, right-e=5), mr=15.
+   - The `*` indicates empty (non-text) areas.
 
 3. Simple layout without head/foot:
 
