@@ -68,11 +68,7 @@ export class ITCodLayoutFormulaService
   private static readonly MARGIN_LEFT_REGEX = /^(\d+)\b/;
   private static readonly MARGIN_RIGHT_REGEX = /\b(\d+)$/;
 
-  // column number extraction (matches legacy _colNRegex)
-  private static readonly COL_N_REGEX = /^col-(\d+)-/;
-
   //#region Parsing
-
   /**
    * Parse the height portion of the formula using the exact legacy logic.
    */
@@ -191,6 +187,7 @@ export class ITCodLayoutFormulaService
         value: actualFw,
         label: "foot-w",
         isHorizontal: false,
+        type: "text",
       });
 
       // recalculate total

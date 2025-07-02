@@ -416,7 +416,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
     expect(col1lwSpan?.value).toBe(5);
-    expect(col1lwSpan?.type).toBeUndefined();
+    expect(col1lwSpan?.type).toBe("text");
 
     const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
     expect(col1wSpan?.value).toBe(50);
@@ -576,7 +576,7 @@ describe("ITCodLayoutFormulaService", () => {
     
     const feSpan = vSpans.find((s) => s.label === "foot-e");
     expect(feSpan?.value).toBe(10);
-    expect(feSpan?.type).toBe("text");
+    expect(feSpan?.type).toBeUndefined();
     
     const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
     expect(mbSpan?.value).toBe(40);
@@ -622,7 +622,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     const fwSpan = vSpans.find((s) => s.label === "foot-w");
     expect(fwSpan?.value).toBe(10);
-    expect(fwSpan?.type).toBe("text");
+    expect(fwSpan?.type).toBeUndefined();
 
     const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
     expect(mbSpan?.value).toBe(40);
@@ -958,7 +958,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     const clwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
     expect(clwSpan?.value).toBe(10);
-    expect(clwSpan?.type).toBeUndefined();
+    expect(clwSpan?.type).toBe("text");
 
     const cwSpan = hSpans.find((s) => s.label === "col-1-width");
     expect(cwSpan?.value).toBe(120);
@@ -1987,7 +1987,7 @@ describe("ITCodLayoutFormulaService", () => {
 
   it("should parse cw1 cg cle2 cw2 crw2", () => {
     //                           mt ah    mb   ml  1111111111   222222  mr
-    //                                             cw gap clw   cw  crw
+    //                                             cw gap cle   cw  crw
     const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 5* / 50 / 5] 15";
     const result = service.parseFormula(formula);
 
@@ -2023,9 +2023,9 @@ describe("ITCodLayoutFormulaService", () => {
     expect(gapSpan?.value).toBe(10);
     expect(gapSpan?.type).toBeUndefined();
 
-    const cle2Span = hSpans.find((s) => s.label?.includes("col-2-left-w"));
+    const cle2Span = hSpans.find((s) => s.label?.includes("col-2-left-e"));
     expect(cle2Span?.value).toBe(5);
-    expect(cle2Span?.type).toBe("text");
+    expect(cle2Span?.type).toBeUndefined();
 
     const cw2Span = hSpans.find((s) => s.label === "col-2-width");
     expect(cw2Span?.value).toBe(50);
