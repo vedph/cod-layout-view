@@ -622,7 +622,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     const fwSpan = vSpans.find((s) => s.label === "foot-w");
     expect(fwSpan?.value).toBe(10);
-    expect(fwSpan?.type).toBeUndefined();
+    expect(fwSpan?.type).toBe("text");
 
     const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
     expect(mbSpan?.value).toBe(40);
