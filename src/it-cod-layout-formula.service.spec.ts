@@ -136,7 +136,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse single column clw-cw-cre", () => {
-    //                           mt   he ah    fw mb   ml clw  cw  cre mr
+    //                           mt   he ah    fw mb   ml clw  cw  crw mr
     const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
     const result = service.parseFormula(formula);
 
@@ -181,9 +181,9 @@ describe("ITCodLayoutFormulaService", () => {
     expect(col1wSpan?.value).toBe(50);
     expect(col1wSpan?.type).toBe("text");
 
-    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
+    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-w"));
     expect(col1reSpan?.value).toBe(5);
-    expect(col1reSpan?.type).toBeUndefined();
+    expect(col1reSpan?.type).toBe("text");
 
     const mrSpan = hSpans.find((s) => s.label === "margin-right");
     expect(mrSpan?.value).toBe(15);
