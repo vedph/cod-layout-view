@@ -120,11 +120,11 @@ CodLayoutFormulaService <|-- BOCodLayoutFormula
 
 ## Usage
 
-1. 📦 install package: `npm i @myrmidon/cod-layout-view`.
+▶️ (1) 📦 install package: `npm i @myrmidon/cod-layout-view`.
 
 >The component is generic and its formula service is replaceable. Currently there are two services available: `IT` (Itinera, default) and `BO` (Bianconi-Orsini). To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...` or `$IT ...formula here...`. If you don't specify a service, the default will be `IT` (Itinera), as this format predates BO and there is existing production code using IT formulas without any prefix. Note that the service identifier is case sensitive.
 
-2. in your component code, import the web component like this:
+▶️ (2) in your component code, import the web component like this:
 
 ```ts
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -142,7 +142,7 @@ import '@myrmidon/cod-layout-view';
 })
 ```
 
-3. in your component template, use it like (in this example, `layout` is a `FormControl<string>`):
+▶️ (3) in your component template, use it like (in this example, `layout` is a `FormControl<string>`):
 
 ```html
 <cod-layout-view
@@ -151,7 +151,7 @@ import '@myrmidon/cod-layout-view';
 ></cod-layout-view>
 ```
 
-> Web Components (Custom Elements) typically use attributes for data binding, while Angular components use properties. This is a common integration point to be aware of. That's why you _must_ use `[attr.NAME]` rather than `[NAME]`. In the same way, you can bind `[attr.options]` for custom options too.
+>Web Components (Custom Elements) typically use attributes for data binding, while Angular components use properties. This is a common integration point to be aware of. That's why you _must_ use `[attr.NAME]` rather than `[NAME]`. In the same way, you can bind `[attr.options]` for custom options too.
 
 ## Formulas
 
@@ -209,19 +209,19 @@ This formula service implements the original [Itinera](https://github.com/vedph/
 The IT formula syntax follows this pattern: `H × W = height_details × width_details`, where:
 
 - **height details** follow the pattern: `mt[/he][ah][/fe]mb` or `mt[hw/]ah[fw/]mb`:
-  - `mt`: margin-top.
-  - `he`: head-empty (optional) or `hw`: head-written (optional).
-  - `ah`: area-height (main text area).
-  - `fe`: foot-empty (optional) or `fw`: foot-written (optional).
-  - `mb`: margin-bottom.
+  - `mt` (label=`margin-top`): margin-top.
+  - `he` (label=`head-e`): head-empty (optional) or `hw`: head-written (optional).
+  - `ah` (label=`area-height`): area-height (main text area).
+  - `fe` (label=`foot-e`): foot-empty (optional) or `fw`: foot-written (optional).
+  - `mb` (label=`margin-bottom`): margin-bottom.
 - **width details** follow the pattern: `ml[columns]mr`:
-  - `ml`: margin-left.
+  - `ml` (label=`margin-left`): margin-left.
   - `colN`: optional columns, each having:
-    - `col-N-gap` (`gap`): gap between two columns. As this separates columns, it is not found before the first column.
-    - `col-N-left-e` (`cle`) or `col-n-left-w` (`clw`) (optional).
-    - `col-N-width` (`cw`).
-    - `col-N-right-e` (`cre`) or `col-n-right-w` (`crw`) (optional).
-  - `mr`: margin-right.
+    - `col-N-gap` (`gap`; label=`col-N-gap`): gap between two columns. As this separates columns, it is not found before the first column.
+    - `cle` or `clw` (label `col-N-left-e` or `col-n-left-w`) (optional).
+    - `cw` (label `col-N-width`).
+    - `cre` or `crw` (label `col-N-right-e` or `col-N-right-w`) (optional).
+  - `mr` (label `margin-right`).
 
 Empty areas are marked with an asterisk `*` suffix. Tokens inside square brackets represent written areas; other tokens are empty areas.
 
