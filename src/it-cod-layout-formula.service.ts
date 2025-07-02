@@ -543,34 +543,55 @@ export class ITCodLayoutFormulaService
 
     // group spans by column
     const columnSpans = hSpans.filter(
-      (s) => s.label && s.label.startsWith("col") && !s.label.includes("gap")
+      (s) => s.label && s.label.startsWith("col-") && !s.label.includes("gap")
     );
-    const gapSpans = hSpans.filter((s) => s.label?.startsWith("gap"));
+    const gapSpans = hSpans.filter((s) => s.label?.includes("-gap"));
 
-    // simple column building - this may need refinement based on exact IT syntax
+    // build columns based on actual span labels
     let colIndex = 1;
     let isFirstCol = true;
 
     while (true) {
-      const colSpan = columnSpans.find((s) => s.label === `col${colIndex}`);
+      const colSpan = columnSpans.find(
+        (s) => s.label === `col-${colIndex}-width`
+      );
       if (!colSpan) break;
 
       if (!isFirstCol) {
-        const gapSpan = gapSpans.find((s) => s.label === `gap${colIndex - 1}`);
+        const gapSpan = gapSpans.find((s) => s.label === `col-${colIndex}-gap`);
         if (gapSpan) {
           sb.push(` (${gapSpan.value}) `);
         }
       }
 
-      const leftSpan = columnSpans.find((s) => s.label === `col${colIndex}l`);
-      const rightSpan = columnSpans.find((s) => s.label === `col${colIndex}r`);
+      const leftWSpan = columnSpans.find(
+        (s) => s.label === `col-${colIndex}-left-w`
+      );
+      const leftESpan = columnSpans.find(
+        (s) => s.label === `col-${colIndex}-left-e`
+      );
+      const rightWSpan = columnSpans.find(
+        (s) => s.label === `col-${colIndex}-right-w`
+      );
+      const rightESpan = columnSpans.find(
+        (s) => s.label === `col-${colIndex}-right-e`
+      );
+
+      const leftSpan = leftWSpan || leftESpan;
+      const rightSpan = rightWSpan || rightESpan;
 
       if (leftSpan && rightSpan) {
-        const leftMarker = leftSpan.type ? "" : "*";
-        const rightMarker = rightSpan.type ? "" : "*";
+        const leftMarker = leftSpan.type === "text" ? "" : "*";
+        const rightMarker = rightSpan.type === "text" ? "" : "*";
         sb.push(
           `${leftSpan.value}${leftMarker} / ${colSpan.value} / ${rightSpan.value}${rightMarker}`
         );
+      } else if (leftSpan) {
+        const leftMarker = leftSpan.type === "text" ? "" : "*";
+        sb.push(`${leftSpan.value}${leftMarker} / ${colSpan.value}`);
+      } else if (rightSpan) {
+        const rightMarker = rightSpan.type === "text" ? "" : "*";
+        sb.push(`${colSpan.value} / ${rightSpan.value}${rightMarker}`);
       } else {
         sb.push(`${colSpan.value}`);
       }
