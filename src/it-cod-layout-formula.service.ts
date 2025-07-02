@@ -83,7 +83,7 @@ export class ITCodLayoutFormulaService
     height: CodLayoutValue;
     spans: CodLayoutSpan[];
   } {
-    // Remove all whitespace for consistent parsing (matches legacy)
+    // remove all whitespace for consistent parsing
     const cleanText = text.replace(/\s+/g, "");
     const match = ITCodLayoutFormulaService.HEIGHT_REGEX.exec(cleanText);
 
@@ -94,7 +94,7 @@ export class ITCodLayoutFormulaService
     const spans: CodLayoutSpan[] = [];
     let totalHeight = 0;
 
-    // Parse height dimensions exactly like legacy parseHeightMatch
+    // parse height dimensions
     const mt = parseFloat(match[1]);
     const he = match[2] ? parseFloat(match[2]) : undefined;
     const hw = match[3] ? parseFloat(match[3]) : undefined;
@@ -106,7 +106,7 @@ export class ITCodLayoutFormulaService
     // margin-top
     spans.push({
       value: mt,
-      label: "mt",
+      label: "margin-top",
       isHorizontal: false,
     });
     totalHeight += mt;
@@ -115,7 +115,7 @@ export class ITCodLayoutFormulaService
     if (he !== undefined) {
       spans.push({
         value: he,
-        label: "he",
+        label: "head-e",
         isHorizontal: false,
       });
       totalHeight += he;
@@ -125,8 +125,9 @@ export class ITCodLayoutFormulaService
     if (hw !== undefined) {
       spans.push({
         value: hw,
-        label: "hw",
+        label: "head-w",
         isHorizontal: false,
+        type: "text",
       });
       totalHeight += hw;
     }
@@ -134,7 +135,7 @@ export class ITCodLayoutFormulaService
     // area-height
     spans.push({
       value: ah,
-      label: "ah",
+      label: "area-height",
       isHorizontal: false,
       type: "text",
     });
@@ -144,8 +145,9 @@ export class ITCodLayoutFormulaService
     if (fw !== undefined) {
       spans.push({
         value: fw,
-        label: "fw",
+        label: "foot-w",
         isHorizontal: false,
+        type: "text",
       });
       totalHeight += fw;
     }
@@ -154,7 +156,7 @@ export class ITCodLayoutFormulaService
     if (fe !== undefined) {
       spans.push({
         value: fe,
-        label: "fe",
+        label: "foot-e",
         isHorizontal: false,
       });
       totalHeight += fe;
@@ -163,14 +165,14 @@ export class ITCodLayoutFormulaService
     // margin-bottom
     spans.push({
       value: mb,
-      label: "mb",
+      label: "margin-bottom",
       isHorizontal: false,
     });
     totalHeight += mb;
 
     // apply correction for ambiguous [N/N] case
-    const hwSpan = spans.find((s) => s.label === "hw");
-    const ahSpan = spans.find((s) => s.label === "ah");
+    const hwSpan = spans.find((s) => s.label === "head-w");
+    const ahSpan = spans.find((s) => s.label === "area-height");
 
     if (hwSpan && ahSpan && ahSpan.value < hwSpan.value) {
       // hw is rather ah, ah is rather fw
@@ -178,7 +180,7 @@ export class ITCodLayoutFormulaService
       const actualFw = ahSpan.value;
 
       // remove hw span
-      const hwIndex = spans.findIndex((s) => s.label === "hw");
+      const hwIndex = spans.findIndex((s) => s.label === "head-w");
       spans.splice(hwIndex, 1);
 
       // update ah span
@@ -187,7 +189,7 @@ export class ITCodLayoutFormulaService
       // add fw span
       spans.push({
         value: actualFw,
-        label: "fw",
+        label: "foot-w",
         isHorizontal: false,
       });
 
@@ -238,6 +240,7 @@ export class ITCodLayoutFormulaService
           value: parseFloat(ml[2]),
           label: prefix + (cle ? "left-e" : "left-w"),
           isHorizontal: true,
+          type: cle ? undefined : "text",
         });
 
         spans.push({
@@ -253,6 +256,7 @@ export class ITCodLayoutFormulaService
           value: parseFloat(mr[2]),
           label: prefix + (cre ? "right-e" : "right-w"),
           isHorizontal: true,
+          type: cre ? undefined : "text",
         });
         break;
 
@@ -311,6 +315,7 @@ export class ITCodLayoutFormulaService
               value: parseFloat(b[2]),
               label: prefix + (b[1] ? "right-e" : "right-w"),
               isHorizontal: true,
+              type: b[1] ? undefined : "text",
             });
           } else {
             // a=clx, b=cw (cle if [N, else clw)
@@ -318,6 +323,7 @@ export class ITCodLayoutFormulaService
               value: parseFloat(a[2]),
               label: prefix + (a[4] ? "left-e" : "left-w"),
               isHorizontal: true,
+              type: a[4] ? undefined : "text",
             });
             spans.push({
               value: parseFloat(b[2]),
@@ -506,13 +512,13 @@ export class ITCodLayoutFormulaService
     const hSpans = formula.spans.filter((s) => s.isHorizontal);
 
     // find specific height spans by label
-    const mtSpan = vSpans.find((s) => s.label === "mt");
-    const heSpan = vSpans.find((s) => s.label === "he");
-    const hwSpan = vSpans.find((s) => s.label === "hw");
-    const ahSpan = vSpans.find((s) => s.label === "ah");
-    const fwSpan = vSpans.find((s) => s.label === "fw");
-    const feSpan = vSpans.find((s) => s.label === "fe");
-    const mbSpan = vSpans.find((s) => s.label === "mb");
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    const heSpan = vSpans.find((s) => s.label === "head-e");
+    const hwSpan = vSpans.find((s) => s.label === "head-w");
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
+    const feSpan = vSpans.find((s) => s.label === "foot-e");
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
 
     // build height pattern
     if (mtSpan) sb.push(`${mtSpan.value}`);
@@ -530,8 +536,8 @@ export class ITCodLayoutFormulaService
     sb.push(" × ");
 
     // width details: build from horizontal spans
-    const mlSpan = hSpans.find((s) => s.label === "ml");
-    const mrSpan = hSpans.find((s) => s.label === "mr");
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
 
     if (mlSpan) sb.push(`${mlSpan.value} `);
 

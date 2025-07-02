@@ -130,7 +130,7 @@ describe("ITCodLayoutFormulaService", () => {
     expect(col1rwSpan?.value).toBe(5);
     expect(col1rwSpan?.type).toBe("text");
 
-    const mrSpan = hSpans.find((s) => s.label === "mr");
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
     expect(mrSpan?.value).toBe(15);
     expect(mrSpan?.type).toBeUndefined();
   });
@@ -822,7 +822,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     const fwSpan = vSpans.find((s) => s.label === "foot-w");
     expect(fwSpan?.value).toBe(5);
-    expect(fwSpan?.type).toBeUndefined();
+    expect(fwSpan?.type).toBe("text");
 
     const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
     expect(mbSpan?.value).toBe(40);
@@ -970,6 +970,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse ml cw cre mr", () => {
+    //                           mt  ah   mb   ml  cw   cre  mr
     const formula = "200 × 200 = 30 [130] 40 × 30 [120] 10 / 40";
     const result = service.parseFormula(formula);
 
@@ -1011,6 +1012,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse ml cw crw mr", () => {
+    //                           mt  ah   mb   ml  cw   crw  mr
     const formula = "200 × 200 = 30 [130] 40 × 30 [120 / 10] 40";
     const result = service.parseFormula(formula);
 
@@ -1052,6 +1054,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse ml cle cw cre mr", () => {
+    //                           mt  ah   mb   ml  cle cw   cre mr
     const formula = "200 × 200 = 30 [130] 40 × 30 / 5 [120] 5 / 40";
     const result = service.parseFormula(formula);
 
@@ -1060,7 +1063,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     const hSpans = result!.spans.filter((s) => s.isHorizontal);
 
-    const mlSpan = hSpans.find((s) => s.label === "ml");
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
     expect(mlSpan?.value).toBe(30);
 
     const col1leSpan = hSpans.find((s) => s.label?.includes("col-1-left-e"));
@@ -1073,7 +1076,7 @@ describe("ITCodLayoutFormulaService", () => {
     const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
     expect(col1reSpan?.value).toBe(5);
 
-    const mrSpan = hSpans.find((s) => s.label === "mr");
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
     expect(mrSpan?.value).toBe(40);
 
     // should NOT have column left/right width spans
@@ -1084,6 +1087,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse ml cle cw crw mr", () => {
+    //                           mt  ah   mb   ml  cle cw   crw mr
     const formula = "200 × 200 = 30 [130] 40 × 30 / 5 [120 / 5] 40";
     const result = service.parseFormula(formula);
 
@@ -1129,6 +1133,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse ml clw cw cre mr", () => {
+    //                           mt  ah   mb   ml  clw cw   cre mr
     const formula = "200 × 200 = 30 [130] 40 × 30 [5 / 120] 5 / 40";
     const result = service.parseFormula(formula);
 
@@ -1174,6 +1179,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse ml clw cw crw mr", () => {
+    //                           mt  ah   mb   ml  clw cw   crw mr
     const formula = "200 × 200 = 30 [130] 40 × 30 [5 / 120 / 5] 40";
     const result = service.parseFormula(formula);
 
@@ -1220,6 +1226,7 @@ describe("ITCodLayoutFormulaService", () => {
 
   // Two-column width variations
   it("should parse cw1 cg cw2", () => {
+    //                           mt  ah   mb   ml  cw  cg  cw  mr
     const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
     const result = service.parseFormula(formula);
 
@@ -1265,6 +1272,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse clw1 cw1 cg cw2", () => {
+    //                           mt  ah   mb   ml  clw cw  cg  cw  mr
     const formula = "200 × 160 = 30 [130] 40 × 15 [5 / 55 (10) 60] 15";
     const result = service.parseFormula(formula);
 
@@ -1314,6 +1322,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse cle1 cw1 cg cw2", () => {
+    //                           mt  ah   mb   ml  cle cw gap  cw  mr
     const formula = "200 × 160 = 30 [130] 40 × 15 / 5 [55 (10) 60] 15";
     const result = service.parseFormula(formula);
 
@@ -1363,6 +1372,7 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse cw1 crw1 cg cw2", () => {
+    //                           mt  ah   mb   ml  cw  crw cg  cw  mr
     const formula = "200 × 160 = 30 [130] 40 × 15 [55 / 5 (10) 60] 15";
     const result = service.parseFormula(formula);
 
@@ -1976,6 +1986,8 @@ describe("ITCodLayoutFormulaService", () => {
   });
 
   it("should parse cw1 cg cle2 cw2 crw2", () => {
+    //                           mt ah    mb   ml  1111111111   222222  mr
+    //                                             cw gap clw   cw  crw
     const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 5* / 50 / 5] 15";
     const result = service.parseFormula(formula);
 
@@ -2011,9 +2023,9 @@ describe("ITCodLayoutFormulaService", () => {
     expect(gapSpan?.value).toBe(10);
     expect(gapSpan?.type).toBeUndefined();
 
-    const cle2Span = hSpans.find((s) => s.label?.includes("col-2-left-e"));
+    const cle2Span = hSpans.find((s) => s.label?.includes("col-2-left-w"));
     expect(cle2Span?.value).toBe(5);
-    expect(cle2Span?.type).toBeUndefined();
+    expect(cle2Span?.type).toBe("text");
 
     const cw2Span = hSpans.find((s) => s.label === "col-2-width");
     expect(cw2Span?.value).toBe(50);
