@@ -13,6 +13,23 @@ import {
 } from "./models";
 
 /**
+ * Creates a layout formula service.
+ * @param type The type of layout formula service to create,
+ * or undefined to create the default formula service (IT).
+ * @returns A new CodLayoutFormulaService instance.
+ */
+export function createLayoutFormulaService(
+  type?: "BO" | "IT"
+): CodLayoutFormulaService {
+  switch (type) {
+    case "BO":
+      return new BOCodLayoutFormulaService();
+    default:
+      return new ITCodLayoutFormulaService();
+  }
+}
+
+/**
  * A web component to visualize codicological layout formulas.
  * Usage: `<cod-layout-view formula="..." options="..."></cod-layout-view>`.
  */
@@ -63,13 +80,8 @@ export class CodLayoutViewComponent extends HTMLElement {
           this._service = new BOCodLayoutFormulaService();
           this._options = { ...DEFAULT_BO_SVG_OPTIONS, ...this._options };
           break;
-        case "IT":
-          console.log("Using IT formula service");
-          this._service = new ITCodLayoutFormulaService();
-          this._options = { ...DEFAULT_IT_SVG_OPTIONS, ...this._options };
-          break;
         default:
-          console.log("Unknown formula type, using IT as default");
+          console.log("Using IT formula service");
           this._service = new ITCodLayoutFormulaService();
           this._options = { ...DEFAULT_IT_SVG_OPTIONS, ...this._options };
           break;

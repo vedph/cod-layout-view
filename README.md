@@ -474,6 +474,10 @@ Now, when you run `npm start`, it will start both the TypeScript compiler in wat
 
 ## History
 
+- 2025-07-03:
+  - added more methods to formula service interface.
+  - added `createLayoutFormulaService` function.
+
 ### 1.0.0
 
 - 2025-06-30:

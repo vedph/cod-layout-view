@@ -91,6 +91,10 @@ export interface CodLayoutFormula {
   spans: CodLayoutSpan[];
 }
 
+/**
+ * An area in a codicological layout formula, defined by the
+ * intersection of vertical and horizontal spans.
+ */
 export interface CodLayoutArea {
   y: number;
   x: number;
@@ -98,6 +102,10 @@ export interface CodLayoutArea {
   rowIndexes: string[];
 }
 
+/**
+ * A renderer for codicological layout formulas, which can build an SVG
+ * representation of the formula.
+ */
 export interface CodLayoutFormulaRenderer {
   buildSvg(
     formula: CodLayoutFormula,
@@ -113,6 +121,36 @@ export interface CodLayoutFormulaService {
    * The formula type identifier, e.g. "BO" for Bianconi-Orsini.
    */
   readonly type: string;
+
+  /**
+   * Get all the areas defined by intersecting horizontal and vertical
+   * spans. Each area has 1-based y and x coordinates referring to the
+   * cells defined by the spans, and a list of row and column indexes.
+   * Column indexes are the labels and types of the horizontal spans,
+   * and row indexes are the labels and types of the vertical spans.
+   * For instance, if there are 3 vertical spans (along the height) for
+   * top margin (mt), text, and bottom margin (bm), and 4 horizontal
+   * spans (along the width) for left margin (lm), initials (i), text
+   * and right margin (mr), the areas will be 12:
+   *                   col 1     col 2    col 3        col 4
+   *   - row 1 (mt):   mt_ml,    mt_i,    mt_$text,    mt_mr
+   *   - row 2 (text): $text_ml, $text_i, $text_$text, $text_mr
+   *   - row 3 (mb):   mb_ml,    mb_i,    mb_$text,    mb_mr
+   * @param spans The formula spans.
+   * @returns The areas.
+   */
+  getAreas(spans: CodLayoutSpan[]): CodLayoutArea[];
+
+  /**
+   * Filter areas by name.
+   * @param name The area name. This can be @y_x when matching by y and x values,
+   * or any combination of row and column indexes, separated by underscore
+   * (`row_col`), or just a row (with form `row_`) or column (with form `_col`)
+   * index.
+   * @param areas The areas to search in.
+   * @returns The areas that match the name.
+   */
+  filterAreas(name: string, areas: CodLayoutArea[]): CodLayoutArea[];
 
   /**
    * Parse a codicological layout formula from a text string.
