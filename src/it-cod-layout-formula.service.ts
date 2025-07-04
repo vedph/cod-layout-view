@@ -52,11 +52,6 @@ export class ITCodLayoutFormulaService
   extends CodLayoutFormulaBase
   implements CodLayoutFormulaService, CodLayoutFormulaRenderer
 {
-  /**
-   * The type of the layout formula (IT).
-   */
-  public readonly type = "IT";
-
   // main formula pattern: HxW=height×width (matches legacy _sectRegex)
   private static readonly SECT_REGEX = /^(\d+)[Xx×](\d+)=([^Xx×]+)[Xx×](.+)$/;
 
@@ -67,6 +62,70 @@ export class ITCodLayoutFormulaService
   // margin patterns for width (matches legacy _wmlRegex and _wmrRegex)
   private static readonly MARGIN_LEFT_REGEX = /^(\d+)\b/;
   private static readonly MARGIN_RIGHT_REGEX = /\b(\d+)$/;
+
+  /**
+   * The type of the layout formula (IT).
+   */
+  public readonly type = "IT";
+
+  /**
+   * Filter labels to only include those valid for IT formulas.
+   * Valid labels are: margin-top, head-e, head-w, area-height,
+   * foot-w, foot-e, margin-bottom, margin-left, col-N-gap,
+   * col-N-left-e, col-N-left-w, col-N-width, col-N-right-e,
+   * col-N-right-w, margin-right where N is any positive integer
+   * (column number).
+   * @param formula The formula to use for filtering. This is not
+   * effectively used in this implementation because the IT formula
+   * has a static set of labels, except for the fact that column
+   * numbers may vary.
+   * @param labels The labels to be filtered.
+   * @return The filtered formula labels.
+   */
+  public filterFormulaLabels(
+    formula: string | CodLayoutFormula,
+    labels: string[]
+  ): string[] {
+    // Handle null/undefined formula
+    if (!formula) {
+      return [];
+    }
+
+    const validStaticLabels = new Set([
+      'margin-top',
+      'head-e', 
+      'head-w',
+      'area-height',
+      'foot-w',
+      'foot-e',
+      'margin-bottom',
+      'margin-left',
+      'margin-right'
+    ]);
+
+    // regex patterns for column-based labels (positive integers only)
+    const colGapPattern = /^col-[1-9]\d*-gap$/;
+    const colLeftEPattern = /^col-[1-9]\d*-left-e$/;
+    const colLeftWPattern = /^col-[1-9]\d*-left-w$/;
+    const colWidthPattern = /^col-[1-9]\d*-width$/;
+    const colRightEPattern = /^col-[1-9]\d*-right-e$/;
+    const colRightWPattern = /^col-[1-9]\d*-right-w$/;
+
+    return labels.filter(label => {
+      // check static labels
+      if (validStaticLabels.has(label)) {
+        return true;
+      }
+
+      // check column-based labels
+      return colGapPattern.test(label) ||
+             colLeftEPattern.test(label) ||
+             colLeftWPattern.test(label) ||
+             colWidthPattern.test(label) ||
+             colRightEPattern.test(label) ||
+             colRightWPattern.test(label);
+    });
+  }
 
   //#region Parsing
   /**

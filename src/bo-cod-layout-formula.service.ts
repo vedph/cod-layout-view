@@ -66,6 +66,59 @@ export class BOCodLayoutFormulaService
    */
   public readonly type = "BO";
 
+  /**
+   * Filter labels to only include those that are actually present in the
+   * BO formula. This hasn't a static set of labels - all labels are explicitly
+   * defined in the formula following the BO syntax. This method extracts all
+   * labels from the formula and returns only those that match the input array.
+   * @param formula The formula to use.
+   * @param labels The labels to be filtered.
+   * @return The filtered labels.
+   */
+  public filterFormulaLabels(
+    formula: string | CodLayoutFormula,
+    labels: string[]
+  ): string[] {
+    let parsedFormula: CodLayoutFormula | null;
+
+    // parse the formula if it's a string
+    if (typeof formula === "string") {
+      try {
+        parsedFormula = this.parseFormula(formula);
+      } catch (error) {
+        // if parsing fails, return empty array since we can't extract labels
+        return [];
+      }
+    } else {
+      parsedFormula = formula;
+    }
+
+    if (!parsedFormula) {
+      return [];
+    }
+
+    // collect all labels from the formula spans
+    const formulaLabels = new Set<string>();
+
+    // add labels from width and height values
+    if (parsedFormula.width?.label) {
+      formulaLabels.add(parsedFormula.width.label);
+    }
+    if (parsedFormula.height?.label) {
+      formulaLabels.add(parsedFormula.height.label);
+    }
+
+    // add labels from all spans
+    for (const span of parsedFormula.spans) {
+      if (span.label) {
+        formulaLabels.add(span.label);
+      }
+    }
+
+    // filter the input labels to only include those present in the formula
+    return labels.filter((label) => formulaLabels.has(label));
+  }
+
   //#region Parsing formula
   /**
    * Preprocess a formula text before parsing. This replaces - with 0 and pairs of
@@ -543,7 +596,7 @@ export class BOCodLayoutFormulaService
 
         // use text color for text areas
         if (area.type === "text") {
-          fillColor = opts.areaColors.text || 'transparent';
+          fillColor = opts.areaColors.text || "transparent";
         }
 
         // use area color if defined in colorMap

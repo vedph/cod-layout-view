@@ -403,4 +403,75 @@ describe("BOCodLayoutFormulaService", () => {
     expect(a.rowIndexes).toEqual(["mb"]);
     expect(a.colIndexes).toEqual(["mr"]);
   });
+
+  describe("filterFormulaLabels", () => {
+    it("should return empty array for empty labels input", () => {
+      const formula = "cm 10 x 8 = 1:mt // 7 // 2:mb x 2:ml / 1:i // 3 // 2:mr";
+      const result = service.filterFormulaLabels(formula, []);
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array when formula cannot be parsed", () => {
+      const invalidFormula = "invalid formula";
+      const labels = ["mt", "ml", "invalid"];
+      const result = service.filterFormulaLabels(invalidFormula, labels);
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array for null formula", () => {
+      const labels = ["mt", "ml", "invalid"];
+      const result = service.filterFormulaLabels(null as any, labels);
+      expect(result).toEqual([]);
+    });
+
+    it("should filter labels based on formula string with labels", () => {
+      const formula = "cm 10 x 8 = 1:mt // 7 // 2:mb x 2:ml / 1:i // 3 // 2:mr";
+      const labels = ["mt", "mb", "ml", "i", "mr", "invalid", "another"];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual(["mt", "mb", "ml", "i", "mr"]);
+    });
+
+    it("should filter labels based on formula string without labels", () => {
+      const formula = "20 x 10 = 4 // 10 // 6 x 2 // 7 // 3";
+      const labels = ["mt", "mb", "ml", "invalid"];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual([]);
+    });
+
+    it("should filter labels based on formula object", () => {
+      const formula: CodLayoutFormula = {
+        type: "BO",
+        unit: "mm",
+        height: { value: 20, label: "height-label" },
+        width: { value: 10, label: "width-label" },
+        spans: [
+          { value: 4, isHorizontal: false, label: "top-margin" },
+          { value: 10, isHorizontal: false, type: "text", label: "text-area" },
+          { value: 6, isHorizontal: false, label: "bottom-margin" },
+          { value: 2, isHorizontal: true, label: "left-margin" },
+          { value: 7, isHorizontal: true, type: "text" }, // no label
+          { value: 3, isHorizontal: true, label: "right-margin" },
+        ],
+      };
+      const labels = ["height-label", "width-label", "top-margin", "text-area", "bottom-margin", 
+                     "left-margin", "right-margin", "invalid", "another"];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual(["height-label", "width-label", "top-margin", "text-area", 
+                             "bottom-margin", "left-margin", "right-margin"]);
+    });
+
+    it("should handle formula with partial labels", () => {
+      const formula = "336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33";
+      const labels = ["initials", "margin", "text", "invalid"];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual(["initials"]);
+    });
+
+    it("should return empty array when no labels match", () => {
+      const formula = "cm 10 x 8 = 1:mt // 7 // 2:mb x 2:ml / 1:i // 3 // 2:mr";
+      const labels = ["invalid", "another", "notfound"];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual([]);
+    });
+  });
 });

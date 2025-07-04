@@ -123,6 +123,20 @@ export interface CodLayoutFormulaService {
   readonly type: string;
 
   /**
+   * Filter the specified array of labels so that only those belonging to
+   * the specified formula are returned. For instance, in an IT formula,
+   * labels like "margin-top", "head-e", etc. will be returned, while
+   * other labels not belonging to the formula will be filtered out.
+   * @param formula The formula to use.
+   * @param labels The labels to be filtered.
+   * @returns The filtered labels.
+   */
+  filterFormulaLabels(
+    formula: string | CodLayoutFormula,
+    labels: string[]
+  ): string[];
+
+  /**
    * Get all the areas defined by intersecting horizontal and vertical
    * spans. Each area has 1-based y and x coordinates referring to the
    * cells defined by the spans, and a list of row and column indexes.

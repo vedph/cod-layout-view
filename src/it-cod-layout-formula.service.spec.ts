@@ -2183,4 +2183,87 @@ describe("ITCodLayoutFormulaService", () => {
     const colAreas = service.filterAreas("_col1", areas);
     expect(Array.isArray(colAreas)).toBe(true);
   });
+
+  describe("filterFormulaLabels", () => {
+    it("should return empty array for empty labels input", () => {
+      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const result = service.filterFormulaLabels(formula, []);
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array for null formula", () => {
+      const labels = ["margin-top", "area-height", "invalid"];
+      const result = service.filterFormulaLabels(null as any, labels);
+      expect(result).toEqual([]);
+    });
+
+    it("should filter static labels correctly", () => {
+      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const labels = ["margin-top", "head-e", "area-height", "foot-w", "margin-bottom", 
+                     "margin-left", "margin-right", "invalid", "unknown"];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual(["margin-top", "head-e", "area-height", "foot-w", 
+                             "margin-bottom", "margin-left", "margin-right"]);
+    });
+
+    it("should filter column-based labels correctly", () => {
+      const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
+      const labels = ["col-1-width", "col-1-left-w", "col-1-right-w", "col-1-gap",
+                     "col-2-width", "col-10-left-e", "margin-top", "invalid", "col-width"];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual(["col-1-width", "col-1-left-w", "col-1-right-w", "col-1-gap",
+                             "col-2-width", "col-10-left-e", "margin-top"]);
+    });
+
+    it("should handle all IT label types", () => {
+      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const labels = [
+        // Static labels
+        "margin-top", "head-e", "head-w", "area-height", "foot-w", "foot-e", "margin-bottom",
+        "margin-left", "margin-right",
+        // Column labels
+        "col-1-gap", "col-1-left-e", "col-1-left-w", "col-1-width", "col-1-right-e", "col-1-right-w",
+        "col-99-gap", "col-2-width", "col-10-left-e",
+        // Invalid labels
+        "invalid", "col-", "col-1-", "col-1-invalid", "col-x-width", "random"
+      ];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual([
+        "margin-top", "head-e", "head-w", "area-height", "foot-w", "foot-e", "margin-bottom",
+        "margin-left", "margin-right",
+        "col-1-gap", "col-1-left-e", "col-1-left-w", "col-1-width", "col-1-right-e", "col-1-right-w",
+        "col-99-gap", "col-2-width", "col-10-left-e"
+      ]);
+    });
+
+    it("should filter using CodLayoutFormula object", () => {
+      const formula = service.parseFormula("250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15");
+      const labels = ["margin-top", "head-e", "area-height", "col-1-width", "invalid"];
+      const result = service.filterFormulaLabels(formula!, labels);
+      expect(result).toEqual(["margin-top", "head-e", "area-height", "col-1-width"]);
+    });
+
+    it("should return empty array when no labels match", () => {
+      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const labels = ["invalid", "unknown", "notfound", "col-invalid"];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual([]);
+    });
+
+    it("should handle edge cases in column labels", () => {
+      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const labels = [
+        "col-0-width", // invalid: 0 is not a positive integer
+        "col-1-width", // valid
+        "col-123-gap", // valid
+        "col--width", // invalid: no number
+        "col-1a-width", // invalid: not just digits
+        "col-1-", // invalid: incomplete
+        "col-1-invalid", // invalid: not a recognized suffix
+        "margin-top" // valid static label
+      ];
+      const result = service.filterFormulaLabels(formula, labels);
+      expect(result).toEqual(["col-1-width", "col-123-gap", "margin-top"]);
+    });
+  });
 });
