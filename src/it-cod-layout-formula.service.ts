@@ -264,8 +264,19 @@ export class ITCodLayoutFormulaService
 
   /**
    * Parse a column definition using the exact legacy logic.
+   * @param colText The column text to parse.
+   * @param colIndex The column index.
+   * @param formula The original formula text.
+   * @param index The index of the column text in the formula.
+   * @returns The parsed spans for the column.
+   * @throws ParsingError if the column text is invalid.
    */
-  private parseColumn(colText: string, colIndex: number): CodLayoutSpan[] {
+  private parseColumn(
+    colText: string,
+    colIndex: number,
+    formula: string,
+    index: number
+  ): CodLayoutSpan[] {
     const spans: CodLayoutSpan[] = [];
     const prefix = `col-${colIndex}-`;
 
@@ -282,8 +293,11 @@ export class ITCodLayoutFormulaService
         // only if we have a number
         nrMatches.push(match);
         if (nrMatches.length > 3) {
-          throw new Error(
-            `Too many numbers in column ${colIndex}: "${colText}"`
+          throw new ParsingError(
+            `Too many numbers in column ${colIndex}: "${colText}"`,
+            formula,
+            index,
+            colText.length
           );
         }
       }
@@ -325,7 +339,12 @@ export class ITCodLayoutFormulaService
 
         if (a[3] && b[3]) {
           // both have *
-          throw new Error(`No width in column ${colIndex}: "${colText}"`);
+          throw new ParsingError(
+            `No width in column ${colIndex}: "${colText}"`,
+            formula,
+            index,
+            colText.length
+          );
         }
 
         if (a[3]) {
@@ -357,8 +376,11 @@ export class ITCodLayoutFormulaService
         } else {
           // neither has *, determine by size
           if (parseFloat(a[2]) === parseFloat(b[2])) {
-            throw new Error(
-              `Ambiguous values for column ${colIndex}: ${colText}`
+            throw new ParsingError(
+              `Ambiguous values for column ${colIndex}: ${colText}`,
+              formula,
+              index,
+              colText.length
             );
           }
           if (parseFloat(a[2]) > parseFloat(b[2])) {
@@ -404,7 +426,12 @@ export class ITCodLayoutFormulaService
         break;
 
       case 0:
-        throw new Error(`Empty column ${colIndex}: "${colText}"`);
+        throw new ParsingError(
+          `Empty column ${colIndex}: "${colText}"`,
+          formula,
+          index,
+          colText.length
+        );
     }
 
     return spans;
@@ -467,7 +494,12 @@ export class ITCodLayoutFormulaService
 
       // parse column before this gap
       const colText = cols.substring(start, gapMatch.index!);
-      const colSpans = this.parseColumn(colText, colIndex);
+      const colSpans = this.parseColumn(
+        colText,
+        colIndex,
+        formula,
+        text.indexOf(cols) + start
+      );
       spans.push(...colSpans);
       colSpans.forEach((span) => (totalWidth += span.value));
 
@@ -485,7 +517,12 @@ export class ITCodLayoutFormulaService
     // process the last column if pending
     if (start < cols.length) {
       const colText = cols.substring(start);
-      const colSpans = this.parseColumn(colText, ++colIndex);
+      const colSpans = this.parseColumn(
+        colText,
+        ++colIndex,
+        formula,
+        text.indexOf(cols) + start
+      );
       spans.push(...colSpans);
       colSpans.forEach((span) => (totalWidth += span.value));
     }

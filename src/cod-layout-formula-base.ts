@@ -1,4 +1,4 @@
-import { CodLayoutArea, CodLayoutSpan } from "./models";
+import { CodLayoutArea, CodLayoutFormula, CodLayoutSpan } from "./models";
 
 /**
  * Base class for codicological layout formula services.
@@ -151,5 +151,34 @@ export class CodLayoutFormulaBase {
       }
     }
     return map;
+  }
+
+  /**
+   * Validate the size of the given formula. A size is valid when its height
+   * is equal to the sum of the values of all vertical spans, and its width
+   * is equal to the sum of the values of all horizontal spans.
+   * @param formula The formula to validate.
+   * @returns An object with error messages keyed by span label, or null if valid.
+   */
+  public validateFormulaSize(
+    formula: CodLayoutFormula
+  ): { [key: string]: string } | null {
+    if (!formula || !formula.spans || formula.spans.length === 0) {
+      return null; // no spans to validate
+    }
+    const errors: { [key: string]: string } = {};
+    const vSpans = formula.spans.filter((s) => !s.isHorizontal);
+    const hSpans = formula.spans.filter((s) => s.isHorizontal);
+    const vspanSum: number = vSpans.reduce((sum, s) => sum + s.value || 0, 0);
+    const hspanSum: number = hSpans.reduce((sum, s) => sum + s.value || 0, 0);
+    const h: number = formula.height.value || 0;
+    const w: number = formula.width.value || 0;
+    if (h !== vspanSum) {
+      errors.height = `Height ${h} does not match v-spans sum ${vspanSum}`;
+    }
+    if (w !== hspanSum) {
+      errors.width = `Width ${w} does not match h-spans sum ${hspanSum}`;
+    }
+    return Object.keys(errors).length > 0 ? errors : null;
   }
 }

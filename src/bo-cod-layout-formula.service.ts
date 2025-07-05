@@ -151,7 +151,12 @@ export class BOCodLayoutFormulaService
     // in pairs of `//` replace the first `//` with `| ` and the second one with `/ `
     let count = (text.match(/\/\//g) || []).length;
     if (count % 2 !== 0) {
-      throw new ParsingError("Odd number of '//' in formula", input);
+      throw new ParsingError(
+        "Odd number of '//' in formula",
+        input,
+        0,
+        input.length
+      );
     }
 
     let result = "";
@@ -228,7 +233,7 @@ export class BOCodLayoutFormulaService
    * @param formula The original formula text.
    * @param index The index of the text in the formula.
    * @returns The parsed size.
-   * @throws Error if the text is not in the expected format.
+   * @throws ParsingError if the text is not in the expected format.
    */
   private parseSize(
     text: string,
@@ -246,7 +251,12 @@ export class BOCodLayoutFormulaService
     //   original value.
     let xi = this.findXIndex(text);
     if (xi === -1) {
-      throw new Error("Invalid size format: " + text);
+      throw new ParsingError(
+        "Invalid size format: " + text,
+        formula,
+        index,
+        text.length
+      );
     }
 
     const hw = [text.substring(0, xi).trim(), text.substring(xi + 3).trim()];
@@ -364,7 +374,12 @@ export class BOCodLayoutFormulaService
     // 2. size: all what follows (1) until the first "=".
     const i = text.indexOf("=");
     if (i === -1) {
-      throw new Error("Invalid formula (expecting =): " + text);
+      throw new ParsingError(
+        "Invalid formula (expecting =): " + text,
+        input,
+        offset,
+        text.length
+      );
     }
     // remove the trailing '='
     const size = text.substring(0, i).trim();

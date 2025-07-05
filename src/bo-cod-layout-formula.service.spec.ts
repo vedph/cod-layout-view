@@ -32,8 +32,68 @@ describe("BOCodLayoutFormulaService", () => {
       const e = error as ParsingError;
       expect(e.message).toBe("Odd number of '//' in formula");
       expect(e.input).toBe(text);
-      expect(e.index).toBeUndefined();
-      expect(e.length).toBeUndefined();
+      expect(e.index).toBeDefined();
+      expect(e.length).toBeDefined();
+    }
+  });
+
+  it("should throw ParsingError for missing equals sign", () => {
+    const invalidFormula = "20 x 10 - 4 // 10 // 6 x 2 // 7 // 3";
+    try {
+      service.parseFormula(invalidFormula);
+      fail("Expected ParsingError to be thrown");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ParsingError);
+      const e = error as ParsingError;
+      expect(e.message).toContain("Invalid formula (expecting =)");
+      expect(e.input).toBe(invalidFormula);
+      expect(e.index).toBeDefined();
+      expect(e.length).toBeDefined();
+    }
+  });
+
+  it("should throw ParsingError for invalid size format", () => {
+    const invalidFormula = "20 & 10 = 4 // 10 // 6 x 2 // 7 // 3";
+    try {
+      service.parseFormula(invalidFormula);
+      fail("Expected ParsingError to be thrown");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ParsingError);
+      const e = error as ParsingError;
+      expect(e.message).toContain("Invalid size format");
+      expect(e.input).toBe(invalidFormula);
+      expect(e.index).toBeDefined();
+      expect(e.length).toBeDefined();
+    }
+  });
+
+  it("should throw ParsingError for missing x separator in details", () => {
+    const invalidFormula = "20 x 10 = 4 // 10 // 6 - 2 // 7 // 3";
+    try {
+      service.parseFormula(invalidFormula);
+      fail("Expected ParsingError to be thrown");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ParsingError);
+      const e = error as ParsingError;
+      expect(e.message).toContain("Invalid formula (expecting x or ×)");
+      expect(e.input).toBe(invalidFormula);
+      expect(e.index).toBeDefined();
+      expect(e.length).toBeDefined();
+    }
+  });
+
+  it("should throw ParsingError for invalid dimension format", () => {
+    const invalidFormula = "20 x 10 = abc // 10 // 6 x 2 // 7 // 3";
+    try {
+      service.parseFormula(invalidFormula);
+      fail("Expected ParsingError to be thrown");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ParsingError);
+      const e = error as ParsingError;
+      expect(e.message).toContain("Invalid dimension");
+      expect(e.input).toBe(invalidFormula);
+      expect(e.index).toBeDefined();
+      expect(e.length).toBeDefined();
     }
   });
 
@@ -453,15 +513,32 @@ describe("BOCodLayoutFormulaService", () => {
           { value: 3, isHorizontal: true, label: "right-margin" },
         ],
       };
-      const labels = ["height-label", "width-label", "top-margin", "text-area", "bottom-margin", 
-                     "left-margin", "right-margin", "invalid", "another"];
+      const labels = [
+        "height-label",
+        "width-label",
+        "top-margin",
+        "text-area",
+        "bottom-margin",
+        "left-margin",
+        "right-margin",
+        "invalid",
+        "another",
+      ];
       const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual(["height-label", "width-label", "top-margin", "text-area", 
-                             "bottom-margin", "left-margin", "right-margin"]);
+      expect(result).toEqual([
+        "height-label",
+        "width-label",
+        "top-margin",
+        "text-area",
+        "bottom-margin",
+        "left-margin",
+        "right-margin",
+      ]);
     });
 
     it("should handle formula with partial labels", () => {
-      const formula = "336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33";
+      const formula =
+        "336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33";
       const labels = ["initials", "margin", "text", "invalid"];
       const result = service.filterFormulaLabels(formula, labels);
       expect(result).toEqual(["initials"]);
