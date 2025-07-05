@@ -677,23 +677,48 @@ export class ITCodLayoutFormulaService
   ): string {
     const opts = { ...DEFAULT_IT_SVG_OPTIONS, ...options };
 
-    // calculate base dimensions
-    const width = formula.width.value * opts.scale! + opts.padding * 2;
-    const height = formula.height.value * opts.scale! + opts.padding * 2;
+    // calculate additional space needed for labels
+    const vSpans = formula.spans.filter((s) => !s.isHorizontal);
+    const hSpans = formula.spans.filter((s) => s.isHorizontal);
+    
+    // calculate max label extension for vertical lines (above/below)
+    let maxVerticalLabelExtension = 0;
+    if (opts.showValueLabels && opts.showVertical) {
+      const labelCount = hSpans.filter(s => s.label).length;
+      if (labelCount > 0) {
+        // reserve space for labels above and below, with minimal extra space for conflicts
+        maxVerticalLabelExtension = opts.labelFontSize! + 10;
+      }
+    }
+
+    // calculate max label extension for horizontal lines (left/right)
+    let maxHorizontalLabelExtension = 0;
+    if (opts.showValueLabels && opts.showHorizontal) {
+      const labelCount = vSpans.filter(s => s.label).length;
+      if (labelCount > 0) {
+        // estimate label width (rough approximation: 8 chars * 8px per char)
+        const estimatedLabelWidth = 80;
+        maxHorizontalLabelExtension = estimatedLabelWidth + 10;
+      }
+    }
+
+    // calculate base dimensions with label extensions
+    const width = formula.width.value * opts.scale! + opts.padding * 2 + maxHorizontalLabelExtension * 2;
+    const height = formula.height.value * opts.scale! + opts.padding * 2 + maxVerticalLabelExtension * 2;
+    
+    // adjust padding to center the layout within the extended SVG
+    const adjustedPadding = opts.padding + Math.max(maxVerticalLabelExtension, maxHorizontalLabelExtension);
 
     const svg: string[] = [
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`,
       "<style>",
       `.layout-label { font: ${opts.labelFontSize}px ${opts.labelFontFamily}; }`,
       "</style>",
-      `<rect x="${opts.padding}" y="${opts.padding}" ` +
+      `<rect x="${adjustedPadding}" y="${adjustedPadding}" ` +
         `width="${formula.width.value * opts.scale!}" ` +
         `height="${formula.height.value * opts.scale!}" ` +
         'fill="none" stroke="#000" stroke-width="1"/>',
     ];
-
-    const vSpans = formula.spans.filter((s) => !s.isHorizontal);
-    const hSpans = formula.spans.filter((s) => s.isHorizontal);
 
     // draw areas if enabled
     if (opts.showAreas) {
@@ -701,9 +726,9 @@ export class ITCodLayoutFormulaService
       const colorMap = this.mapAreaColors(areas, opts.areaColors);
 
       // calculate positions and render areas
-      let currentY = opts.padding;
+      let currentY = adjustedPadding;
       for (let v = 0; v < vSpans.length; v++) {
-        let currentX = opts.padding;
+        let currentX = adjustedPadding;
         const vSpanHeight = vSpans[v].value * opts.scale!;
 
         for (let h = 0; h < hSpans.length; h++) {
@@ -725,47 +750,112 @@ export class ITCodLayoutFormulaService
       }
     }
 
+    // collect label positions to avoid overlaps
+    const horizontalLabelPositions: Array<{y: number, side: 'left' | 'right'}> = [];
+    const verticalLabelPositions: Array<{x: number, side: 'above' | 'below'}> = [];
+
     // draw gridlines
     if (opts.showHorizontal) {
-      let currentY = opts.padding;
+      let currentY = adjustedPadding;
       for (const span of vSpans) {
         currentY += span.value * opts.scale!;
         const color =
           span.type === "text" ? opts.textAreaLineColor : opts.hLineColor;
         svg.push(
-          `<line x1="${opts.padding}" y1="${currentY}" ` +
+          `<line x1="${adjustedPadding}" y1="${currentY}" ` +
             `x2="${
-              opts.padding + formula.width.value * opts.scale!
+              adjustedPadding + formula.width.value * opts.scale!
             }" y2="${currentY}" ` +
             `stroke="${color}" stroke-width="${opts.hLineWidth}"/>`
         );
 
         if (opts.showValueLabels && span.label) {
+          // find a position that doesn't overlap with existing labels
+          const minDistance = opts.labelFontSize! + 2; // minimum distance between labels
+          let labelY = currentY - 5;
+          let side: 'left' | 'right' = 'left';
+          
+          // check for conflicts and adjust position
+          let attempts = 0;
+          while (attempts < 10) { // safety limit
+            const conflict = horizontalLabelPositions.find(pos => 
+              Math.abs(pos.y - labelY) < minDistance && pos.side === side
+            );
+            
+            if (!conflict) break;
+            
+            // try the other side first
+            if (attempts === 0) {
+              side = side === 'left' ? 'right' : 'left';
+            } else {
+              // if still conflict, move label up or down slightly
+              labelY += (attempts % 2 === 1) ? minDistance : -minDistance;
+            }
+            attempts++;
+          }
+          
+          horizontalLabelPositions.push({y: labelY, side});
+          
+          const labelX = side === 'left' 
+            ? adjustedPadding + 5
+            : adjustedPadding + formula.width.value * opts.scale! - 5;
+          const textAnchor = side === 'left' ? "start" : "end";
+          
           svg.push(
-            `<text x="${opts.padding + 5}" y="${currentY - 5}" ` +
-              `class="layout-label" fill="${opts.valueLabelColor}">${span.label}: ${span.value}</text>`
+            `<text x="${labelX}" y="${labelY}" ` +
+              `class="layout-label" fill="${opts.valueLabelColor}" text-anchor="${textAnchor}">${span.label}: ${span.value}</text>`
           );
         }
       }
     }
 
     if (opts.showVertical) {
-      let currentX = opts.padding;
+      let currentX = adjustedPadding;
       for (const span of hSpans) {
         currentX += span.value * opts.scale!;
         const color =
           span.type === "text" ? opts.textAreaLineColor : opts.vLineColor;
         svg.push(
-          `<line x1="${currentX}" y1="${opts.padding}" ` +
+          `<line x1="${currentX}" y1="${adjustedPadding}" ` +
             `x2="${currentX}" y2="${
-              opts.padding + formula.height.value * opts.scale!
+              adjustedPadding + formula.height.value * opts.scale!
             }" ` +
             `stroke="${color}" stroke-width="${opts.vLineWidth}"/>`
         );
 
         if (opts.showValueLabels && span.label) {
+          // find a position that doesn't overlap with existing labels
+          const minDistance = 80; // approximate label width
+          let labelX = currentX + 5;
+          let side: 'above' | 'below' = 'above';
+          
+          // check for conflicts and adjust position
+          let attempts = 0;
+          while (attempts < 10) { // safety limit
+            const conflict = verticalLabelPositions.find(pos => 
+              Math.abs(pos.x - labelX) < minDistance && pos.side === side
+            );
+            
+            if (!conflict) break;
+            
+            // try the other side first
+            if (attempts === 0) {
+              side = side === 'above' ? 'below' : 'above';
+            } else {
+              // if still conflict, move label left or right slightly
+              labelX += (attempts % 2 === 1) ? minDistance : -minDistance;
+            }
+            attempts++;
+          }
+          
+          verticalLabelPositions.push({x: labelX, side});
+          
+          const labelY = side === 'above' 
+            ? adjustedPadding - 5
+            : adjustedPadding + formula.height.value * opts.scale! + 15;
+          
           svg.push(
-            `<text x="${currentX + 5}" y="${opts.padding + 15}" ` +
+            `<text x="${labelX}" y="${labelY}" ` +
               `class="layout-label" fill="${opts.valueLabelColor}">${span.label}: ${span.value}</text>`
           );
         }
