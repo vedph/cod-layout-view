@@ -183,8 +183,8 @@ export class CodLayoutViewComponent extends HTMLElement {
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
         const delta = e.deltaY > 0 ? 0.9 : 1.1;
-        this._zoom = Math.min(Math.max(0.1, this._zoom * delta), 5);
-        this.updateTransform(offsetX, offsetY);
+        const newZoom = Math.min(Math.max(0.1, this._zoom * delta), 5);
+        this.updateTransform(offsetX, offsetY, newZoom);
       },
       { passive: false }
     );
@@ -248,20 +248,21 @@ export class CodLayoutViewComponent extends HTMLElement {
     this.updateTransform();
   }
 
-  private updateTransform(offsetX?: number, offsetY?: number) {
+  private updateTransform(offsetX?: number, offsetY?: number, newZoom?: number) {
     const svg = this.shadowRoot!.querySelector("svg");
     if (!svg) return;
 
-    if (offsetX !== undefined && offsetY !== undefined) {
-      const rect = svg.getBoundingClientRect();
-      const svgX = offsetX - rect.left;
-      const svgY = offsetY - rect.top;
+    if (offsetX !== undefined && offsetY !== undefined && newZoom !== undefined) {
       const prevZoom = this._zoom;
-      this._zoom = Math.min(Math.max(0.1, this._zoom), 5);
-      const zoomFactor = this._zoom / prevZoom;
+      this._zoom = newZoom;
 
-      this._viewPosition.x = (this._viewPosition.x - svgX) * zoomFactor + svgX;
-      this._viewPosition.y = (this._viewPosition.y - svgY) * zoomFactor + svgY;
+      // Calculate the point in the SVG coordinate system before zoom
+      const pointBeforeZoomX = (offsetX - this._viewPosition.x) / prevZoom;
+      const pointBeforeZoomY = (offsetY - this._viewPosition.y) / prevZoom;
+
+      // Calculate the new position to keep the point under the cursor
+      this._viewPosition.x = offsetX - pointBeforeZoomX * this._zoom;
+      this._viewPosition.y = offsetY - pointBeforeZoomY * this._zoom;
     }
 
     svg.style.transition = "transform 0.1s ease-out";
