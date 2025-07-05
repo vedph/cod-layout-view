@@ -248,11 +248,19 @@ export class CodLayoutViewComponent extends HTMLElement {
     this.updateTransform();
   }
 
-  private updateTransform(offsetX?: number, offsetY?: number, newZoom?: number) {
+  private updateTransform(
+    offsetX?: number,
+    offsetY?: number,
+    newZoom?: number
+  ) {
     const svg = this.shadowRoot!.querySelector("svg");
     if (!svg) return;
 
-    if (offsetX !== undefined && offsetY !== undefined && newZoom !== undefined) {
+    if (
+      offsetX !== undefined &&
+      offsetY !== undefined &&
+      newZoom !== undefined
+    ) {
       const prevZoom = this._zoom;
       this._zoom = newZoom;
 

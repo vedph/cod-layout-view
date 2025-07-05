@@ -477,6 +477,9 @@ Now, when you run `npm start`, it will start both the TypeScript compiler in wat
 
 ## History
 
+- 2025-07-05:
+  - fixes to IT rendition.
+
 ### 1.0.5
 
 - 2025-07-05:
