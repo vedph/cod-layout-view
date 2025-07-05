@@ -9,7 +9,7 @@
   - [Dev Workspace Setup](#dev-workspace-setup)
     - [Lite Server](#lite-server)
   - [History](#history)
-    - [1.0.4](#104)
+    - [1.0.5](#105)
     - [1.0.3](#103)
     - [1.0.1](#101)
     - [1.0.0](#100)
@@ -477,7 +477,7 @@ Now, when you run `npm start`, it will start both the TypeScript compiler in wat
 
 ## History
 
-### 1.0.4
+### 1.0.5
 
 - 2025-07-05:
   - fixed labels.
