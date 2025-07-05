@@ -1529,4 +1529,96 @@ describe("ITCodLayoutFormulaService", () => {
     const result = service.buildFormula(null);
     expect(result).toBeNull();
   });
+
+  describe("validateFormulaSize", () => {
+    it("should return null for null formula", () => {
+      const result = service.validateFormulaSize(null as any);
+      expect(result).toBeNull();
+    });
+
+    it("should return null for formula without spans", () => {
+      const formula = {
+        type: "IT",
+        height: { value: 250 },
+        width: { value: 160 },
+        spans: [],
+      };
+      const result = service.validateFormulaSize(formula as any);
+      expect(result).toBeNull();
+    });
+
+    it("should return null for valid formula", () => {
+      const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const parsed = service.parseFormula(formula)!;
+      const result = service.validateFormulaSize(parsed);
+      expect(result).toBeNull();
+    });
+
+    it("should detect height mismatch", () => {
+      const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const parsed = service.parseFormula(formula);
+      // modify height to create mismatch
+      parsed!.height.value = 300;
+      const result = service.validateFormulaSize(parsed!);
+      expect(result).toBeTruthy();
+      expect(result!.height).toBe("Height 300 does not match v-spans sum 250");
+    });
+
+    it("should detect width mismatch", () => {
+      const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const parsed = service.parseFormula(formula)!;
+      // modify width to create mismatch
+      parsed.width.value = 200;
+      const result = service.validateFormulaSize(parsed);
+      expect(result).toBeTruthy();
+      expect(result!.width).toBe("Width 200 does not match h-spans sum 88");
+    });
+
+    it("should detect both height and width mismatch", () => {
+      const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const parsed = service.parseFormula(formula)!;
+      // modify both dimensions to create mismatches
+      parsed.height.value = 300;
+      parsed.width.value = 200;
+      const result = service.validateFormulaSize(parsed);
+      expect(result).toBeTruthy();
+      expect(result!.height).toBe("Height 300 does not match v-spans sum 250");
+      expect(result!.width).toBe("Width 200 does not match h-spans sum 88");
+    });
+
+    it("should handle formula with undefined span values", () => {
+      const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
+      const parsed = service.parseFormula(formula)!;
+      parsed!.spans[0].value = 0;
+      const result = service.validateFormulaSize(parsed);
+      expect(result).toBeTruthy();
+      expect(result!.height).toContain("does not match v-spans sum");
+    });
+
+    it("should validate complex two-column formula", () => {
+      const formula =
+        "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
+      const parsed = service.parseFormula(formula)!;
+      const result = service.validateFormulaSize(parsed);
+      expect(result).toBeNull();
+    });
+
+    it("should detect mismatch in two-column formula", () => {
+      const formula =
+        "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
+      const parsed = service.parseFormula(formula)!;
+      // modify width to create mismatch
+      parsed.width.value = 150;
+      const result = service.validateFormulaSize(parsed);
+      expect(result).toBeTruthy();
+      expect(result!.width).toBe("Width 150 does not match h-spans sum 160");
+    });
+
+    it("should validate formula without head/foot spans", () => {
+      const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
+      const parsed = service.parseFormula(formula)!;
+      const result = service.validateFormulaSize(parsed);
+      expect(result).toBeNull();
+    });
+  });
 });

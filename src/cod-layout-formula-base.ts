@@ -3,7 +3,7 @@ import { CodLayoutArea, CodLayoutFormula, CodLayoutSpan } from "./models";
 /**
  * Base class for codicological layout formula services.
  */
-export class CodLayoutFormulaBase {
+export abstract class CodLayoutFormulaBase {
   private getColumnAreas(spans: CodLayoutSpan[]): CodLayoutArea[] {
     const areas: CodLayoutArea[] = [];
     if (spans.length === 0) {
@@ -167,12 +167,16 @@ export class CodLayoutFormulaBase {
       return null; // no spans to validate
     }
     const errors: { [key: string]: string } = {};
-    const vSpans = formula.spans.filter((s) => !s.isHorizontal);
-    const hSpans = formula.spans.filter((s) => s.isHorizontal);
-    const vspanSum: number = vSpans.reduce((sum, s) => sum + s.value || 0, 0);
-    const hspanSum: number = hSpans.reduce((sum, s) => sum + s.value || 0, 0);
+
     const h: number = formula.height.value || 0;
     const w: number = formula.width.value || 0;
+
+    const vSpans = formula.spans.filter((s) => !s.isHorizontal);
+    const hSpans = formula.spans.filter((s) => s.isHorizontal);
+
+    const vspanSum: number = vSpans.reduce((sum, s) => sum + s.value || 0, 0);
+    const hspanSum: number = hSpans.reduce((sum, s) => sum + s.value || 0, 0);
+
     if (h !== vspanSum) {
       errors.height = `Height ${h} does not match v-spans sum ${vspanSum}`;
     }

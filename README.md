@@ -9,6 +9,7 @@
   - [Dev Workspace Setup](#dev-workspace-setup)
     - [Lite Server](#lite-server)
   - [History](#history)
+    - [1.0.7](#107)
     - [1.0.5](#105)
     - [1.0.3](#103)
     - [1.0.1](#101)
@@ -477,8 +478,12 @@ Now, when you run `npm start`, it will start both the TypeScript compiler in wat
 
 ## History
 
+### 1.0.7
+
 - 2025-07-05:
-  - fixes to IT rendition.
+  - fixes to rendition.
+  - parser throws only `ParseError` exceptions.
+  - added validation.
 
 ### 1.0.5
 
