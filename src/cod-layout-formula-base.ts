@@ -1,9 +1,26 @@
-import { CodLayoutArea, CodLayoutFormula, CodLayoutSpan } from "./models";
+import {
+  CodLayoutArea,
+  CodLayoutFormula,
+  CodLayoutFormulaService,
+  CodLayoutSpan,
+  ParsingError,
+} from "./models";
 
 /**
  * Base class for codicological layout formula services.
  */
-export abstract class CodLayoutFormulaBase {
+export abstract class CodLayoutFormulaBase implements CodLayoutFormulaService {
+  public abstract type: string;
+
+  public abstract filterFormulaLabels(
+    formula: string | CodLayoutFormula,
+    labels: string[]
+  ): string[];
+  public abstract parseFormula(text?: string | null): CodLayoutFormula | null;
+  public abstract buildFormula(
+    formula?: CodLayoutFormula | null
+  ): string | null;
+
   private getColumnAreas(spans: CodLayoutSpan[]): CodLayoutArea[] {
     const areas: CodLayoutArea[] = [];
     if (spans.length === 0) {
@@ -183,6 +200,36 @@ export abstract class CodLayoutFormulaBase {
     if (w !== hspanSum) {
       errors.width = `Width ${w} does not match h-spans sum ${hspanSum}`;
     }
+    return Object.keys(errors).length > 0 ? errors : null;
+  }
+
+  /**
+   * Validate the given formula.
+   * @param formula The formula to validate.
+   * @returns An object with error messages keyed by span label, or null if valid.
+   * If the formula is empty, returns null.
+   */
+  public validateFormula(formula?: string): { [key: string]: string } | null {
+    if (!formula?.trim()) {
+      return null;
+    }
+    const errors: { [key: string]: string } = {};
+
+    // parse formula checking for errors
+    let parsedFormula: CodLayoutFormula | null = null;
+    try {
+      parsedFormula = this.parseFormula(formula);
+    } catch (e) {
+      errors.formula = (e as ParsingError)?.message || "Invalid formula string";
+      return errors;
+    }
+
+    // validate size
+    const sizeErrors = this.validateFormulaSize(parsedFormula!);
+    if (sizeErrors) {
+      Object.assign(errors, sizeErrors);
+    }
+
     return Object.keys(errors).length > 0 ? errors : null;
   }
 }

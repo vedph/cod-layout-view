@@ -9,6 +9,7 @@
   - [Dev Workspace Setup](#dev-workspace-setup)
     - [Lite Server](#lite-server)
   - [History](#history)
+    - [1.0.8](#108)
     - [1.0.7](#107)
     - [1.0.5](#105)
     - [1.0.3](#103)
@@ -477,6 +478,10 @@ Once installed this Update your start script to run both commands:
 Now, when you run `npm start`, it will start both the TypeScript compiler in watch mode and lite-server. When you make changes to your TypeScript files, they will be automatically recompiled, and `lite-server` will refresh your browser.
 
 ## History
+
+### 1.0.8
+
+- 2025-07-06: added `validateFormula`.
 
 ### 1.0.7
 

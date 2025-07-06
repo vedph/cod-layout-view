@@ -183,6 +183,14 @@ export interface CodLayoutFormulaService {
    * undefined.
    */
   buildFormula(formula?: CodLayoutFormula | null): string | null;
+
+  /**
+   * Validate the given formula.
+   * @param formula The formula to validate.
+   * @returns An object with error messages keyed by span label, or null if valid.
+   * If the formula is empty, returns null.
+   */
+  validateFormula(formula?: string): { [key: string]: string } | null;
 }
 
 /**

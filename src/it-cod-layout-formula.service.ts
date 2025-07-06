@@ -52,7 +52,7 @@ export class ITCodLayoutFormulaService
   extends CodLayoutFormulaBase
   implements CodLayoutFormulaService, CodLayoutFormulaRenderer
 {
-  // main formula pattern: HxW=height×width (matches legacy _sectRegex)
+  // main formula pattern: HxW=height×width
   private static readonly SECT_REGEX = /^(\d+)[Xx×](\d+)=([^Xx×]+)[Xx×](.+)$/;
 
   // height pattern: mt[/he][ah][/fe]mb or mt[hw/]ah[fw/]mb (matches legacy _heightRegex)
