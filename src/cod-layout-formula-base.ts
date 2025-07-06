@@ -1,15 +1,20 @@
 import {
   CodLayoutArea,
   CodLayoutFormula,
+  CodLayoutFormulaRenderer,
   CodLayoutFormulaService,
   CodLayoutSpan,
+  CodLayoutSvgOptions,
+  CodLayoutValue,
   ParsingError,
 } from "./models";
 
 /**
  * Base class for codicological layout formula services.
  */
-export abstract class CodLayoutFormulaBase implements CodLayoutFormulaService {
+export abstract class CodLayoutFormulaBase
+  implements CodLayoutFormulaService, CodLayoutFormulaRenderer
+{
   public abstract type: string;
 
   public abstract filterFormulaLabels(
@@ -231,5 +236,341 @@ export abstract class CodLayoutFormulaBase implements CodLayoutFormulaService {
     }
 
     return Object.keys(errors).length > 0 ? errors : null;
+  }
+
+  /**
+   * Build the SVG for the given formula.
+   * @param formula The formula to build the SVG for.
+   * @param options The layout options.
+   * @returns The SVG string.
+   */
+  public buildSvg(
+    formula: CodLayoutFormula,
+    options: Partial<CodLayoutSvgOptions>
+  ): string {
+    if (!formula) {
+      return "";
+    }
+
+    // set up default options
+    const opts: CodLayoutSvgOptions = {
+      showVertical: true,
+      showHorizontal: true,
+      showAreas: true,
+      useOriginal: false,
+      showToolbar: false,
+      vLineColor: "#666",
+      hLineColor: "#666",
+      textAreaLineColor: "#00f",
+      vLineWidth: 1,
+      hLineWidth: 1,
+      areaGap: 0,
+      labelColor: "#333",
+      labelFontSize: 10,
+      labelFontFamily: "Arial",
+      labelColors: {},
+      showValueLabels: true,
+      valueLabelColor: "#333",
+      padding: 20,
+      scale: 2,
+      areaColors: {
+        default: "transparent",
+        $text_$text: "#adadad",
+      },
+      areaOpacity: 0.5,
+      fallbackLineStyle: "5,5",
+      ...options,
+    };
+
+    const getSize = (
+      value: CodLayoutValue
+    ): { size: number; isFallback?: boolean } => {
+      if (opts.useOriginal && value.originalValue !== undefined) {
+        return { size: value.originalValue, isFallback: false };
+      }
+      return { size: value.value, isFallback: opts.useOriginal };
+    };
+
+    const vSpans = formula.spans.filter((s) => !s.isHorizontal);
+    const hSpans = formula.spans.filter((s) => s.isHorizontal);
+
+    // calculate label space requirements
+    const maxLabelWidth = this.calculateMaxLabelWidth(vSpans, opts);
+    const maxLabelHeight = this.calculateMaxLabelHeight(hSpans, opts);
+
+    // calculate total SVG dimensions including space for labels
+    const sheetWidth = getSize(formula.width).size * opts.scale!;
+    const sheetHeight = getSize(formula.height).size * opts.scale!;
+    const totalWidth = sheetWidth + opts.padding * 2 + maxLabelWidth;
+    const totalHeight = sheetHeight + opts.padding * 2 + maxLabelHeight;
+
+    // offset for the sheet rectangle to leave space for labels
+    const sheetOffsetX = opts.padding + maxLabelWidth;
+    const sheetOffsetY = opts.padding + maxLabelHeight;
+
+    const svg: string[] = [
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalWidth} ${totalHeight}" style="user-select: none;">`,
+      "<defs>",
+      `<style type="text/css">`,
+      `.layout-label { font: ${opts.labelFontSize}px ${opts.labelFontFamily}; dominant-baseline: middle; }`,
+      `.value-label { font: ${opts.labelFontSize}px ${opts.labelFontFamily}; }`,
+      "</style>",
+      "</defs>",
+    ];
+
+    // add pan and zoom functionality
+    svg.push('<g id="viewport">', '<g id="content">');
+
+    // draw the main sheet rectangle
+    svg.push(
+      `<rect x="${sheetOffsetX}" y="${sheetOffsetY}" ` +
+        `width="${sheetWidth}" height="${sheetHeight}" ` +
+        'fill="none" stroke="#000" stroke-width="1"/>'
+    );
+
+    // draw areas if enabled
+    if (opts.showAreas) {
+      this.renderAreas(formula, opts, svg, sheetOffsetX, sheetOffsetY, getSize);
+    }
+
+    // draw vertical spans (horizontal gridlines)
+    if (opts.showHorizontal) {
+      this.renderHorizontalGridlines(
+        vSpans,
+        opts,
+        svg,
+        sheetOffsetX,
+        sheetOffsetY,
+        sheetWidth,
+        totalWidth,
+        maxLabelWidth,
+        getSize,
+        formula.unit
+      );
+    }
+
+    // draw horizontal spans (vertical gridlines)
+    if (opts.showVertical) {
+      this.renderVerticalGridlines(
+        hSpans,
+        opts,
+        svg,
+        sheetOffsetX,
+        sheetOffsetY,
+        sheetHeight,
+        totalHeight,
+        maxLabelHeight,
+        getSize,
+        formula.unit
+      );
+    }
+
+    svg.push("</g>", "</g>", "</svg>");
+    return svg.join("\n");
+  }
+
+  private calculateMaxLabelWidth(
+    spans: CodLayoutSpan[],
+    opts: CodLayoutSvgOptions
+  ): number {
+    if (!spans.length) return 0;
+    const maxLabelLength = Math.max(
+      ...spans.map((s) => (s.label || "").length),
+      0
+    );
+    // Rough estimation: 0.6 * fontSize * characters + some padding
+    return maxLabelLength > 0
+      ? maxLabelLength * opts.labelFontSize * 0.6 + 10
+      : 0;
+  }
+
+  private calculateMaxLabelHeight(
+    spans: CodLayoutSpan[],
+    opts: CodLayoutSvgOptions
+  ): number {
+    if (!spans.length) return 0;
+    const maxLabelLength = Math.max(
+      ...spans.map((s) => (s.label || "").length),
+      0
+    );
+    // For vertical text, height is based on label length
+    return maxLabelLength > 0
+      ? maxLabelLength * opts.labelFontSize * 0.6 + 10
+      : 0;
+  }
+
+  private renderAreas(
+    formula: CodLayoutFormula,
+    opts: CodLayoutSvgOptions,
+    svg: string[],
+    sheetOffsetX: number,
+    sheetOffsetY: number,
+    getSize: (value: CodLayoutValue) => { size: number; isFallback?: boolean }
+  ): void {
+    const vSpans = formula.spans.filter((s) => !s.isHorizontal);
+    const hSpans = formula.spans.filter((s) => s.isHorizontal);
+    const areas = this.getAreas(formula.spans);
+    const colorMap = this.mapAreaColors(areas, opts.areaColors);
+
+    // Calculate area positions and sizes
+    let currentY = sheetOffsetY;
+    for (let v = 0; v < vSpans.length; v++) {
+      let currentX = sheetOffsetX;
+      const vSpanHeight = getSize(vSpans[v]).size * opts.scale!;
+
+      for (let h = 0; h < hSpans.length; h++) {
+        const hSpanWidth = getSize(hSpans[h]).size * opts.scale!;
+        const areaKey = `@${v + 1}_${h + 1}`;
+
+        // Determine fill color
+        let fillColor = opts.areaColors.default;
+
+        // Check if both spans have type="text" for gray background
+        if (vSpans[v].type === "text" && hSpans[h].type === "text") {
+          fillColor = opts.areaColors.$text_$text || "#adadad";
+        }
+        // Or if either span has type="text" and we don't have both gridlines shown
+        else if (
+          (vSpans[v].type === "text" || hSpans[h].type === "text") &&
+          (!opts.showHorizontal || !opts.showVertical)
+        ) {
+          fillColor = opts.areaColors.$text_$text || "#adadad";
+        }
+
+        // Override with specific area color if defined
+        if (colorMap.has(areaKey)) {
+          fillColor = colorMap.get(areaKey)!;
+        }
+
+        if (fillColor !== "transparent") {
+          svg.push(
+            `<rect x="${currentX + (opts.areaGap || 0)}" y="${
+              currentY + (opts.areaGap || 0)
+            }" ` +
+              `width="${hSpanWidth - 2 * (opts.areaGap || 0)}" height="${
+                vSpanHeight - 2 * (opts.areaGap || 0)
+              }" ` +
+              `fill="${fillColor}" opacity="${opts.areaOpacity}"/>`
+          );
+        }
+
+        currentX += hSpanWidth;
+      }
+      currentY += vSpanHeight;
+    }
+  }
+
+  private renderHorizontalGridlines(
+    vSpans: CodLayoutSpan[],
+    opts: CodLayoutSvgOptions,
+    svg: string[],
+    sheetOffsetX: number,
+    sheetOffsetY: number,
+    sheetWidth: number,
+    totalWidth: number,
+    maxLabelWidth: number,
+    getSize: (value: CodLayoutValue) => { size: number; isFallback?: boolean },
+    unit?: string
+  ): void {
+    let currentY = sheetOffsetY;
+
+    for (const span of vSpans) {
+      const { size, isFallback } = getSize(span);
+      currentY += size * opts.scale!;
+      const lineColor =
+        span.type === "text" ? opts.textAreaLineColor : opts.hLineColor;
+
+      // Draw gridline
+      svg.push(
+        `<line x1="${sheetOffsetX}" y1="${currentY}" ` +
+          `x2="${sheetOffsetX + sheetWidth}" y2="${currentY}" ` +
+          `stroke="${lineColor}" stroke-width="${opts.hLineWidth}" ` +
+          `${
+            isFallback ? `stroke-dasharray="${opts.fallbackLineStyle}"` : ""
+          }/>`
+      );
+
+      // Draw label outside the sheet, to the left of the gridline
+      if (span.label) {
+        const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
+        svg.push(
+          `<text class="layout-label" x="${
+            sheetOffsetX - 5
+          }" y="${currentY}" ` +
+            `text-anchor="end" fill="${labelColor}">${span.label}</text>`
+        );
+      }
+
+      // Draw value label outside the sheet, to the right
+      if (opts.showValueLabels) {
+        svg.push(
+          `<text class="value-label" x="${
+            sheetOffsetX + sheetWidth + 5
+          }" y="${currentY}" ` +
+            `text-anchor="start" fill="${opts.valueLabelColor}">${size}${
+              unit || ""
+            }</text>`
+        );
+      }
+    }
+  }
+
+  private renderVerticalGridlines(
+    hSpans: CodLayoutSpan[],
+    opts: CodLayoutSvgOptions,
+    svg: string[],
+    sheetOffsetX: number,
+    sheetOffsetY: number,
+    sheetHeight: number,
+    totalHeight: number,
+    maxLabelHeight: number,
+    getSize: (value: CodLayoutValue) => { size: number; isFallback?: boolean },
+    unit?: string
+  ): void {
+    let currentX = sheetOffsetX;
+
+    for (const span of hSpans) {
+      const { size, isFallback } = getSize(span);
+      currentX += size * opts.scale!;
+      const lineColor =
+        span.type === "text" ? opts.textAreaLineColor : opts.vLineColor;
+
+      // Draw gridline
+      svg.push(
+        `<line x1="${currentX}" y1="${sheetOffsetY}" ` +
+          `x2="${currentX}" y2="${sheetOffsetY + sheetHeight}" ` +
+          `stroke="${lineColor}" stroke-width="${opts.vLineWidth}" ` +
+          `${
+            isFallback ? `stroke-dasharray="${opts.fallbackLineStyle}"` : ""
+          }/>`
+      );
+
+      // Draw label outside the sheet, above the gridline (rotated)
+      if (span.label) {
+        const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
+        svg.push(
+          `<text class="layout-label" x="${currentX}" y="${
+            sheetOffsetY - 5
+          }" ` +
+            `text-anchor="end" transform="rotate(-90, ${currentX}, ${
+              sheetOffsetY - 5
+            })" ` +
+            `fill="${labelColor}">${span.label}</text>`
+        );
+      }
+
+      // Draw value label outside the sheet, below (rotated)
+      if (opts.showValueLabels) {
+        svg.push(
+          `<text class="value-label" x="${currentX}" y="${
+            sheetOffsetY + sheetHeight + 15
+          }" ` +
+            `text-anchor="start" transform="rotate(-90, ${currentX}, ${
+              sheetOffsetY + sheetHeight + 15
+            })" ` +
+            `fill="${opts.valueLabelColor}">${size}${unit || ""}</text>`
+        );
+      }
+    }
   }
 }
