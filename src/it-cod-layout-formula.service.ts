@@ -617,7 +617,7 @@ export class ITCodLayoutFormulaService
     const feSpan = vSpans.find((s) => s.label === "foot-e");
     const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
 
-    // build height pattern
+    // height details: build from vertical spans
     if (mtSpan) sb.push(`${mtSpan.value}`);
     if (heSpan) sb.push(` / ${heSpan.value}`);
 
@@ -648,63 +648,71 @@ export class ITCodLayoutFormulaService
     const gapSpans = hSpans.filter((s) => s.label?.includes("-gap"));
 
     // build columns based on actual span labels
-    let colIndex = 1;
-    let isFirstCol = true;
+    let colNr = 1;
 
     while (true) {
-      const colSpan = columnSpans.find(
-        (s) => s.label === `col-${colIndex}-width`
-      );
-      if (!colSpan) break;
+      // there must be a column span (cw)
+      const colW = columnSpans.find((s) => s.label === `col-${colNr}-width`);
+      if (!colW) break;
 
-      if (!isFirstCol) {
-        const gapSpan = gapSpans.find((s) => s.label === `col-${colIndex}-gap`);
-        if (gapSpan) {
-          sb.push(` (${gapSpan.value}) `);
-        }
-      }
-
-      const leftWSpan = columnSpans.find(
-        (s) => s.label === `col-${colIndex}-left-w`
+      // find column left and right spans
+      const clwSpan = columnSpans.find(
+        (s) => s.label === `col-${colNr}-left-w`
       );
-      const leftESpan = columnSpans.find(
-        (s) => s.label === `col-${colIndex}-left-e`
+      const cleSpan = columnSpans.find(
+        (s) => s.label === `col-${colNr}-left-e`
       );
-      const rightWSpan = columnSpans.find(
-        (s) => s.label === `col-${colIndex}-right-w`
+      const crwSpan = columnSpans.find(
+        (s) => s.label === `col-${colNr}-right-w`
       );
-      const rightESpan = columnSpans.find(
-        (s) => s.label === `col-${colIndex}-right-e`
+      const creSpan = columnSpans.find(
+        (s) => s.label === `col-${colNr}-right-e`
       );
 
-      const leftSpan = leftWSpan || leftESpan;
-      const rightSpan = rightWSpan || rightESpan;
+      const leftSpan = clwSpan || cleSpan;
+      const rightSpan = crwSpan || creSpan;
 
+      // if there are both left and right spans, use them with * if empty
+      // (we are inside [], which imply text)
       if (leftSpan && rightSpan) {
         const leftMarker = leftSpan.type === "text" ? "" : "*";
         const rightMarker = rightSpan.type === "text" ? "" : "*";
         sb.push(
-          `${leftSpan.value}${leftMarker} / ${colSpan.value} / ${rightSpan.value}${rightMarker}`
+          `${leftSpan.value}${leftMarker} / ${colW.value} / ${rightSpan.value}${rightMarker}`
         );
       } else if (leftSpan) {
+        // if only left span, use it with * if empty
         const leftMarker = leftSpan.type === "text" ? "" : "*";
-        sb.push(`${leftSpan.value}${leftMarker} / ${colSpan.value}`);
+        sb.push(`${leftSpan.value}${leftMarker} / ${colW.value}`);
       } else if (rightSpan) {
+        // if only right span, use it with * if empty
         const rightMarker = rightSpan.type === "text" ? "" : "*";
-        sb.push(`${colSpan.value} / ${rightSpan.value}${rightMarker}`);
+        sb.push(`${colW.value} / ${rightSpan.value}${rightMarker}`);
       } else {
-        sb.push(`${colSpan.value}`);
+        // if no left or right span, just use the width
+        sb.push(`${colW.value}`);
       }
 
-      colIndex++;
-      isFirstCol = false;
+      // gap
+      const gapSpan = gapSpans.find((s) => s.label === `col-${colNr}-gap`);
+      if (gapSpan) {
+        sb.push(` (${gapSpan.value}) `);
+      }
+
+      colNr++;
     }
-
+    // close columns
     sb.push("]");
-
+    // add margin-right if exists
     if (mrSpan) sb.push(` ${mrSpan.value}`);
 
-    return sb.join("");
+    // post-processing to move final empty spans outside brackets
+    let result = sb.join("");
+    
+    // match "/ value*]" and replace with "] value /"
+    result = result.replace(/\s*\/\s*(\d+)\*\s*\]/g, '] $1 /');
+
+    return result;
   }
   //#endregion
 }
