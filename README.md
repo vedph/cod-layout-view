@@ -11,6 +11,7 @@
   - [Dev Workspace Setup](#dev-workspace-setup)
     - [Lite Server](#lite-server)
   - [History](#history)
+    - [1.1.0](#110)
     - [1.0.8](#108)
     - [1.0.7](#107)
     - [1.0.5](#105)
@@ -310,7 +311,11 @@ The diagram below shows the formula's structure using an example (portions marke
  [ml] [cle/clw][cw][cre/crw] [cg][cle/clw][cw][cre/crw]... [mr]
 ```
 
-**Examples:**
+For **example**, the formula `250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15` is rendered as:
+
+![IT](demo-it.png)
+
+Other examples:
 
 1. Single column with all dimensions:
 
@@ -351,8 +356,8 @@ The diagram below shows the formula's structure using an example (portions marke
 
 The IT service automatically assigns appropriate labels to spans:
 
-- height spans: `mt`, `he`, `hw`, `ah`, `fw`, `fe`, `mb`.
-- width spans: `ml`, `mr`, `col1`, `col2`, etc., with suffixes `l` and `r` for left/right margins.
+- height spans: `margin-top`, `height-e`, `height-w`, `area-height`, `foot-w`, `foot-e`, `margin-bottom`.
+- width spans: `margin-left`, `margin-right`, `col-1`, `col-2`, etc., with suffixes `l` and `r` for left/right margins.
 - text areas are marked with `type: "text"`, empty areas have no type.
 
 ### Bianconi-Orsini
@@ -374,7 +379,11 @@ For 2-3 each measurement can be **separated** by:
 
 In addition, a short **label** (a string without spaces) can be added after each measurement prefixed by `:`. This addition is required by the generic layout formula model and allows to customize the interpretation of non basic areas (see example 2 below).
 
-Examples (see pp.110-111):
+For **example**, the formula `$BO mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr` is rendered as:
+
+![BO](demo-bo.png)
+
+Other examples (see pp.110-111):
 
 (1) `mm (57) [175] x (145) [150] = (22) // (35) [115] // - x 10 // 115 // (20)`
 
@@ -417,50 +426,6 @@ Examples (see pp.110-111):
 - `(27)`: external margin width
 
 >Note that the above examples were fixed as they seem to have typos in the original document (see nr.2 and 3).
-
-For instance, the formula `mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr` is displayed like in the screenshot below:
-
-![demo rendition](demo.png)
-
-Here notice the labels on top of horizontal gridlines and to the left of vertical gridlines, and their dimension values to their right or bottom, respectively. The central area is colored according to the options defined, which specify a color for the area identified by `$text_$text`. The labels in the formula represent:
-
-- `mt` = margin, top;
-- `mb` = margin, bottom;
-- `ml` = margin, left;
-- `i` = initials column;
-- `mr` = margin, right.
-
-The options used in this demo are:
-
-```js
-const options = {
-  showToolbar: true,
-  showVertical: true,
-  showHorizontal: true,
-  showAreas: true,
-  vLineColor: "#666",
-  hLineColor: "#666",
-  textAreaLineColor: "#00f",
-  vLineWidth: 1,
-  hLineWidth: 1,
-  labelColor: "#333",
-  labelFontSize: 10,
-  labelFontFamily: "Arial",
-  showValueLabels: true,
-  valueLabelColor: "#333",
-  valueLabelPadding: 40,
-  padding: 20,
-  scale: 2,
-  areaColors: {
-    default: "transparent",
-    $text_$text: "#ff6961",
-  },
-  areaOpacity: 0.5,
-  fallbackLineStyle: "5,5",
-};
-```
-
-The toolbar (not shown in the above screenshot) allows you to quickly toggle gridlines and areas and zoom the drawing to fit the container.
 
 ## Dev Workspace Setup
 
@@ -535,6 +500,10 @@ Once installed this Update your start script to run both commands:
 Now, when you run `npm start`, it will start both the TypeScript compiler in watch mode and lite-server. When you make changes to your TypeScript files, they will be automatically recompiled, and `lite-server` will refresh your browser.
 
 ## History
+
+### 1.1.0
+
+- 2025-07-07: refactored SVG rendition so that it is now a shared function independent from the formula being used.
 
 ### 1.0.8
 
