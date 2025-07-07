@@ -412,7 +412,86 @@ export abstract class CodLayoutFormulaBase
     const areas = this.getAreas(formula.spans);
     const colorMap = this.mapAreaColors(areas, opts.areaColors);
 
-    // Calculate area positions and sizes
+    // When both gridlines are hidden, don't render any areas
+    if (!opts.showHorizontal && !opts.showVertical) {
+      return;
+    }
+
+    // When only vertical gridlines are shown, render full-width rectangles for vertical text spans
+    if (opts.showVertical && !opts.showHorizontal) {
+      let currentY = sheetOffsetY;
+      const sheetWidth = getSize(formula.width).size * opts.scale!;
+      
+      for (let v = 0; v < vSpans.length; v++) {
+        const vSpanHeight = getSize(vSpans[v]).size * opts.scale!;
+        let fillColor = opts.areaColors.default;
+
+        // Color spans with type="text"
+        if (vSpans[v].type === "text") {
+          fillColor = opts.areaColors.$text_$text || "#adadad";
+        }
+
+        // Check for specific area colors for this vertical span
+        const vSpanKey = vSpans[v].label ? vSpans[v].label : `$${vSpans[v].type || 'default'}`;
+        if (opts.areaColors[`${vSpanKey}_`]) {
+          fillColor = opts.areaColors[`${vSpanKey}_`];
+        }
+
+        if (fillColor !== "transparent") {
+          svg.push(
+            `<rect x="${sheetOffsetX + (opts.areaGap || 0)}" y="${
+              currentY + (opts.areaGap || 0)
+            }" ` +
+              `width="${sheetWidth - 2 * (opts.areaGap || 0)}" height="${
+                vSpanHeight - 2 * (opts.areaGap || 0)
+              }" ` +
+              `fill="${fillColor}" opacity="${opts.areaOpacity}"/>`
+          );
+        }
+
+        currentY += vSpanHeight;
+      }
+      return;
+    }
+
+    // When only horizontal gridlines are shown, render full-height rectangles for horizontal text spans
+    if (opts.showHorizontal && !opts.showVertical) {
+      let currentX = sheetOffsetX;
+      const sheetHeight = getSize(formula.height).size * opts.scale!;
+      
+      for (let h = 0; h < hSpans.length; h++) {
+        const hSpanWidth = getSize(hSpans[h]).size * opts.scale!;
+        let fillColor = opts.areaColors.default;
+
+        // Color spans with type="text"
+        if (hSpans[h].type === "text") {
+          fillColor = opts.areaColors.$text_$text || "#adadad";
+        }
+
+        // Check for specific area colors for this horizontal span
+        const hSpanKey = hSpans[h].label ? hSpans[h].label : `$${hSpans[h].type || 'default'}`;
+        if (opts.areaColors[`_${hSpanKey}`]) {
+          fillColor = opts.areaColors[`_${hSpanKey}`];
+        }
+
+        if (fillColor !== "transparent") {
+          svg.push(
+            `<rect x="${currentX + (opts.areaGap || 0)}" y="${
+              sheetOffsetY + (opts.areaGap || 0)
+            }" ` +
+              `width="${hSpanWidth - 2 * (opts.areaGap || 0)}" height="${
+                sheetHeight - 2 * (opts.areaGap || 0)
+              }" ` +
+              `fill="${fillColor}" opacity="${opts.areaOpacity}"/>`
+          );
+        }
+
+        currentX += hSpanWidth;
+      }
+      return;
+    }
+
+    // When both gridlines are shown, render intersections as usual
     let currentY = sheetOffsetY;
     for (let v = 0; v < vSpans.length; v++) {
       let currentX = sheetOffsetX;
@@ -427,13 +506,6 @@ export abstract class CodLayoutFormulaBase
 
         // Check if both spans have type="text" for gray background
         if (vSpans[v].type === "text" && hSpans[h].type === "text") {
-          fillColor = opts.areaColors.$text_$text || "#adadad";
-        }
-        // Or if either span has type="text" and we don't have both gridlines shown
-        else if (
-          (vSpans[v].type === "text" || hSpans[h].type === "text") &&
-          (!opts.showHorizontal || !opts.showVertical)
-        ) {
           fillColor = opts.areaColors.$text_$text || "#adadad";
         }
 
