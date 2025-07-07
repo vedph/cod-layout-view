@@ -4,6 +4,8 @@
   - [Quick Start](#quick-start)
   - [Model](#model)
   - [Usage](#usage)
+    - [Using in Angular](#using-in-angular)
+    - [Using in Vanilla HTML](#using-in-vanilla-html)
   - [Formulas](#formulas)
     - [SVG Options](#svg-options)
     - [Itinera (IT)](#itinera-it)
@@ -164,6 +166,8 @@ ParseError : +number position
 
 ## Usage
 
+### Using in Angular
+
 ▶️ (1) 📦 install package: `npm i @myrmidon/cod-layout-view`.
 
 >The component is generic and its formula service is replaceable. Currently there are two services available: `IT` (Itinera, default) and `BO` (Bianconi-Orsini). To specify the service to use, prefix the formula with `$` followed by the service identifier and a space, e.g. `$BO ...formula here...` or `$IT ...formula here...`. If you don't specify a service, the default will be `IT` (Itinera), as this format predates BO and there is existing production code using IT formulas without any prefix. Note that the service identifier is case sensitive.
@@ -196,6 +200,50 @@ import '@myrmidon/cod-layout-view';
 ```
 
 >Web Components (Custom Elements) typically use attributes for data binding, while Angular components use properties. This is a common integration point to be aware of. That's why you _must_ use `[attr.NAME]` rather than `[NAME]`. In the same way, you can bind `[attr.options]` for custom options too.
+
+### Using in Vanilla HTML
+
+For using the component in vanilla HTML without any framework:
+
+▶️ (1) 📦 install package: `npm i @myrmidon/cod-layout-view`.
+
+▶️ (2) import the web component in your HTML file:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layout Formula Example</title>
+  <script type="module" src="./node_modules/@myrmidon/cod-layout-view/dist/index.js"></script>
+</head>
+<body>
+  <!-- Your content here -->
+</body>
+</html>
+```
+
+▶️ (3) use the component in your HTML:
+
+```html
+<cod-layout-view
+  formula="250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15"
+  style="width: 100%; height: 800px;">
+</cod-layout-view>
+```
+
+▶️ (4) optionally, customize with options:
+
+```html
+<cod-layout-view
+  formula="$BO mm 336 x 240 = 18:mt // 282 // 36:mb x 25:ml / 4:i // 174 // 4:i / 33:mr"
+  options='{"showVertical": true, "showHorizontal": true, "showAreas": true}'
+  style="width: 100%; height: 800px;">
+</cod-layout-view>
+```
+
+>In vanilla HTML, you can set attributes directly as strings. For the `options` attribute, pass a JSON string with your configuration.
 
 ## Formulas
 
