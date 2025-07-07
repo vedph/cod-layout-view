@@ -243,8 +243,10 @@ export class ITCodLayoutFormulaService
       // update ah span
       ahSpan.value = actualAh;
 
-      // add fw span
-      spans.push({
+      // insert fw span in the correct position (after area-height, before foot-e or margin-bottom)
+      const ahIndex = spans.findIndex((s) => s.label === "area-height");
+      const insertIndex = ahIndex + 1;
+      spans.splice(insertIndex, 0, {
         value: actualFw,
         label: "foot-w",
         isHorizontal: false,
