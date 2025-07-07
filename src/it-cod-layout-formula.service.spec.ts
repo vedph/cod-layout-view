@@ -1736,9 +1736,12 @@ describe("ITCodLayoutFormulaService", () => {
       );
       expect(marginTopSpan).toBeTruthy();
       expect(marginTopSpan!.value).toBe(30);
-
-      // update the value
       marginTopSpan!.value = 20;
+
+      // update height to 240
+      const height = parsed?.height;
+      expect(height).toBeTruthy();
+      height!.value = 240;
 
       // rebuild the formula
       const rebuiltFormula = service.buildFormula(parsed!);
@@ -1746,7 +1749,7 @@ describe("ITCodLayoutFormulaService", () => {
 
       // the rebuilt formula should be valid and maintain structure
       const expectedFormula =
-        "250 × 160 = 20 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
+        "240 × 160 = 20 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
       expect(rebuiltFormula).toBe(expectedFormula);
 
       // the rebuilt formula should be parseable

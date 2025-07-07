@@ -13,6 +13,7 @@
   - [Dev Workspace Setup](#dev-workspace-setup)
     - [Lite Server](#lite-server)
   - [History](#history)
+    - [1.1.1](#111)
     - [1.1.0](#110)
     - [1.0.8](#108)
     - [1.0.7](#107)
@@ -321,20 +322,26 @@ The IT formula syntax follows this pattern: `H × W = height_details × width_de
 
 - **height details** follow the pattern: `mt[/he][ah][/fe]mb` or `mt[hw/]ah[fw/]mb`:
   - `mt` (label=`margin-top`): margin-top.
-  - `he` (label=`head-e`): head-empty (optional) or `hw`: head-written (optional).
+  - `he` (label=`head-e`): header before the main text area: head-empty (optional) or `hw`: head-written (optional).
   - `ah` (label=`area-height`): area-height (main text area).
-  - `fe` (label=`foot-e`): foot-empty (optional) or `fw`: foot-written (optional).
+  - `fe` (label=`foot-e`): footer after the main text area: foot-empty (optional) or `fw`: foot-written (optional).
   - `mb` (label=`margin-bottom`): margin-bottom.
 - **width details** follow the pattern: `ml[columns]mr`:
   - `ml` (label=`margin-left`): margin-left.
   - `colN`: optional columns, each having:
-    - `col-N-gap` (`gap`; label=`col-N-gap`): gap between two columns. As this separates columns, it is not found before the first column.
-    - `cle` or `clw` (label `col-N-left-e` or `col-n-left-w`) (optional).
-    - `cw` (label `col-N-width`).
-    - `cre` or `crw` (label `col-N-right-e` or `col-N-right-w`) (optional).
+    - `cle` or `clw` (label `col-N-left-e` or `col-n-left-w`) (optional): column left margin.
+    - `cw` (label `col-N-width`): column width (type is always `text`).
+    - `cre` or `crw` (label `col-N-right-e` or `col-N-right-w`) (optional): column right margin.
+    - `col-N-gap` (`gap`; label=`col-N-gap`): gap between two columns. This separates columns. The gap for column 1 is in a span after column 1 and before column 2, and so forth.
   - `mr` (label `margin-right`).
 
-Empty areas are marked with an asterisk `*` suffix. Tokens inside square brackets represent written areas; other tokens are empty areas.
+These spans are separated by the following structural separators:
+
+- the first `x` separates height and width in size.
+- `=` separates size from details about height and width.
+- `/` separates margins from vertical or horizontal text areas as well as header, footer, and column margins.
+- the second `x` separates height details from width details.
+- `[]` wrap spans which contain text (type=`text` rather than undefined). Square brackets `[` or `]` replace `/`. Empty (non-textual) spans inside `[]` are marked by a `*` suffix, which overrides the meaning of `[]` inverting it.
 
 The diagram below shows the formula's structure using an example (portions marked with `-` and `+` are reciprocally exclusive; `!`=required, `?`=optional):
 
@@ -548,6 +555,10 @@ Once installed this Update your start script to run both commands:
 Now, when you run `npm start`, it will start both the TypeScript compiler in watch mode and lite-server. When you make changes to your TypeScript files, they will be automatically recompiled, and `lite-server` will refresh your browser.
 
 ## History
+
+### 1.1.1
+
+- 2025-07-07: fixes to IT `buildFormula`.
 
 ### 1.1.0
 
