@@ -425,6 +425,7 @@ export class CodLayoutViewComponent extends HTMLElement {
         // fit to container button
         const fitButton = document.createElement("button");
         fitButton.textContent = "\u26cb";
+        fitButton.title = "Fit to container";
         fitButton.className = "toggle-button";
         fitButton.addEventListener("click", () => {
           this.fitToContainer();
@@ -433,7 +434,7 @@ export class CodLayoutViewComponent extends HTMLElement {
 
         // download SVG button
         const downloadButton = document.createElement("button");
-        downloadButton.textContent = "⬇";
+        downloadButton.textContent = "▼";
         downloadButton.className = "toggle-button";
         downloadButton.title = "Download SVG";
         downloadButton.addEventListener("click", () => {
