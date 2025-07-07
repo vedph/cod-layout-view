@@ -1,9 +1,11 @@
 # CodLayoutView
 
 - [CodLayoutView](#codlayoutview)
+  - [Quick Start](#quick-start)
   - [Model](#model)
   - [Usage](#usage)
   - [Formulas](#formulas)
+    - [SVG Options](#svg-options)
     - [Itinera (IT)](#itinera-it)
     - [Bianconi-Orsini](#bianconi-orsini)
   - [Dev Workspace Setup](#dev-workspace-setup)
@@ -17,13 +19,11 @@
     - [1.0.0](#100)
     - [0.0.1](#001)
 
-Codicological layout formulas services and view web component in a framework-independent Typescript library. This library contains services and models representing manuscript layout formulas, and is a generalization inspired by [Cadmus codicology layout formulas](https://github.com/vedph/cadmus-codicology-shell/blob/master/projects/myrmidon/cadmus-codicology-ui/src/lib/services/cod-layout.service.ts).
+Codicological layout formulas services and view web component in a framework-independent Typescript library.
 
-Formulas are text strings which represent in a compact way the size and gridlines of a manuscript page.
+This library contains services and models representing manuscript layout formulas, and is a generalization inspired by [Cadmus codicology layout formulas](https://github.com/vedph/cadmus-codicology-shell/blob/master/projects/myrmidon/cadmus-codicology-ui/src/lib/services/cod-layout.service.ts).
 
-In this general model, we have a list of vertical _gridlines_, with the span between each of them, from top to bottom; and a list of horizontal gridlines, with the span between each of them, from left to right.
-
-Once we virtually draw these lines, we get a grid which defines layout _areas_. A specific label tags those areas designed to contain text. Other areas are used for empty areas like margins, or for areas designed for special purposes, like holding initials.
+Formulas are text strings which represent in a compact way the size and layout areas of a manuscript page. Whatever the formula, the same model is used as the parse target.
 
 This library provides:
 
@@ -31,11 +31,20 @@ This library provides:
 - a layout view custom web component, which can display an interactive view of the layout represented by the formula;
 - layout formula services, which can be swapped in the same layout view component.
 
-👉 Quick start for this repository: download or clone the repository, open a terminal in its folder, restore NPM packages (`npm i`), and run with `npm run start`. When started open your browser at <localhost:3000>. The library has no additional dependencies.
+## Quick Start
+
+Quick start for this repository:
+
+1. download or clone the repository.
+2. open a terminal in its folder.
+3. restore NPM packages (`npm i`). The library is a pure TypeScript library with a custom web component, and has no additional dependencies; packages are used only for infrastructure.
+4. run with `npm run start`. When started, if this does not happen automatically open your browser at <localhost:3000>.
+
+Other commands are used for:
 
 - building: `npm run build`.
 - running: `npm run start`.
-- testing: use VSCode extensions or just `npm run test`.
+- testing: `npm run test`.
 
 ## Model
 
@@ -45,8 +54,22 @@ All the formulas share the same [model](src/models.ts), which is based on these 
   - a current value equal to the original one (`isOriginal`=true).
   - a current value not equal to the original one, which can't be reconstructed (`isOriginal`=false).
   - a current value not equal to the original one, which can be reconstructed (`isOriginal`=false, `originalValue` specified).
+
 - **size**: a pair of dimensions for the sheet's width and height.
+
 - **span**: a dimension measured from the sheet's edge (top or left) along the horizontal or vertical axis. For instance, on the vertical axis you can get 3 spans: top margin (from sheet's top edge), text, bottom margin. Each is a dimension which gets measured from the previous span or from the sheet's edge. Dimensions along the vertical axis are visually represented by horizontal gridlines, and dimensions along the horizontal axis by vertical gridlines. Spans are dimensions having a direction (horizontal or vertical) and a type (in most cases undefined except when it is `text`, which defines an area designed to contain text).
+
+So, the page (which has a given height and width) is partitioned into rectangular spans, which can be:
+
+- vertical spans, stacked from top to bottom.
+- horizontal spans, stacked from left to right.
+
+Each span has:
+
+- a `value`, which defines the distance taken from the left- or upper- span towards right or bottom;
+- an optional `label`, which can be used to better define the purpose of the span, e.g. margin, space for initials, space for text, etc.
+- a boolean property (`isHorizontal`) to tell whether the span is horizontal or vertical;
+- a `type`, which can be used to specify the span's type in relation with the layout. This is equal to `text` when the span contains text.
 
 Consider this mock example:
 
@@ -58,7 +81,15 @@ Here we have:
 - vertical spans: top margin (`mt`) = 1, text = 7, bottom margin (`mb`) = 2. The horizontal gridlines here are green.
 - horizontal spans: left margin (`ml`) = 2, initials column (`i`) = 1, text = 3, right margin (`mr`) = 2.
 
-These gridlines, as defined by spans (dimensions), form **areas** at their intersections. In the above diagram we conventionally number these areas with their Y and X values: so the top left area is 1,1; the area at its right is 1,2; the area below it is 2,1; etc.
+Gridlines, as defined by spans (dimensions), form **areas** at their intersections. Each span creates a gridline, forming a grid where vertical spans create rows (y coordinates), and horizontal spans create columns (x coordinates).
+
+Each intersection of a row and column creates an area with:
+
+- `y`, `x`: 1-based coordinates (row 1, column 1, etc.)
+- `rowIndexes`: labels and types from the vertical span (["label", "$type"])
+- `colIndexes`: labels and types from the horizontal span (["label", "$type"])
+
+In the above diagram, we conventionally number areas with their Y and X values: so the top left area is 1,1; the area at its right is 1,2; the area below it is 2,1; etc.
 
 As spans can be labelled, areas can get a more human-friendly designation by combining the label from the vertical gridline with the label from the horizontal gridline. For instance:
 
@@ -90,14 +121,17 @@ CodLayoutFormula : +CodLayoutSpan[] spans
 
 CodLayoutArea : +number y
 CodLayoutArea : +number x
-CodLayoutArea : +number colIndexes
-CodLayoutArea : +number rowIndexes
+CodLayoutArea : +string[] colIndexes
+CodLayoutArea : +string[] rowIndexes
 
 CodLayoutSvgOptions : +boolean showVertical
 CodLayoutSvgOptions : +boolean showHorizontal
 CodLayoutSvgOptions : +boolean showAreas
 CodLayoutSvgOptions : +boolean useOriginal
 CodLayoutSvgOptions : +boolean showToolbar
+CodLayoutSvgOptions : +string vLineColor
+CodLayoutSvgOptions : +string hLineColor
+CodLayoutSvgOptions : +string textAreaLineColor
 CodLayoutSvgOptions : +number vLineWidth
 CodLayoutSvgOptions : +number hLineWidth
 CodLayoutSvgOptions : +number areaGap
@@ -107,20 +141,24 @@ CodLayoutSvgOptions : +string labelFontFamily
 CodLayoutSvgOptions : +Map~string,string~ labelColors
 CodLayoutSvgOptions : +boolean showValueLabels
 CodLayoutSvgOptions : +string valueLabelColor
+CodLayoutSvgOptions : +number valueLabelPadding
 CodLayoutSvgOptions : +number padding
 CodLayoutSvgOptions : +number scale
 CodLayoutSvgOptions : +Map~string,string~ areaColors
 CodLayoutSvgOptions : +number areaOpacity
 CodLayoutSvgOptions : +string fallbackLineStyle
 
-CodLayoutFormulaRenderer : +string buildSvg(formula, options)
-
 CodLayoutFormulaService : +CodLayoutFormula parseFormula(text)
 CodLayoutFormulaService : +string buildFormula(formula)
+CodLayoutFormulaService : +string buildSvg(formula, options)
+CodLayoutFormulaService : +string[] filterLabels(labels)
+CodLayoutFormulaService : +boolean validateFormula(text)
 
-CodLayoutFormulaBase <|-- BOCodLayoutFormula
-CodLayoutFormulaRenderer <|-- BOCodLayoutFormula
-CodLayoutFormulaService <|-- BOCodLayoutFormula
+CodLayoutFormulaService <|-- ITCodLayoutFormulaService
+CodLayoutFormulaService <|-- BOCodLayoutFormulaService
+
+ParseError : +string message
+ParseError : +number position
 ```
 
 ## Usage
@@ -160,7 +198,7 @@ import '@myrmidon/cod-layout-view';
 
 ## Formulas
 
-Codicological layout formulas essentially represent the layout scheme of a page with:
+Codicological layout formulas represent the layout scheme of a page with:
 
 - the page size (height and width);
 - a set of vertical measurements representing layout areas vertically stacked on the page from top to bottom. Each can be represented as a rectangle whose height is the measurement's value.
@@ -170,11 +208,9 @@ Codicological layout formulas essentially represent the layout scheme of a page 
 
 The vertical measurements (defining horizontal grid lines from top to bottom) combined with the horizontal measurements (defining vertical grid lines from left to right) define rectangular areas, which represent the layout of a page.
 
-Each service implementing a layout formula provides:
+Each service implementing a layout formula provides its own parser for its specific formula. This parser converts a string into a formula object with a shared model. Then, a generic SVG builder can generate its rendition and is used in the custom web component to display a formula. So, SVG rendering options are the same whatever the formula used.
 
-- a function to parse the formula's text into the formula model illustrated above;
-- a function to convert the formula model into text;
-- an optional function to render the formula's text into SVG.
+### SVG Options
 
 SVG rendering options (`CodLayoutSvgOptions`) are:
 
@@ -206,6 +242,27 @@ SVG rendering options (`CodLayoutSvgOptions`) are:
     - `_col`: the label/type from horizontal gridlines only.
 - `areaOpacity`: the area opacity.
 - `fallbackLineStyle`: line style used when original values are requested but we are falling back to the current values.
+
+The `areaColors` object allows you to colorize specific areas using flexible naming. You can target areas using these formats:
+
+- `@y_x`: exact coordinates: "@2_3" (row 2, column 3);
+- `row_col`: label intersection: "$text_i" (text row × initials column);
+- `row_`: entire row: "mt_" (all areas in margin-top row);
+- `_col`: entire column: "_i" (all areas in initials column).
+
+Example:
+
+```ts
+const options = {
+  areaColors: {
+    default: "white",
+    "$text_$text": "lightgray",  // Text×text intersections
+    "mt_": "lightblue",          // All margin-top areas  
+    "_i": "lightyellow",         // All initial areas
+    "@2_3": "red"                // Specific area at row 2, col 3
+  }
+};
+```
 
 ### Itinera (IT)
 
