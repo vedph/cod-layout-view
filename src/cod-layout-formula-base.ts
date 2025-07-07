@@ -480,7 +480,7 @@ export abstract class CodLayoutFormulaBase
       const lineColor =
         span.type === "text" ? opts.textAreaLineColor : opts.hLineColor;
 
-      // Draw gridline
+      // draw gridline
       svg.push(
         `<line x1="${sheetOffsetX}" y1="${currentY}" ` +
           `x2="${sheetOffsetX + sheetWidth}" y2="${currentY}" ` +
@@ -490,7 +490,7 @@ export abstract class CodLayoutFormulaBase
           }/>`
       );
 
-      // Draw label outside the sheet, to the left of the gridline
+      // draw label outside the sheet, to the left of the gridline
       if (span.label) {
         const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
         svg.push(
@@ -501,7 +501,7 @@ export abstract class CodLayoutFormulaBase
         );
       }
 
-      // Draw value label outside the sheet, to the right
+      // draw value label outside the sheet, to the right
       if (opts.showValueLabels) {
         svg.push(
           `<text class="value-label" x="${
@@ -535,7 +535,7 @@ export abstract class CodLayoutFormulaBase
       const lineColor =
         span.type === "text" ? opts.textAreaLineColor : opts.vLineColor;
 
-      // Draw gridline
+      // draw gridline
       svg.push(
         `<line x1="${currentX}" y1="${sheetOffsetY}" ` +
           `x2="${currentX}" y2="${sheetOffsetY + sheetHeight}" ` +
@@ -545,7 +545,7 @@ export abstract class CodLayoutFormulaBase
           }/>`
       );
 
-      // Draw label outside the sheet, above the gridline (rotated)
+      // draw label outside the sheet, above the gridline (rotated)
       if (span.label) {
         const labelColor = opts.labelColors?.[span.label] || opts.labelColor;
         svg.push(
@@ -559,7 +559,7 @@ export abstract class CodLayoutFormulaBase
         );
       }
 
-      // Draw value label outside the sheet, below (rotated)
+      // draw value label outside the sheet, below (rotated)
       if (opts.showValueLabels) {
         svg.push(
           `<text class="value-label" x="${currentX}" y="${
@@ -572,5 +572,41 @@ export abstract class CodLayoutFormulaBase
         );
       }
     }
+  }
+
+  /**
+   * Download the SVG representation of a formula as an SVG file.
+   * @param formula The formula to download as SVG.
+   * @param options The layout options for the SVG.
+   * @param filename The filename for the downloaded file (without extension).
+   */
+  public downloadSvg(
+    formula: CodLayoutFormula,
+    options: Partial<CodLayoutSvgOptions>,
+    filename: string = "layout-formula"
+  ): void {
+    if (!formula) {
+      return;
+    }
+
+    // generate the SVG content
+    const svgContent = this.buildSvg(formula, options);
+
+    // create a blob with the SVG content
+    const blob = new Blob([svgContent], { type: "image/svg+xml" });
+
+    // create a download link
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${filename}.svg`;
+
+    // trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // clean up
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 }

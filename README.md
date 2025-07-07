@@ -503,7 +503,9 @@ Now, when you run `npm start`, it will start both the TypeScript compiler in wat
 
 ### 1.1.0
 
-- 2025-07-07: refactored SVG rendition so that it is now a shared function independent from the formula being used.
+- 2025-07-07:
+  - refactored SVG rendition so that it is now a shared function independent from the formula being used.
+  - added download as SVG image to renderer component.
 
 ### 1.0.8
 

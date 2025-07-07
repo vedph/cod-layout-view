@@ -430,11 +430,36 @@ export class CodLayoutViewComponent extends HTMLElement {
           this.fitToContainer();
         });
         this._controls.appendChild(fitButton);
+
+        // download SVG button
+        const downloadButton = document.createElement("button");
+        downloadButton.textContent = "⬇";
+        downloadButton.className = "toggle-button";
+        downloadButton.title = "Download SVG";
+        downloadButton.addEventListener("click", () => {
+          this.downloadCurrentFormula();
+        });
+        this._controls.appendChild(downloadButton);
       }
     }
 
     this.setupInteractions();
     this.fitToContainer();
+  }
+
+  private downloadCurrentFormula() {
+    let formula = this.getAttribute("formula");
+    if (formula && this._service) {
+      formula = this.evalFormulaType(formula);
+      const parsedFormula = this._service.parseFormula(formula);
+      if (parsedFormula) {
+        // generate filename based on formula type and current timestamp
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+        const filename = `layout-formula-${this._service.type}-${timestamp}`;
+        
+        this._service.downloadSvg(parsedFormula, this._options, filename);
+      }
+    }
   }
 }
 

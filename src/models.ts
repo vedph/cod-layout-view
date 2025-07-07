@@ -191,6 +191,18 @@ export interface CodLayoutFormulaService {
    * If the formula is empty, returns null.
    */
   validateFormula(formula?: string): { [key: string]: string } | null;
+
+  /**
+   * Download the SVG representation of a formula as an SVG file.
+   * @param formula The formula to download as SVG.
+   * @param options The layout options for the SVG.
+   * @param filename The filename for the downloaded file (without extension).
+   */
+  downloadSvg(
+    formula: CodLayoutFormula,
+    options: Partial<CodLayoutSvgOptions>,
+    filename?: string
+  ): void;
 }
 
 /**
