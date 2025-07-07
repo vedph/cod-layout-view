@@ -922,6 +922,97 @@ describe("ITCodLayoutFormulaService", () => {
     expect(mrSpan?.type).toBeUndefined();
   });
 
+  it("should parse comprehensive two-column formula with all span details", () => {
+    const formula =
+    // h     w     mt   he ah    fw mb   ml  clw cw   cre gap clw cw  cre mr
+      "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
+    const result = service.parseFormula(formula);
+
+    expect(result).toBeTruthy();
+    expect(result!.type).toBe("IT");
+
+    // check dimensions
+    expect(result!.height.value).toBe(250);
+    expect(result!.width.value).toBe(160);
+
+    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
+    const hSpans = result!.spans.filter((s) => s.isHorizontal);
+
+    // vertical spans
+    // margin top before /
+    const mtSpan = vSpans.find((s) => s.label === "margin-top");
+    expect(mtSpan?.value).toBe(30);
+    expect(mtSpan?.type).toBeUndefined();
+
+    // head, empty (no text)
+    const heSpan = vSpans.find((s) => s.label === "head-e");
+    expect(heSpan?.value).toBe(5);
+    expect(heSpan?.type).toBeUndefined();
+
+    // main vertical area (text)
+    const ahSpan = vSpans.find((s) => s.label === "area-height");
+    expect(ahSpan?.value).toBe(170);
+    expect(ahSpan?.type).toBe("text"); // inside []
+
+    // foot, written (text: it is inside [])
+    const fwSpan = vSpans.find((s) => s.label === "foot-w");
+    expect(fwSpan?.value).toBe(5);
+    expect(fwSpan?.type).toBe("text"); // inside []
+
+    // bottom margin, empty (no text)
+    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
+    expect(mbSpan?.value).toBe(40);
+    expect(mbSpan?.type).toBeUndefined();
+
+    // horizontal spans
+    // left margin, empty (no text)
+    const mlSpan = hSpans.find((s) => s.label === "margin-left");
+    expect(mlSpan?.value).toBe(15);
+    expect(mlSpan?.type).toBeUndefined();
+
+    // left margin of column 1, written (text: inside [])
+    const col1lwSpan = hSpans.find((s) => s.label?.includes("col-1-left-w"));
+    expect(col1lwSpan?.value).toBe(5);
+    expect(col1lwSpan?.type).toBe("text"); // inside []
+
+    // column 1 width, written (text: inside [], but columns always have text anyway)
+    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
+    expect(col1wSpan?.value).toBe(50);
+    expect(col1wSpan?.type).toBe("text"); // column widths are always text
+
+    // column 1 right margin, empty (no text: even if inside [] which groups
+    // spans having text, it has a * suffix which overrides the meaning of []
+    // and means no text)
+    const col1reSpan = hSpans.find((s) => s.label?.includes("col-1-right-e"));
+    expect(col1reSpan?.value).toBe(5);
+    expect(col1reSpan?.type).toBeUndefined(); // has * suffix, overrides []
+
+    // gap between two columns, no text
+    const gapSpan = hSpans.find((s) => s.label?.includes("col-1-gap"));
+    expect(gapSpan?.value).toBe(20);
+    expect(gapSpan?.type).toBeUndefined(); // gaps are in () which means no text
+
+    // column 2 left margin, written (text: inside [])
+    const col2lwSpan = hSpans.find((s) => s.label?.includes("col-2-left-w"));
+    expect(col2lwSpan?.value).toBe(5);
+    expect(col2lwSpan?.type).toBe("text"); // inside []
+
+    // column 2 width, written (text)
+    const col2wSpan = hSpans.find((s) => s.label?.includes("col-2-width"));
+    expect(col2wSpan?.value).toBe(40);
+    expect(col2wSpan?.type).toBe("text"); // column widths are always text
+
+    // column 2 right margin, empty (no text: it's outside [])
+    const col2reSpan = hSpans.find((s) => s.label?.includes("col-2-right-e"));
+    expect(col2reSpan?.value).toBe(5);
+    expect(col2reSpan?.type).toBeUndefined(); // outside []
+
+    // right margin, empty (no text)
+    const mrSpan = hSpans.find((s) => s.label === "margin-right");
+    expect(mrSpan?.value).toBe(15);
+    expect(mrSpan?.type).toBeUndefined();
+  });
+
   it("should return null for empty formula building", () => {
     const result = service.buildFormula(null);
     expect(result).toBeNull();
@@ -1619,6 +1710,52 @@ describe("ITCodLayoutFormulaService", () => {
       const parsed = service.parseFormula(formula)!;
       const result = service.validateFormulaSize(parsed);
       expect(result).toBeNull();
+    });
+  });
+
+  describe("CodLayoutFormulaService - editing dimensions", () => {
+    let service: ITCodLayoutFormulaService;
+
+    beforeEach(() => {
+      service = new ITCodLayoutFormulaService();
+    });
+
+    it("should preserve formula structure when rebuilding after value updates", () => {
+      // original formula with complex column structure including gaps
+      const originalFormula =
+        // h     w     mt   he ah    fw mb   ml  clw cw   crw gap clw cw  cre mr
+        "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
+
+      // parse the original formula
+      const parsed = service.parseFormula(originalFormula);
+      expect(parsed).toBeTruthy();
+
+      // update margin-top from 30 to 20 (simulating dimension edit)
+      const marginTopSpan = parsed!.spans!.find(
+        (s) => s.label === "margin-top"
+      );
+      expect(marginTopSpan).toBeTruthy();
+      expect(marginTopSpan!.value).toBe(30);
+
+      // update the value
+      marginTopSpan!.value = 20;
+
+      // rebuild the formula
+      const rebuiltFormula = service.buildFormula(parsed!);
+      expect(rebuiltFormula).toBeTruthy();
+
+      // the rebuilt formula should be valid and maintain structure
+      const expectedFormula =
+        "250 × 160 = 20 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
+      expect(rebuiltFormula).toBe(expectedFormula);
+
+      // the rebuilt formula should be parseable
+      const reparsed = service.parseFormula(rebuiltFormula!);
+      expect(reparsed).toBeTruthy();
+
+      // and should not have validation errors
+      const validationErrors = service.validateFormula(rebuiltFormula!);
+      expect(validationErrors).toBeFalsy();
     });
   });
 });
