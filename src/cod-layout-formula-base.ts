@@ -6,6 +6,7 @@ import {
   CodLayoutSpan,
   CodLayoutSvgOptions,
   CodLayoutValue,
+  ErrorWrapper,
   ParsingError,
 } from "./models";
 
@@ -21,7 +22,11 @@ export abstract class CodLayoutFormulaBase
     formula: string | CodLayoutFormula,
     labels: string[]
   ): string[];
-  public abstract parseFormula(text?: string | null): CodLayoutFormula | null;
+
+  public abstract parseFormula(
+    text?: string | null
+  ): ErrorWrapper<CodLayoutFormula | null, ParsingError>;
+
   public abstract buildFormula(
     formula?: CodLayoutFormula | null
   ): string | null;
@@ -222,12 +227,12 @@ export abstract class CodLayoutFormulaBase
 
     // parse formula checking for errors
     let parsedFormula: CodLayoutFormula | null = null;
-    try {
-      parsedFormula = this.parseFormula(formula);
-    } catch (e) {
-      errors.formula = (e as ParsingError)?.message || "Invalid formula string";
+    const parseResult = this.parseFormula(formula);
+    if (parseResult.error) {
+      errors.formula = parseResult.error.message || "Invalid formula string";
       return errors;
     }
+    parsedFormula = parseResult.result!;
 
     // validate size
     const sizeErrors = this.validateFormulaSize(parsedFormula!);
@@ -421,18 +426,20 @@ export abstract class CodLayoutFormulaBase
     if (opts.showVertical && !opts.showHorizontal) {
       let currentY = sheetOffsetY;
       const sheetWidth = getSize(formula.width).size * opts.scale!;
-      
+
       for (let v = 0; v < vSpans.length; v++) {
         const vSpanHeight = getSize(vSpans[v]).size * opts.scale!;
         let fillColor = opts.areaColors.default;
 
-        // Color spans with type="text"
+        // color spans with type="text"
         if (vSpans[v].type === "text") {
           fillColor = opts.areaColors.$text_$text || "#adadad";
         }
 
-        // Check for specific area colors for this vertical span
-        const vSpanKey = vSpans[v].label ? vSpans[v].label : `$${vSpans[v].type || 'default'}`;
+        // check for specific area colors for this vertical span
+        const vSpanKey = vSpans[v].label
+          ? vSpans[v].label
+          : `$${vSpans[v].type || "default"}`;
         if (opts.areaColors[`${vSpanKey}_`]) {
           fillColor = opts.areaColors[`${vSpanKey}_`];
         }
@@ -458,7 +465,7 @@ export abstract class CodLayoutFormulaBase
     if (opts.showHorizontal && !opts.showVertical) {
       let currentX = sheetOffsetX;
       const sheetHeight = getSize(formula.height).size * opts.scale!;
-      
+
       for (let h = 0; h < hSpans.length; h++) {
         const hSpanWidth = getSize(hSpans[h]).size * opts.scale!;
         let fillColor = opts.areaColors.default;
@@ -468,8 +475,10 @@ export abstract class CodLayoutFormulaBase
           fillColor = opts.areaColors.$text_$text || "#adadad";
         }
 
-        // Check for specific area colors for this horizontal span
-        const hSpanKey = hSpans[h].label ? hSpans[h].label : `$${hSpans[h].type || 'default'}`;
+        // check for specific area colors for this horizontal span
+        const hSpanKey = hSpans[h].label
+          ? hSpans[h].label
+          : `$${hSpans[h].type || "default"}`;
         if (opts.areaColors[`_${hSpanKey}`]) {
           fillColor = opts.areaColors[`_${hSpanKey}`];
         }

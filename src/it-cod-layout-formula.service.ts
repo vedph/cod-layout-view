@@ -5,6 +5,7 @@ import {
   CodLayoutSpan,
   CodLayoutValue,
   CodLayoutSvgOptions,
+  ErrorWrapper,
   ParsingError,
 } from "./models";
 import { CodLayoutFormulaBase } from "./cod-layout-formula-base";
@@ -545,48 +546,56 @@ export class ITCodLayoutFormulaService
   /**
    * Parse a codicological layout formula from a text string using exact legacy logic.
    */
-  public parseFormula(text?: string | null): CodLayoutFormula | null {
-    if (!text?.trim()) {
-      return null;
+  public parseFormula(text?: string | null): ErrorWrapper<CodLayoutFormula | null, ParsingError> {
+    try {
+      if (!text?.trim()) {
+        return { result: null };
+      }
+
+      // remove whitespaces exactly like legacy
+      const input = text.replace(/\s+/g, "");
+
+      // match main sections using legacy regex
+      const match = ITCodLayoutFormulaService.SECT_REGEX.exec(input);
+      if (!match) {
+        throw new ParsingError(
+          "Invalid formula (expected H x W = height x width)",
+          input,
+          0,
+          input.length
+        );
+      }
+
+      const formula: CodLayoutFormula = {
+        type: "IT",
+        unit: "mm",
+        width: { value: 0 },
+        height: { value: 0 },
+        spans: [],
+      };
+
+      // parse declared dimensions
+      const declaredHeight = parseFloat(match[1]);
+      const declaredWidth = parseFloat(match[2]);
+
+      // parse height details
+      const heightResult = this.parseHeight(match[3], input);
+      formula.height = { value: declaredHeight };
+      formula.spans.push(...heightResult.spans);
+
+      // parse width details
+      const widthResult = this.parseWidth(match[4], input);
+      formula.width = { value: declaredWidth };
+      formula.spans.push(...widthResult.spans);
+
+      return { result: formula };
+    } catch (error) {
+      if (error instanceof ParsingError) {
+        return { error };
+      }
+      // Handle any other unexpected errors
+      return { error: new ParsingError("Unexpected error during parsing", text || "", 0, 0) };
     }
-
-    // remove whitespaces exactly like legacy
-    const input = text.replace(/\s+/g, "");
-
-    // match main sections using legacy regex
-    const match = ITCodLayoutFormulaService.SECT_REGEX.exec(input);
-    if (!match) {
-      throw new ParsingError(
-        "Invalid formula (expected H x W = height x width)",
-        input,
-        0,
-        input.length
-      );
-    }
-
-    const formula: CodLayoutFormula = {
-      type: "IT",
-      unit: "mm",
-      width: { value: 0 },
-      height: { value: 0 },
-      spans: [],
-    };
-
-    // parse declared dimensions
-    const declaredHeight = parseFloat(match[1]);
-    const declaredWidth = parseFloat(match[2]);
-
-    // parse height details
-    const heightResult = this.parseHeight(match[3], input);
-    formula.height = { value: declaredHeight };
-    formula.spans.push(...heightResult.spans);
-
-    // parse width details
-    const widthResult = this.parseWidth(match[4], input);
-    formula.width = { value: declaredWidth };
-    formula.spans.push(...widthResult.spans);
-
-    return formula;
   }
   //#endregion
 

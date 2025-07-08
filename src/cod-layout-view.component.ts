@@ -104,7 +104,7 @@ export class CodLayoutViewComponent extends HTMLElement {
   private updateFormula(formulaText: string) {
     formulaText = this.evalFormulaType(formulaText);
 
-    const formula = this._service!.parseFormula(formulaText);
+    const formula = this._service!.parseFormula(formulaText)?.result;
     if (formula) {
       if ((this._service as unknown as CodLayoutFormulaRenderer).buildSvg) {
         this._svg = (
@@ -306,7 +306,7 @@ export class CodLayoutViewComponent extends HTMLElement {
     let formula = this.getAttribute("formula");
     if (formula) {
       formula = this.evalFormulaType(formula);
-      const parsedFormula = this._service!.parseFormula(formula);
+      const parsedFormula = this._service!.parseFormula(formula)?.result;
       if (parsedFormula) {
         if ((this._service as unknown as CodLayoutFormulaRenderer).buildSvg) {
           this._svg = (
@@ -452,7 +452,7 @@ export class CodLayoutViewComponent extends HTMLElement {
     let formula = this.getAttribute("formula");
     if (formula && this._service) {
       formula = this.evalFormulaType(formula);
-      const parsedFormula = this._service.parseFormula(formula);
+      const parsedFormula = this._service.parseFormula(formula)?.result;
       if (parsedFormula) {
         // generate filename based on formula type and current timestamp
         const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');

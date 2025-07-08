@@ -13,6 +13,7 @@
   - [Dev Workspace Setup](#dev-workspace-setup)
     - [Lite Server](#lite-server)
   - [History](#history)
+    - [2.0.0](#200)
     - [1.1.1](#111)
     - [1.1.0](#110)
     - [1.0.8](#108)
@@ -152,17 +153,25 @@ CodLayoutSvgOptions : +Map~string,string~ areaColors
 CodLayoutSvgOptions : +number areaOpacity
 CodLayoutSvgOptions : +string fallbackLineStyle
 
-CodLayoutFormulaService : +CodLayoutFormula parseFormula(text)
+ErrorWrapper~R,E~ : +R result
+ErrorWrapper~R,E~ : +E error
+
+ParsingError : +string message
+ParsingError : +string input
+ParsingError : +number index
+ParsingError : +number length
+
+CodLayoutFormulaService : +ErrorWrapper~CodLayoutFormula,ParsingError~ parseFormula(text)
 CodLayoutFormulaService : +string buildFormula(formula)
 CodLayoutFormulaService : +string buildSvg(formula, options)
 CodLayoutFormulaService : +string[] filterLabels(labels)
-CodLayoutFormulaService : +boolean validateFormula(text)
+CodLayoutFormulaService : +object validateFormula(text)
+CodLayoutFormulaService : +void downloadSvg(formula, options, filename)
 
 CodLayoutFormulaService <|-- ITCodLayoutFormulaService
 CodLayoutFormulaService <|-- BOCodLayoutFormulaService
 
-ParseError : +string message
-ParseError : +number position
+Error <|-- ParsingError
 ```
 
 ## Usage
@@ -555,6 +564,10 @@ Once installed this Update your start script to run both commands:
 Now, when you run `npm start`, it will start both the TypeScript compiler in watch mode and lite-server. When you make changes to your TypeScript files, they will be automatically recompiled, and `lite-server` will refresh your browser.
 
 ## History
+
+### 2.0.0
+
+- 2025-07-08: refactored `parseFormula` to avoid throwing and returning either a result or an error.
 
 ### 1.1.1
 

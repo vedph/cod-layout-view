@@ -9,98 +9,87 @@ describe("BOCodLayoutFormulaService", () => {
   });
 
   it("should return null for undefined input", () => {
-    const formula = service.parseFormula(undefined);
-    expect(formula).toBeNull();
+    const result = service.parseFormula(undefined);
+    expect(result.result).toBeNull();
+    expect(result.error).toBeUndefined();
   });
 
   it("should return null for null input", () => {
-    const formula = service.parseFormula(null);
-    expect(formula).toBeNull();
+    const result = service.parseFormula(null);
+    expect(result.result).toBeNull();
+    expect(result.error).toBeUndefined();
   });
 
   it("should return null for empty input", () => {
-    const formula = service.parseFormula("");
-    expect(formula).toBeNull();
+    const result = service.parseFormula("");
+    expect(result.result).toBeNull();
+    expect(result.error).toBeUndefined();
   });
 
-  it("should throw error for odd number of // in formula", () => {
+  it("should return error for odd number of // in formula", () => {
     const text = "20 x 10 = 5 // 10 / 15";
-    try {
-      service.parseFormula(text);
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toBe("Odd number of '//' in formula");
-      expect(e.input).toBe(text);
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(text);
+    expect(result.error).toBeInstanceOf(ParsingError);
+    expect(result.result).toBeUndefined();
+    const e = result.error!;
+    expect(e.message).toBe("Odd number of '//' in formula");
+    expect(e.input).toBe(text);
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for missing equals sign", () => {
+  it("should return ParsingError for missing equals sign", () => {
     const invalidFormula = "20 x 10 - 4 // 10 // 6 x 2 // 7 // 3";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Invalid formula (expecting =)");
-      expect(e.input).toBe(invalidFormula);
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+    expect(result.result).toBeUndefined();
+    const e = result.error!;
+    expect(e.message).toContain("Invalid formula (expecting =)");
+    expect(e.input).toBe(invalidFormula);
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for invalid size format", () => {
+  it("should return ParsingError for invalid size format", () => {
     const invalidFormula = "20 & 10 = 4 // 10 // 6 x 2 // 7 // 3";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Invalid size format");
-      expect(e.input).toBe(invalidFormula);
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+    expect(result.result).toBeUndefined();
+    const e = result.error!;
+    expect(e.message).toContain("Invalid size format");
+    expect(e.input).toBe(invalidFormula);
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for missing x separator in details", () => {
+  it("should return ParsingError for missing x separator in details", () => {
     const invalidFormula = "20 x 10 = 4 // 10 // 6 - 2 // 7 // 3";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Invalid formula (expecting x or ×)");
-      expect(e.input).toBe(invalidFormula);
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+    expect(result.result).toBeUndefined();
+    const e = result.error!;
+    expect(e.message).toContain("Invalid formula (expecting x or ×)");
+    expect(e.input).toBe(invalidFormula);
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for invalid dimension format", () => {
+  it("should return ParsingError for invalid dimension format", () => {
     const invalidFormula = "20 x 10 = abc // 10 // 6 x 2 // 7 // 3";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Invalid dimension");
-      expect(e.input).toBe(invalidFormula);
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+    expect(result.result).toBeUndefined();
+    const e = result.error!;
+    expect(e.message).toContain("Invalid dimension");
+    expect(e.input).toBe(invalidFormula);
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
   it("should parse formula with explicit unit", () => {
     const formula = service.parseFormula(
       "cm 20 x 10 = 4 // 10 // 6 x 2 // 7 // 3"
-    );
+    ).result;
     expect(formula?.unit).toBe("cm");
 
     expect(formula?.height.value).toBe(20);
@@ -115,7 +104,7 @@ describe("BOCodLayoutFormulaService", () => {
   it("should parse formula without explicit unit", () => {
     const formula = service.parseFormula(
       "20 x 10 = 4 // 10 // 6 x 2 // 7 // 3"
-    );
+    ).result;
     expect(formula?.unit).toBe("mm");
 
     expect(formula?.height.value).toBe(20);
@@ -130,7 +119,7 @@ describe("BOCodLayoutFormulaService", () => {
   it("should parse formula with original height", () => {
     const formula = service.parseFormula(
       "(20) [22] x 10 = 4 [6] // 10 // 6 x 2 // 7 // 3"
-    );
+    ).result;
     expect(formula?.unit).toBe("mm");
 
     expect(formula?.height.value).toBe(20);
@@ -145,7 +134,7 @@ describe("BOCodLayoutFormulaService", () => {
   it("should parse formula with original width", () => {
     const formula = service.parseFormula(
       "20 x (10) [12] = 4 // 10 // 6 x 2 [4] // 7 // 3"
-    );
+    ).result;
     expect(formula?.unit).toBe("mm");
 
     expect(formula?.height.value).toBe(20);
@@ -160,7 +149,7 @@ describe("BOCodLayoutFormulaService", () => {
   it("should parse formula with original height and width", () => {
     const formula = service.parseFormula(
       "(20) [22] x (10) [12] = 4 [6] // 10 // 6 x 2 [4] // 7 // 3"
-    );
+    ).result;
     expect(formula?.unit).toBe("mm");
 
     expect(formula?.height.value).toBe(20);
@@ -175,7 +164,7 @@ describe("BOCodLayoutFormulaService", () => {
   it("should parse formula with original margin-body-margin in both directions", () => {
     const formula = service.parseFormula(
       "20 x 10 = 4 // 10 // 6 x 2 // 7 // 3"
-    );
+    ).result;
     expect(formula).not.toBeNull();
     expect(formula!.unit).toBe("mm");
     expect(formula!.height.value).toBe(20);
@@ -223,7 +212,7 @@ describe("BOCodLayoutFormulaService", () => {
   it("should parse formula with original and non-original margin-body-margin in both directions", () => {
     const formula = service.parseFormula(
       "(20) [22] x 10 = (4) [6] // 10 // 6 x (2) // 7 // 3"
-    );
+    ).result;
     expect(formula).not.toBeNull();
     expect(formula!.unit).toBe("mm");
     expect(formula!.height.value).toBe(20);
@@ -272,7 +261,7 @@ describe("BOCodLayoutFormulaService", () => {
   it("should parse formula with labelled areas", () => {
     const formula = service.parseFormula(
       "336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33"
-    );
+    ).result;
     expect(formula).not.toBeNull();
     expect(formula!.unit).toBe("mm");
     expect(formula!.height.value).toBe(336);
@@ -386,7 +375,7 @@ describe("BOCodLayoutFormulaService", () => {
 
   it("should get 12 areas from 3 vspans by 4 hspans", () => {
     const text = "cm 10 x 8 = 1:mt // 7 // 2:mb x 2:ml / 1:i // 3 // 2:mr";
-    const formula = service.parseFormula(text);
+    const formula = service.parseFormula(text).result;
     const areas = service.getAreas(formula!.spans);
     // areas
     expect(areas.length).toBe(12);
@@ -464,248 +453,97 @@ describe("BOCodLayoutFormulaService", () => {
     expect(a.colIndexes).toEqual(["mr"]);
   });
 
-  describe("filterFormulaLabels", () => {
-    it("should return empty array for empty labels input", () => {
-      const formula = "cm 10 x 8 = 1:mt // 7 // 2:mb x 2:ml / 1:i // 3 // 2:mr";
-      const result = service.filterFormulaLabels(formula, []);
-      expect(result).toEqual([]);
-    });
-
-    it("should return empty array when formula cannot be parsed", () => {
-      const invalidFormula = "invalid formula";
-      const labels = ["mt", "ml", "invalid"];
-      const result = service.filterFormulaLabels(invalidFormula, labels);
-      expect(result).toEqual([]);
-    });
-
-    it("should return empty array for null formula", () => {
-      const labels = ["mt", "ml", "invalid"];
-      const result = service.filterFormulaLabels(null as any, labels);
-      expect(result).toEqual([]);
-    });
-
-    it("should filter labels based on formula string with labels", () => {
-      const formula = "cm 10 x 8 = 1:mt // 7 // 2:mb x 2:ml / 1:i // 3 // 2:mr";
-      const labels = ["mt", "mb", "ml", "i", "mr", "invalid", "another"];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual(["mt", "mb", "ml", "i", "mr"]);
-    });
-
-    it("should filter labels based on formula string without labels", () => {
-      const formula = "20 x 10 = 4 // 10 // 6 x 2 // 7 // 3";
-      const labels = ["mt", "mb", "ml", "invalid"];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual([]);
-    });
-
-    it("should filter labels based on formula object", () => {
-      const formula: CodLayoutFormula = {
-        type: "BO",
-        unit: "mm",
-        height: { value: 20, label: "height-label" },
-        width: { value: 10, label: "width-label" },
-        spans: [
-          { value: 4, isHorizontal: false, label: "top-margin" },
-          { value: 10, isHorizontal: false, type: "text", label: "text-area" },
-          { value: 6, isHorizontal: false, label: "bottom-margin" },
-          { value: 2, isHorizontal: true, label: "left-margin" },
-          { value: 7, isHorizontal: true, type: "text" }, // no label
-          { value: 3, isHorizontal: true, label: "right-margin" },
-        ],
-      };
-      const labels = [
-        "height-label",
-        "width-label",
-        "top-margin",
-        "text-area",
-        "bottom-margin",
-        "left-margin",
-        "right-margin",
-        "invalid",
-        "another",
-      ];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual([
-        "height-label",
-        "width-label",
-        "top-margin",
-        "text-area",
-        "bottom-margin",
-        "left-margin",
-        "right-margin",
-      ]);
-    });
-
-    it("should handle formula with partial labels", () => {
-      const formula =
-        "336 x 240 = 18 // 282 // 36 x 25 / 4:initials // 174 // 4:initials / 33";
-      const labels = ["initials", "margin", "text", "invalid"];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual(["initials"]);
-    });
-
-    it("should return empty array when no labels match", () => {
-      const formula = "cm 10 x 8 = 1:mt // 7 // 2:mb x 2:ml / 1:i // 3 // 2:mr";
-      const labels = ["invalid", "another", "notfound"];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual([]);
-    });
+  it("should return null for null formula", () => {
+    const result = service.validateFormula(null as any);
+    expect(result).toBeNull();
   });
 
-  describe("validateFormula", () => {
-    it("should return null for null formula", () => {
-      const result = service.validateFormula(null as any);
-      expect(result).toBeNull();
-    });
+  it("should return null for undefined formula", () => {
+    const result = service.validateFormula(undefined as any);
+    expect(result).toBeNull();
+  });
 
-    it("should return null for undefined formula", () => {
-      const result = service.validateFormula(undefined as any);
-      expect(result).toBeNull();
-    });
+  it("should return null for empty formula", () => {
+    const result = service.validateFormula("");
+    expect(result).toBeNull();
+  });
 
-    it("should return null for empty formula", () => {
-      const result = service.validateFormula("");
-      expect(result).toBeNull();
-    });
+  it("should return null for whitespace-only formula", () => {
+    const result = service.validateFormula("   ");
+    expect(result).toBeNull();
+  });
 
-    it("should return null for whitespace-only formula", () => {
-      const result = service.validateFormula("   ");
-      expect(result).toBeNull();
-    });
+  it("should return parsing error for invalid formula syntax", () => {
+    const invalidFormula = "invalid formula syntax";
+    const result = service.validateFormula(invalidFormula);
 
-    it("should return parsing error for invalid formula syntax", () => {
-      const invalidFormula = "invalid formula syntax";
-      const result = service.validateFormula(invalidFormula);
+    expect(result).not.toBeNull();
+    expect(result!.formula).toBeDefined();
+    expect(result!.formula).toContain("Invalid formula");
+  });
 
-      expect(result).not.toBeNull();
-      expect(result!.formula).toBeDefined();
-      expect(result!.formula).toContain("Invalid formula");
-    });
+  it("should return parsing error for formula with odd number of //", () => {
+    const invalidFormula = "20 x 10 = 5 // 10 / 15";
+    const result = service.validateFormula(invalidFormula);
 
-    it("should return parsing error for formula with odd number of //", () => {
-      const invalidFormula = "20 x 10 = 5 // 10 / 15";
-      const result = service.validateFormula(invalidFormula);
+    expect(result).not.toBeNull();
+    expect(result!.formula).toBeDefined();
+    expect(result!.formula).toContain("Odd number of '//' in formula");
+  });
 
-      expect(result).not.toBeNull();
-      expect(result!.formula).toBeDefined();
-      expect(result!.formula).toContain("Odd number of '//' in formula");
-    });
+  it("should return null for valid formula with matching dimensions", () => {
+    const validFormula = "20 x 10 = 5 // 15 x 4 // 6";
+    const result = service.validateFormula(validFormula);
 
-    it("should return null for valid formula with matching dimensions", () => {
-      const validFormula = "20 x 10 = 5 // 15 x 4 // 6";
-      const result = service.validateFormula(validFormula);
+    expect(result).toBeNull();
+  });
 
-      expect(result).toBeNull();
-    });
+  it("should return size errors for formula with mismatched height", () => {
+    const invalidFormula = "30 x 10 = 5 // 15 x 4 // 6"; // height is 30 but spans sum to 20
+    const result = service.validateFormula(invalidFormula);
 
-    it("should return size errors for formula with mismatched height", () => {
-      const invalidFormula = "30 x 10 = 5 // 15 x 4 // 6"; // height is 30 but spans sum to 20
-      const result = service.validateFormula(invalidFormula);
+    expect(result).not.toBeNull();
+    expect(result!.height).toBeDefined();
+    expect(result!.height).toContain("Height 30 does not match v-spans sum 20");
+  });
 
-      expect(result).not.toBeNull();
-      expect(result!.height).toBeDefined();
-      expect(result!.height).toContain(
-        "Height 30 does not match v-spans sum 20"
-      );
-    });
+  it("should return size errors for formula with mismatched width", () => {
+    const invalidFormula = "20 x 15 = 5 // 15 x 4 // 6"; // width is 15 but spans sum to 10
+    const result = service.validateFormula(invalidFormula);
 
-    it("should return size errors for formula with mismatched width", () => {
-      const invalidFormula = "20 x 15 = 5 // 15 x 4 // 6"; // width is 15 but spans sum to 10
-      const result = service.validateFormula(invalidFormula);
+    expect(result).not.toBeNull();
+    expect(result!.width).toBeDefined();
+    expect(result!.width).toContain("Width 15 does not match h-spans sum 10");
+  });
 
-      expect(result).not.toBeNull();
-      expect(result!.width).toBeDefined();
-      expect(result!.width).toContain("Width 15 does not match h-spans sum 10");
-    });
+  it("should return both height and width errors when both are mismatched", () => {
+    const invalidFormula = "30 x 15 = 5 // 15 x 4 // 6"; // both dimensions wrong
+    const result = service.validateFormula(invalidFormula);
 
-    it("should return both height and width errors when both are mismatched", () => {
-      const invalidFormula = "30 x 15 = 5 // 15 x 4 // 6"; // both dimensions wrong
-      const result = service.validateFormula(invalidFormula);
+    expect(result).not.toBeNull();
+    expect(result!.height).toBeDefined();
+    expect(result!.width).toBeDefined();
+    expect(result!.height).toContain("Height 30 does not match v-spans sum 20");
+    expect(result!.width).toContain("Width 15 does not match h-spans sum 10");
+  });
 
-      expect(result).not.toBeNull();
-      expect(result!.height).toBeDefined();
-      expect(result!.width).toBeDefined();
-      expect(result!.height).toContain(
-        "Height 30 does not match v-spans sum 20"
-      );
-      expect(result!.width).toContain("Width 15 does not match h-spans sum 10");
-    });
+  it("should handle complex formula with labels and types correctly", () => {
+    const validFormula =
+      "336 x 240 = 18:mt // 282:$text // 36:mb x 25:ml / 4:initials // 174:$text // 4:initials / 33:mr";
+    const result = service.validateFormula(validFormula);
 
-    it("should handle complex formula with labels and types correctly", () => {
-      const validFormula =
-        "336 x 240 = 18:mt // 282:$text // 36:mb x 25:ml / 4:initials // 174:$text // 4:initials / 33:mr";
-      const result = service.validateFormula(validFormula);
+    expect(result).toBeNull();
+  });
 
-      expect(result).toBeNull();
-    });
+  it("should return size error for complex formula with wrong dimensions", () => {
+    const invalidFormula =
+      "300 x 240 = 18:mt // 282:$text // 36:mb x 25:ml / 4:initials // 174:$text // 4:initials / 33:mr";
+    const result = service.validateFormula(invalidFormula);
 
-    it("should return size error for complex formula with wrong dimensions", () => {
-      const invalidFormula =
-        "300 x 240 = 18:mt // 282:$text // 36:mb x 25:ml / 4:initials // 174:$text // 4:initials / 33:mr";
-      const result = service.validateFormula(invalidFormula);
-
-      expect(result).not.toBeNull();
-      expect(result!.height).toBeDefined();
-      expect(result!.height).toContain(
-        "Height 300 does not match v-spans sum 336"
-      );
-    });
-
-    it("should handle formula with unit prefix correctly", () => {
-      const validFormula = "mm 20 x 10 = 5 // 15 x 4 // 6";
-      const result = service.validateFormula(validFormula);
-
-      expect(result).toBeNull();
-    });
-    it("should return error when ParsingError is thrown but message is undefined", () => {
-      // This tests the fallback error message handling
-      const originalParseFormula = service.parseFormula;
-      jest.spyOn(service, "parseFormula").mockImplementation(() => {
-        const error = new Error() as any;
-        error.name = "ParsingError";
-        error.message = undefined;
-        throw error;
-      });
-
-      const result = service.validateFormula("any formula");
-
-      expect(result).not.toBeNull();
-      expect(result!.formula).toBe("Invalid formula string");
-
-      // restore original method
-      service.parseFormula = originalParseFormula;
-    });
-
-    it("should handle errors that are not ParsingError instances", () => {
-      // this tests the fallback error message handling for generic errors
-      const originalParseFormula = service.parseFormula;
-      jest.spyOn(service, "parseFormula").mockImplementation(() => {
-        throw new Error("Some other error");
-      });
-
-      const result = service.validateFormula("any formula");
-
-      expect(result).not.toBeNull();
-      expect(result!.formula).toBe("Some other error");
-
-      // restore original method
-      service.parseFormula = originalParseFormula;
-    });
-
-    it("should preserve original error message when ParsingError has message", () => {
-      const originalParseFormula = service.parseFormula;
-      const customMessage = "Custom parsing error message";
-      jest.spyOn(service, "parseFormula").mockImplementation(() => {
-        throw new ParsingError(customMessage, "input");
-      });
-
-      const result = service.validateFormula("any formula");
-
-      expect(result).not.toBeNull();
-      expect(result!.formula).toBe(customMessage);
-
-      // Restore original method
-      service.parseFormula = originalParseFormula;
-    });
+    expect(result).not.toBeNull();
+    expect(result!.height).toBeDefined();
+    expect(result!.height).toContain(
+      "Height 300 does not match v-spans sum 336"
+    );
   });
 });

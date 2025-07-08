@@ -4,6 +4,21 @@
 export type CodLayoutUnit = "mm" | "cm" | "in";
 
 /**
+ * A wrapper for the result of an operation that may succeed or fail.
+ * It contains either a result of type R or an error of type E.
+ */
+export interface ErrorWrapper<R, E> {
+  /**
+   * The result of the operation, if successful.
+   */
+  result?: R;
+  /**
+   * An error message, if the operation failed.
+   */
+  error?: E;
+}
+
+/**
  * An error thrown when parsing a codicological layout formula.
  */
 export class ParsingError extends Error {
@@ -170,11 +185,9 @@ export interface CodLayoutFormulaService {
    * Parse a codicological layout formula from a text string.
    * @param text The text of the formula to parse or null or
    * undefined.
-   * @returns The parsed formula or null if the input is null or
-   * undefined.
-   * @throws ParsingError if the formula is invalid.
+   * @returns An ErrorWrapper containing either the parsed formula (or null if input is null/undefined) or a ParsingError.
    */
-  parseFormula(text?: string | null): CodLayoutFormula | null;
+  parseFormula(text?: string | null): ErrorWrapper<CodLayoutFormula | null, ParsingError>;
 
   /**
    * Build the text of a codicological layout formula from a model.

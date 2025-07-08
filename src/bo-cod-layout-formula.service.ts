@@ -7,6 +7,7 @@ import {
   CodLayoutSvgOptions,
   CodLayoutUnit,
   CodLayoutValue,
+  ErrorWrapper,
   ParsingError,
 } from "./models";
 
@@ -83,12 +84,12 @@ export class BOCodLayoutFormulaService
 
     // parse the formula if it's a string
     if (typeof formula === "string") {
-      try {
-        parsedFormula = this.parseFormula(formula);
-      } catch (error) {
+      const parseResult = this.parseFormula(formula);
+      if (parseResult.error) {
         // if parsing fails, return empty array since we can't extract labels
         return [];
       }
+      parsedFormula = parseResult.result || null;
     } else {
       parsedFormula = formula;
     }
@@ -339,88 +340,104 @@ export class BOCodLayoutFormulaService
    * Parse a codicological layout formula from a text string.
    * @param text The text of the formula to parse or null or
    * undefined.
-   * @returns The parsed formula or null if the input is null or
-   * undefined.
-   * @throws ParsingError if the formula is invalid.
+   * @returns An ErrorWrapper containing either the parsed formula
+   * (or null if input is null/undefined) or a ParsingError.
    */
-  public parseFormula(text?: string | null): CodLayoutFormula | null {
-    if (!text) {
-      return null;
+  public parseFormula(
+    text?: string | null
+  ): ErrorWrapper<CodLayoutFormula | null, ParsingError> {
+    try {
+      if (!text) {
+        return { result: null };
+      }
+      const input = text;
+      let offset = 0;
+
+      // preprocess the formula
+      text = this.preprocessFormula(text);
+      const formula: CodLayoutFormula = {
+        type: "BO",
+        unit: "mm",
+        width: { value: 0 },
+        height: { value: 0 },
+        spans: [],
+      };
+
+      // split formula into substrings:
+      // 1. unit: an optional initial "mm" or "cm" or "in" followed by space(s).
+      const unitMatch = text.match(/^(mm|cm|in)\s+/);
+      if (unitMatch) {
+        // set the unit
+        formula.unit = unitMatch[1] as CodLayoutUnit;
+        // remove the unit from the text
+        text = text.substring(unitMatch[0].length);
+        offset += unitMatch[0].length;
+      }
+
+      // 2. size: all what follows (1) until the first "=".
+      const i = text.indexOf("=");
+      if (i === -1) {
+        throw new ParsingError(
+          "Invalid formula (expecting =): " + text,
+          input,
+          offset,
+          text.length
+        );
+      }
+      // remove the trailing '='
+      const size = text.substring(0, i).trim();
+      // parse the size
+      const { width, height } = this.parseSize(size, input, offset);
+      formula.width = width;
+      formula.height = height;
+      // remove the size from the text
+      text = text.substring(i + 1).trim();
+      offset += i + 1;
+
+      // 3. vspans: all what follows (2) until the first "x" or "×"
+      let xi = this.findXIndex(text);
+      if (xi === -1) {
+        throw new ParsingError(
+          "Invalid formula (expecting x or ×): " + text,
+          input,
+          offset,
+          input.length - offset
+        );
+      }
+      // parse the vertical spans
+      const vsText = text.substring(0, xi);
+      formula.spans = this.parseSpans(vsText, false, input, offset);
+      // remove the vertical spans from the text
+      text = text.substring(xi + 3);
+      offset += xi + 3;
+
+      // 4. hspans: all what follows (3) until the end
+      const hspans = this.parseSpans(text, true, input, offset);
+      if (!hspans.length) {
+        throw new ParsingError(
+          "Invalid formula (expecting horizontal spans): ",
+          input,
+          offset,
+          input.length - offset
+        );
+      }
+      formula.spans.push(...hspans);
+
+      return { result: formula };
+    } catch (error) {
+      if (error instanceof ParsingError) {
+        return { error };
+      }
+      // Handle any other unexpected errors
+      return {
+        error: new ParsingError(
+          "Unexpected error during parsing",
+          text || "",
+          0,
+          0
+        ),
+      };
     }
-    const input = text;
-    let offset = 0;
-
-    // preprocess the formula
-    text = this.preprocessFormula(text);
-    const formula: CodLayoutFormula = {
-      type: "BO",
-      unit: "mm",
-      width: { value: 0 },
-      height: { value: 0 },
-      spans: [],
-    };
-
-    // split formula into substrings:
-    // 1. unit: an optional initial "mm" or "cm" or "in" followed by space(s).
-    const unitMatch = text.match(/^(mm|cm|in)\s+/);
-    if (unitMatch) {
-      // set the unit
-      formula.unit = unitMatch[1] as CodLayoutUnit;
-      // remove the unit from the text
-      text = text.substring(unitMatch[0].length);
-      offset += unitMatch[0].length;
-    }
-
-    // 2. size: all what follows (1) until the first "=".
-    const i = text.indexOf("=");
-    if (i === -1) {
-      throw new ParsingError(
-        "Invalid formula (expecting =): " + text,
-        input,
-        offset,
-        text.length
-      );
-    }
-    // remove the trailing '='
-    const size = text.substring(0, i).trim();
-    // parse the size
-    const { width, height } = this.parseSize(size, input, offset);
-    formula.width = width;
-    formula.height = height;
-    // remove the size from the text
-    text = text.substring(i + 1).trim();
-    offset += i + 1;
-
-    // 3. vspans: all what follows (2) until the first "x" or "×"
-    let xi = this.findXIndex(text);
-    if (xi === -1) {
-      throw new ParsingError(
-        "Invalid formula (expecting x or ×): " + text,
-        input,
-        offset,
-        input.length - offset
-      );
-    }
-    // parse the vertical spans
-    const vsText = text.substring(0, xi);
-    formula.spans = this.parseSpans(vsText, false, input, offset);
-    // remove the vertical spans from the text
-    text = text.substring(xi + 3);
-    offset += xi + 3;
-
-    // 4. hspans: all what follows (3) until the end
-    const hspans = this.parseSpans(text, true, input, offset);
-    if (!hspans.length) {
-      throw new ParsingError(
-        "Invalid formula (expecting horizontal spans): ",
-        input,
-        offset,
-        input.length - offset
-      );
-    }
-    formula.spans.push(...hspans);
-
-    return formula;
   }
   //#endregion
 

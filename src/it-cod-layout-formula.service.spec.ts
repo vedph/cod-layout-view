@@ -15,18 +15,20 @@ describe("ITCodLayoutFormulaService", () => {
 
   it("should parse empty as null", () => {
     const result = service.parseFormula("");
-    expect(result).toBeNull();
+    expect(result.result).toBeNull();
+    expect(result.error).toBeUndefined();
   });
 
   it("should parse null as null", () => {
     const result = service.parseFormula(null);
-    expect(result).toBeNull();
+    expect(result.result).toBeNull();
+    expect(result.error).toBeUndefined();
   });
 
   it("should parse single column clw-cw-crw", () => {
     //                           mt   he ah    fw mb   ml clw  cw  crw mr
     const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.type).toBe("IT");
@@ -84,7 +86,7 @@ describe("ITCodLayoutFormulaService", () => {
   it("should parse single column cle-cw-crw", () => {
     //                           mt   he ah    fw mb   ml  cle cw  crw mr
     const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 / 3 [50 / 5] 15";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(250);
@@ -139,7 +141,7 @@ describe("ITCodLayoutFormulaService", () => {
   it("should parse single column clw-cw-cre", () => {
     //                           mt   he ah    fw mb   ml clw  cw  crw mr
     const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(250);
@@ -194,7 +196,7 @@ describe("ITCodLayoutFormulaService", () => {
   it("should parse single column cle-cw-cre", () => {
     //                           mt   he ah    fw mb   ml   cle  cw cre  mr
     const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 / 3 [50] 5 / 15";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(250);
@@ -251,7 +253,7 @@ describe("ITCodLayoutFormulaService", () => {
       //             mt   he ah    fw mb   ml  11111111111 gap  222222222   mr
       //                                       clw cw  crw      clw cw  cre
       "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(250);
@@ -324,7 +326,7 @@ describe("ITCodLayoutFormulaService", () => {
       //             mt  ah   mb   ml  1111111111 gap  2222222222  mr
       //                               clw cw  crw     clw cw  crw
       "200 x 160 = 30 [130] 40 x 15 [5 / 50 / 5 (10) 5 / 50 / 5] 15";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
@@ -377,7 +379,7 @@ describe("ITCodLayoutFormulaService", () => {
       //           mt ah    mb   ml  11111111111 gap  22222222222  mr
       //                             clw cw  crw     clw   cw  crw
       "200 × 160 = 30 [130] 40 × 15 [5 / 50 / 5* (10) 5* / 50 / 5] 15";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
@@ -453,7 +455,7 @@ describe("ITCodLayoutFormulaService", () => {
   it("should parse mt ah mb", () => {
     //                           mt  ah   mb   ml  cle cw   mr
     const formula = "200 × 200 = 30 [130] 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
@@ -487,7 +489,7 @@ describe("ITCodLayoutFormulaService", () => {
   it("should parse mt he ah mb", () => {
     //                           mt   he ah    mb   ml  cle cw   mr
     const formula = "200 × 200 = 30 / 10 [120] 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
@@ -523,7 +525,7 @@ describe("ITCodLayoutFormulaService", () => {
   it("should parse mt hw ah mb", () => {
     //                           mt  hw   ah   mb   ml  cle cw   mr
     const formula = "200 × 200 = 30 [10 / 120] 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
@@ -559,7 +561,7 @@ describe("ITCodLayoutFormulaService", () => {
   it("should parse mt ah fe mb", () => {
     //                           mt  ah   fe   mb   ml  cle cw   mr
     const formula = "200 × 200 = 30 [120] 10 / 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
@@ -605,7 +607,7 @@ describe("ITCodLayoutFormulaService", () => {
   it("should parse mt ah fw mb", () => {
     //                           mt  ah    fw  mb   ml  cle cw   mr
     const formula = "200 × 200 = 30 [120 / 10] 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
@@ -651,7 +653,7 @@ describe("ITCodLayoutFormulaService", () => {
   it("should parse mt he ah fe mb", () => {
     //                           mt   he ah   fe   mb   ml  cle cw   mr
     const formula = "200 × 200 = 30 / 5 [120] 10 / 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.height.value).toBe(200);
@@ -678,255 +680,13 @@ describe("ITCodLayoutFormulaService", () => {
     const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
     expect(mbSpan?.value).toBe(40);
     expect(mbSpan?.type).toBeUndefined();
-  });
-
-  it("should parse mt hw ah mb", () => {
-    //                           mt  hw   ah   mb   ml  cle cw   mr
-    const formula = "200 × 200 = 30 [10 / 120] 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
-
-    expect(result).toBeTruthy();
-    expect(result!.height.value).toBe(200);
-    expect(result!.width.value).toBe(200);
-
-    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
-
-    const mtSpan = vSpans.find((s) => s.label === "margin-top");
-    expect(mtSpan?.value).toBe(30);
-    expect(mtSpan?.type).toBeUndefined();
-
-    const hwSpan = vSpans.find((s) => s.label === "head-w");
-    expect(hwSpan?.value).toBe(10);
-    expect(hwSpan?.type).toBe("text");
-
-    const ahSpan = vSpans.find((s) => s.label === "area-height");
-    expect(ahSpan?.value).toBe(120);
-    expect(ahSpan?.type).toBe("text");
-
-    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
-    expect(mbSpan?.value).toBe(40);
-    expect(mbSpan?.type).toBeUndefined();
-
-    // should NOT have he, fe, fw spans
-    const heSpan = vSpans.find((s) => s.label === "head-e");
-    expect(heSpan).toBeUndefined();
-    const feSpan = vSpans.find((s) => s.label === "foot-e");
-    expect(feSpan).toBeUndefined();
-    const fwSpan = vSpans.find((s) => s.label === "foot-w");
-    expect(fwSpan).toBeUndefined();
-  });
-
-  it("should parse mt ah fe mb", () => {
-    //                           mt  ah   fe   mb   ml  cle cw   mr
-    const formula = "200 × 200 = 30 [120] 10 / 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
-
-    expect(result).toBeTruthy();
-    expect(result!.height.value).toBe(200);
-    expect(result!.width.value).toBe(200);
-
-    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
-
-    const mtSpan = vSpans.find((s) => s.label === "margin-top");
-    expect(mtSpan?.value).toBe(30);
-    expect(mtSpan?.type).toBeUndefined();
-
-    const ahSpan = vSpans.find((s) => s.label === "area-height");
-    expect(ahSpan?.value).toBe(120);
-    expect(ahSpan?.type).toBe("text");
-
-    const feSpan = vSpans.find((s) => s.label === "foot-e");
-    expect(feSpan?.value).toBe(10);
-    expect(feSpan?.type).toBeUndefined();
-
-    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
-    expect(mbSpan?.value).toBe(40);
-    expect(mbSpan?.type).toBeUndefined();
-
-    const hSpans = result!.spans.filter((s) => s.isHorizontal);
-
-    const mlSpan = hSpans.find((s) => s.label === "margin-left");
-    expect(mlSpan?.value).toBe(30);
-    expect(mlSpan?.type).toBeUndefined();
-
-    const cle1Span = hSpans.find((s) => s.label?.includes("col-1-left-e"));
-    expect(cle1Span?.value).toBe(5);
-    expect(cle1Span?.type).toBeUndefined();
-
-    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
-    expect(col1wSpan?.value).toBe(130);
-    expect(col1wSpan?.type).toBe("text");
-
-    const mrSpan = hSpans.find((s) => s.label === "margin-right");
-    expect(mrSpan?.value).toBe(40);
-    expect(mrSpan?.type).toBeUndefined();
-  });
-
-  it("should parse mt ah fw mb", () => {
-    //                           mt  ah    fw  mb   ml  cle cw   mr
-    const formula = "200 × 200 = 30 [120 / 10] 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
-
-    expect(result).toBeTruthy();
-    expect(result!.height.value).toBe(200);
-    expect(result!.width.value).toBe(200);
-
-    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
-
-    const mtSpan = vSpans.find((s) => s.label === "margin-top");
-    expect(mtSpan?.value).toBe(30);
-    expect(mtSpan?.type).toBeUndefined();
-
-    const ahSpan = vSpans.find((s) => s.label === "area-height");
-    expect(ahSpan?.value).toBe(120);
-    expect(ahSpan?.type).toBe("text");
-
-    const fwSpan = vSpans.find((s) => s.label === "foot-w");
-    expect(fwSpan?.value).toBe(10);
-    expect(fwSpan?.type).toBe("text");
-
-    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
-    expect(mbSpan?.value).toBe(40);
-    expect(mbSpan?.type).toBeUndefined();
-
-    const hSpans = result!.spans.filter((s) => s.isHorizontal);
-
-    const mlSpan = hSpans.find((s) => s.label === "margin-left");
-    expect(mlSpan?.value).toBe(30);
-    expect(mlSpan?.type).toBeUndefined();
-
-    const cle1Span = hSpans.find((s) => s.label?.includes("col-1-left-e"));
-    expect(cle1Span?.value).toBe(5);
-    expect(cle1Span?.type).toBeUndefined();
-
-    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
-    expect(col1wSpan?.value).toBe(130);
-    expect(col1wSpan?.type).toBe("text");
-
-    const mrSpan = hSpans.find((s) => s.label === "margin-right");
-    expect(mrSpan?.value).toBe(40);
-    expect(mrSpan?.type).toBeUndefined();
-  });
-
-  it("should parse mt he ah fe mb", () => {
-    //                           mt   he ah   fe   mb   ml  cle cw   mr
-    const formula = "200 × 200 = 30 / 5 [120] 10 / 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
-
-    expect(result).toBeTruthy();
-    expect(result!.height.value).toBe(200);
-    expect(result!.width.value).toBe(200);
-
-    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
-
-    const mtSpan = vSpans.find((s) => s.label === "margin-top");
-    expect(mtSpan?.value).toBe(30);
-    expect(mtSpan?.type).toBeUndefined();
-
-    const heSpan = vSpans.find((s) => s.label === "head-e");
-    expect(heSpan?.value).toBe(5);
-    expect(heSpan?.type).toBeUndefined();
-
-    const ahSpan = vSpans.find((s) => s.label === "area-height");
-    expect(ahSpan?.value).toBe(120);
-    expect(ahSpan?.type).toBe("text");
-
-    const feSpan = vSpans.find((s) => s.label === "foot-e");
-    expect(feSpan?.value).toBe(10);
-    expect(feSpan?.type).toBeUndefined();
-
-    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
-    expect(mbSpan?.value).toBe(40);
-    expect(mbSpan?.type).toBeUndefined();
-  });
-
-  it("should parse mt hw ah mb", () => {
-    //                           mt  hw   ah   mb   ml  cle cw   mr
-    const formula = "200 × 200 = 30 [10 / 120] 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
-
-    expect(result).toBeTruthy();
-    expect(result!.height.value).toBe(200);
-    expect(result!.width.value).toBe(200);
-
-    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
-
-    const mtSpan = vSpans.find((s) => s.label === "margin-top");
-    expect(mtSpan?.value).toBe(30);
-    expect(mtSpan?.type).toBeUndefined();
-
-    const hwSpan = vSpans.find((s) => s.label === "head-w");
-    expect(hwSpan?.value).toBe(10);
-    expect(hwSpan?.type).toBe("text");
-
-    const ahSpan = vSpans.find((s) => s.label === "area-height");
-    expect(ahSpan?.value).toBe(120);
-    expect(ahSpan?.type).toBe("text");
-
-    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
-    expect(mbSpan?.value).toBe(40);
-    expect(mbSpan?.type).toBeUndefined();
-
-    // should NOT have he, fe, fw spans
-    const heSpan = vSpans.find((s) => s.label === "head-e");
-    expect(heSpan).toBeUndefined();
-    const feSpan = vSpans.find((s) => s.label === "foot-e");
-    expect(feSpan).toBeUndefined();
-    const fwSpan = vSpans.find((s) => s.label === "foot-w");
-    expect(fwSpan).toBeUndefined();
-  });
-
-  it("should parse mt ah fe mb", () => {
-    //                           mt  ah   fe   mb   ml  cle cw   mr
-    const formula = "200 × 200 = 30 [120] 10 / 40 × 30 / 5 [130] 40";
-    const result = service.parseFormula(formula);
-
-    expect(result).toBeTruthy();
-    expect(result!.height.value).toBe(200);
-    expect(result!.width.value).toBe(200);
-
-    const vSpans = result!.spans.filter((s) => !s.isHorizontal);
-
-    const mtSpan = vSpans.find((s) => s.label === "margin-top");
-    expect(mtSpan?.value).toBe(30);
-    expect(mtSpan?.type).toBeUndefined();
-
-    const ahSpan = vSpans.find((s) => s.label === "area-height");
-    expect(ahSpan?.value).toBe(120);
-    expect(ahSpan?.type).toBe("text");
-
-    const feSpan = vSpans.find((s) => s.label === "foot-e");
-    expect(feSpan?.value).toBe(10);
-    expect(feSpan?.type).toBeUndefined();
-
-    const mbSpan = vSpans.find((s) => s.label === "margin-bottom");
-    expect(mbSpan?.value).toBe(40);
-    expect(mbSpan?.type).toBeUndefined();
-
-    const hSpans = result!.spans.filter((s) => s.isHorizontal);
-
-    const mlSpan = hSpans.find((s) => s.label === "margin-left");
-    expect(mlSpan?.value).toBe(30);
-    expect(mlSpan?.type).toBeUndefined();
-
-    const cle1Span = hSpans.find((s) => s.label?.includes("col-1-left-e"));
-    expect(cle1Span?.value).toBe(5);
-    expect(cle1Span?.type).toBeUndefined();
-
-    const col1wSpan = hSpans.find((s) => s.label?.includes("col-1-width"));
-    expect(col1wSpan?.value).toBe(130);
-    expect(col1wSpan?.type).toBe("text");
-
-    const mrSpan = hSpans.find((s) => s.label === "margin-right");
-    expect(mrSpan?.value).toBe(40);
-    expect(mrSpan?.type).toBeUndefined();
   });
 
   it("should parse comprehensive two-column formula with all span details", () => {
     const formula =
-    // h     w     mt   he ah    fw mb   ml  clw cw   cre gap clw cw  cre mr
+      // h     w     mt   he ah    fw mb   ml  clw cw   cre gap clw cw  cre mr
       "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
-    const result = service.parseFormula(formula);
+    const result = service.parseFormula(formula).result;
 
     expect(result).toBeTruthy();
     expect(result!.type).toBe("IT");
@@ -1020,7 +780,7 @@ describe("ITCodLayoutFormulaService", () => {
 
   it("should get areas from formula spans", () => {
     const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
-    const parsed = service.parseFormula(formula);
+    const parsed = service.parseFormula(formula).result;
     expect(parsed).toBeTruthy();
 
     const areas = service.getAreas(parsed!.spans);
@@ -1038,7 +798,7 @@ describe("ITCodLayoutFormulaService", () => {
 
   it("should filter areas by name", () => {
     const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
-    const parsed = service.parseFormula(formula);
+    const parsed = service.parseFormula(formula).result;
     expect(parsed).toBeTruthy();
 
     const areas = service.getAreas(parsed!.spans);
@@ -1176,7 +936,7 @@ describe("ITCodLayoutFormulaService", () => {
     it("should filter using CodLayoutFormula object", () => {
       const formula = service.parseFormula(
         "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15"
-      );
+      ).result;
       const labels = [
         "margin-top",
         "head-e",
@@ -1217,94 +977,75 @@ describe("ITCodLayoutFormulaService", () => {
     });
   });
 
-  it("should throw ParsingError for invalid height format", () => {
+  it("should return ParsingError for invalid height format", () => {
     const invalidFormula = "250 × 160 = invalid × 15 [50] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Invalid height format");
-      expect(e.input).toBe("250×160=invalid×15[50]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+    expect(result.result).toBeUndefined();
+    const e = result.error!;
+    expect(e.message).toContain("Invalid height format");
+    expect(e.input).toBe("250×160=invalid×15[50]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for missing margins in width", () => {
+  it("should return ParsingError for missing margins in width", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × [50]";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Missing margins in width details");
-      expect(e.input).toBe("250×160=30[170]40×[50]"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+    expect(result.result).toBeUndefined();
+    const e = result.error!;
+    expect(e.message).toContain("Missing margins in width details");
+    expect(e.input).toBe("250×160=30[170]40×[50]"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for too many numbers in column", () => {
+  it("should return ParsingError for too many numbers in column", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × 15 [1/2/3/4] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Too many numbers in column");
-      expect(e.input).toBe("250×160=30[170]40×15[1/2/3/4]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.result).toBeUndefined();
+    expect(result.error).toBeInstanceOf(ParsingError);
+    const e = result.error!;
+    expect(e.message).toContain("Too many numbers in column");
+    expect(e.input).toBe("250×160=30[170]40×15[1/2/3/4]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for no width in column", () => {
+  it("should return ParsingError for no width in column", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × 15 [5*/10*] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("No width in column");
-      expect(e.input).toBe("250×160=30[170]40×15[5*/10*]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.result).toBeUndefined();
+    expect(result.error).toBeInstanceOf(ParsingError);
+    const e = result.error!;
+    expect(e.message).toContain("No width in column");
+    expect(e.input).toBe("250×160=30[170]40×15[5*/10*]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for ambiguous column values", () => {
+  it("should return ParsingError for ambiguous column values", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × 15 [50/50] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Ambiguous values for column");
-      expect(e.input).toBe("250×160=30[170]40×15[50/50]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+
+    const e = result.error!;
+    expect(e.message).toContain("Ambiguous values for column");
+    expect(e.input).toBe("250×160=30[170]40×15[50/50]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for empty column", () => {
+  it("should return ParsingError for empty column", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × 15 [] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Empty column");
-      expect(e.input).toBe("250×160=30[170]40×15[]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+    const e = result.error!;
+    expect(e.message).toContain("Empty column");
+    expect(e.input).toBe("250×160=30[170]40×15[]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
   it("should return null for empty formula building", () => {
@@ -1314,10 +1055,12 @@ describe("ITCodLayoutFormulaService", () => {
 
   it("should get areas from formula spans", () => {
     const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
-    const parsed = service.parseFormula(formula);
-    expect(parsed).toBeTruthy();
+    const result = service.parseFormula(formula);
+    expect(result.error).toBeUndefined();
+    expect(result.result).toBeTruthy();
+    const parsed = result.result!;
 
-    const areas = service.getAreas(parsed!.spans);
+    const areas = service.getAreas(parsed.spans);
     expect(areas).toBeTruthy();
     expect(areas.length).toBeGreaterThan(0);
 
@@ -1330,290 +1073,100 @@ describe("ITCodLayoutFormulaService", () => {
     });
   });
 
-  it("should filter areas by name", () => {
-    const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
-    const parsed = service.parseFormula(formula);
-    expect(parsed).toBeTruthy();
-
-    const areas = service.getAreas(parsed!.spans);
-
-    // test coordinate-based filtering (@y_x)
-    const specificArea = service.filterAreas("@1_1", areas);
-    expect(specificArea.length).toBeGreaterThanOrEqual(0);
-
-    // test row-based filtering (row_)
-    const rowAreas = service.filterAreas("mt_", areas);
-    expect(Array.isArray(rowAreas)).toBe(true);
-
-    // test column-based filtering (_col)
-    const colAreas = service.filterAreas("_col1", areas);
-    expect(Array.isArray(colAreas)).toBe(true);
-  });
-
-  describe("filterFormulaLabels", () => {
-    it("should return empty array for empty labels input", () => {
-      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const result = service.filterFormulaLabels(formula, []);
-      expect(result).toEqual([]);
-    });
-
-    it("should return empty array for null formula", () => {
-      const labels = ["margin-top", "area-height", "invalid"];
-      const result = service.filterFormulaLabels(null as any, labels);
-      expect(result).toEqual([]);
-    });
-
-    it("should filter static labels correctly", () => {
-      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const labels = [
-        "margin-top",
-        "head-e",
-        "area-height",
-        "foot-w",
-        "margin-bottom",
-        "margin-left",
-        "margin-right",
-        "invalid",
-        "unknown",
-      ];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual([
-        "margin-top",
-        "head-e",
-        "area-height",
-        "foot-w",
-        "margin-bottom",
-        "margin-left",
-        "margin-right",
-      ]);
-    });
-
-    it("should filter column-based labels correctly", () => {
-      const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
-      const labels = [
-        "col-1-width",
-        "col-1-left-w",
-        "col-1-right-w",
-        "col-1-gap",
-        "col-2-width",
-        "col-10-left-e",
-        "margin-top",
-        "invalid",
-        "col-width",
-      ];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual([
-        "col-1-width",
-        "col-1-left-w",
-        "col-1-right-w",
-        "col-1-gap",
-        "col-2-width",
-        "col-10-left-e",
-        "margin-top",
-      ]);
-    });
-
-    it("should handle all IT label types", () => {
-      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const labels = [
-        // Static labels
-        "margin-top",
-        "head-e",
-        "head-w",
-        "area-height",
-        "foot-w",
-        "foot-e",
-        "margin-bottom",
-        "margin-left",
-        "margin-right",
-        // Column labels
-        "col-1-gap",
-        "col-1-left-e",
-        "col-1-left-w",
-        "col-1-width",
-        "col-1-right-e",
-        "col-1-right-w",
-        "col-99-gap",
-        "col-2-width",
-        "col-10-left-e",
-        // Invalid labels
-        "invalid",
-        "col-",
-        "col-1-",
-        "col-1-invalid",
-        "col-x-width",
-        "random",
-      ];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual([
-        "margin-top",
-        "head-e",
-        "head-w",
-        "area-height",
-        "foot-w",
-        "foot-e",
-        "margin-bottom",
-        "margin-left",
-        "margin-right",
-        "col-1-gap",
-        "col-1-left-e",
-        "col-1-left-w",
-        "col-1-width",
-        "col-1-right-e",
-        "col-1-right-w",
-        "col-99-gap",
-        "col-2-width",
-        "col-10-left-e",
-      ]);
-    });
-
-    it("should filter using CodLayoutFormula object", () => {
-      const formula = service.parseFormula(
-        "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15"
-      );
-      const labels = [
-        "margin-top",
-        "head-e",
-        "area-height",
-        "col-1-width",
-        "invalid",
-      ];
-      const result = service.filterFormulaLabels(formula!, labels);
-      expect(result).toEqual([
-        "margin-top",
-        "head-e",
-        "area-height",
-        "col-1-width",
-      ]);
-    });
-
-    it("should return empty array when no labels match", () => {
-      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const labels = ["invalid", "unknown", "notfound", "col-invalid"];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual([]);
-    });
-
-    it("should handle edge cases in column labels", () => {
-      const formula = "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const labels = [
-        "col-0-width", // invalid: 0 is not a positive integer
-        "col-1-width", // valid
-        "col-123-gap", // valid
-        "col--width", // invalid: no number
-        "col-1a-width", // invalid: not just digits
-        "col-1-", // invalid: incomplete
-        "col-1-invalid", // invalid: not a recognized suffix
-        "margin-top", // valid static label
-      ];
-      const result = service.filterFormulaLabels(formula, labels);
-      expect(result).toEqual(["col-1-width", "col-123-gap", "margin-top"]);
-    });
-  });
-
-  it("should throw ParsingError for invalid height format", () => {
+  it("should return ParsingError for invalid height format", () => {
     const invalidFormula = "250 × 160 = invalid × 15 [50] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Invalid height format");
-      expect(e.input).toBe("250×160=invalid×15[50]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+
+    const e = result.error!;
+    expect(e.message).toContain("Invalid height format");
+    expect(e.input).toBe("250×160=invalid×15[50]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for missing margins in width", () => {
+  it("should return ParsingError for missing margins in width", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × [50]";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Missing margins in width details");
-      expect(e.input).toBe("250×160=30[170]40×[50]"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+
+    const e = result.error!;
+    expect(e.message).toContain("Missing margins in width details");
+    expect(e.input).toBe("250×160=30[170]40×[50]"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for too many numbers in column", () => {
+  it("should return ParsingError for too many numbers in column", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × 15 [1/2/3/4] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Too many numbers in column");
-      expect(e.input).toBe("250×160=30[170]40×15[1/2/3/4]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+
+    const e = result.error!;
+    expect(e.message).toContain("Too many numbers in column");
+    expect(e.input).toBe("250×160=30[170]40×15[1/2/3/4]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for no width in column", () => {
+  it("should return ParsingError for no width in column", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × 15 [5*/10*] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("No width in column");
-      expect(e.input).toBe("250×160=30[170]40×15[5*/10*]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+
+    const e = result.error!;
+    expect(e.message).toContain("No width in column");
+    expect(e.input).toBe("250×160=30[170]40×15[5*/10*]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for ambiguous column values", () => {
+  it("should return ParsingError for ambiguous column values", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × 15 [50/50] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Ambiguous values for column");
-      expect(e.input).toBe("250×160=30[170]40×15[50/50]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+
+    const e = result.error!;
+    expect(e.message).toContain("Ambiguous values for column");
+    expect(e.input).toBe("250×160=30[170]40×15[50/50]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
-  it("should throw ParsingError for empty column", () => {
+  it("should return ParsingError for empty column", () => {
     const invalidFormula = "250 × 160 = 30 [170] 40 × 15 [] 15";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Empty column");
-      expect(e.input).toBe("250×160=30[170]40×15[]15"); // normalized input
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+
+    const e = result.error!;
+    expect(e.message).toContain("Empty column");
+    expect(e.input).toBe("250×160=30[170]40×15[]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
+  });
+
+  it("should return ParsingError for empty column", () => {
+    const invalidFormula = "250 × 160 = 30 [170] 40 × 15 [] 15";
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+
+    const e = result.error!;
+    expect(e.message).toContain("Empty column");
+    expect(e.input).toBe("250×160=30[170]40×15[]15"); // normalized input
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
   it("should handle invalid formula", () => {
     const invalidFormula = "invalid formula";
-    try {
-      service.parseFormula(invalidFormula);
-      fail("Expected ParsingError to be thrown");
-    } catch (error) {
-      expect(error).toBeInstanceOf(ParsingError);
-      const e = error as ParsingError;
-      expect(e.message).toContain("Invalid formula");
-      expect(e.input).toBe("invalidformula"); // normalized input (spaces removed)
-      expect(e.index).toBeDefined();
-      expect(e.length).toBeDefined();
-    }
+    const result = service.parseFormula(invalidFormula);
+    expect(result.error).toBeInstanceOf(ParsingError);
+
+    const e = result.error!;
+    expect(e.message).toContain("Invalid formula");
+    expect(e.input).toBe("invalidformula"); // normalized input (spaces removed)
+    expect(e.index).toBeDefined();
+    expect(e.length).toBeDefined();
   });
 
   it("should return null for empty formula building", () => {
@@ -1640,14 +1193,14 @@ describe("ITCodLayoutFormulaService", () => {
 
     it("should return null for valid formula", () => {
       const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const parsed = service.parseFormula(formula)!;
+      const parsed = service.parseFormula(formula)!.result!;
       const result = service.validateFormulaSize(parsed);
       expect(result).toBeNull();
     });
 
     it("should detect height mismatch", () => {
       const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const parsed = service.parseFormula(formula);
+      const parsed = service.parseFormula(formula).result;
       // modify height to create mismatch
       parsed!.height.value = 300;
       const result = service.validateFormulaSize(parsed!);
@@ -1657,7 +1210,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     it("should detect width mismatch", () => {
       const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const parsed = service.parseFormula(formula)!;
+      const parsed = service.parseFormula(formula)!.result!;
       // modify width to create mismatch
       parsed.width.value = 200;
       const result = service.validateFormulaSize(parsed);
@@ -1667,7 +1220,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     it("should detect both height and width mismatch", () => {
       const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const parsed = service.parseFormula(formula)!;
+      const parsed = service.parseFormula(formula)!.result!;
       // modify both dimensions to create mismatches
       parsed.height.value = 300;
       parsed.width.value = 200;
@@ -1679,7 +1232,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     it("should handle formula with undefined span values", () => {
       const formula = "250 × 88 = 30 / 5 [170 / 5] 40 × 15 [3 / 50 / 5] 15";
-      const parsed = service.parseFormula(formula)!;
+      const parsed = service.parseFormula(formula)!.result!;
       parsed!.spans[0].value = 0;
       const result = service.validateFormulaSize(parsed);
       expect(result).toBeTruthy();
@@ -1689,7 +1242,7 @@ describe("ITCodLayoutFormulaService", () => {
     it("should validate complex two-column formula", () => {
       const formula =
         "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
-      const parsed = service.parseFormula(formula)!;
+      const parsed = service.parseFormula(formula)!.result!;
       const result = service.validateFormulaSize(parsed);
       expect(result).toBeNull();
     });
@@ -1697,7 +1250,7 @@ describe("ITCodLayoutFormulaService", () => {
     it("should detect mismatch in two-column formula", () => {
       const formula =
         "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
-      const parsed = service.parseFormula(formula)!;
+      const parsed = service.parseFormula(formula)!.result!;
       // modify width to create mismatch
       parsed.width.value = 150;
       const result = service.validateFormulaSize(parsed);
@@ -1707,7 +1260,7 @@ describe("ITCodLayoutFormulaService", () => {
 
     it("should validate formula without head/foot spans", () => {
       const formula = "200 × 160 = 30 [130] 40 × 15 [60 (10) 60] 15";
-      const parsed = service.parseFormula(formula)!;
+      const parsed = service.parseFormula(formula)!.result!;
       const result = service.validateFormulaSize(parsed);
       expect(result).toBeNull();
     });
@@ -1727,7 +1280,7 @@ describe("ITCodLayoutFormulaService", () => {
         "250 × 160 = 30 / 5 [170 / 5] 40 × 15 [5 / 50 / 5* (20) 5 / 40] 5 / 15";
 
       // parse the original formula
-      const parsed = service.parseFormula(originalFormula);
+      const parsed = service.parseFormula(originalFormula).result;
       expect(parsed).toBeTruthy();
 
       // update margin-top from 30 to 20 (simulating dimension edit)
